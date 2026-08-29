@@ -1,0 +1,10 @@
+{
+  "apps": [
+    {
+      "name": "SAVEAT",
+      "path": "ios-saveat",
+      "framework": "swift"
+    }
+  ],
+  "$schema": "https://rork.com/schema/rork.json"
+}
