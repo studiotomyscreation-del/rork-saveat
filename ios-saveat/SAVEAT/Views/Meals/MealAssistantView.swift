@@ -15,7 +15,7 @@ private struct Bubble: Identifiable, Equatable {
     var text: String
 }
 
-/// 🤖 QU'EST-CE QU'ON MANGE ? — the assistant cooks with the real stock.
+/// QU'EST-CE QU'ON MANGE ? — the assistant cooks with the real stock.
 struct MealAssistantView: View {
     @Environment(AppStore.self) private var store
     @Environment(SubscriptionStore.self) private var subscriptions
@@ -87,10 +87,7 @@ struct MealAssistantView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
-                ZStack {
-                    Circle().fill(Theme.sageMist).frame(width: 48, height: 48)
-                    Text("🤖").font(.system(size: 24))
-                }
+                BrandMark(size: 48)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Qu'est-ce qu'on mange ?")
                         .font(Theme.display(21))

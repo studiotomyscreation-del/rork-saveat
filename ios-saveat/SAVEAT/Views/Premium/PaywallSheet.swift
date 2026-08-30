@@ -391,7 +391,17 @@ struct NativePaywallView: View {
     }
 
     private var legal: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 10) {
+            HStack(spacing: 8) {
+                Link("Conditions d'utilisation", destination: SaveatInfo.termsURL)
+                Text("·")
+                Link("Politique de confidentialité", destination: SaveatInfo.privacyURL)
+            }
+            .font(.system(size: 12.5, weight: .semibold, design: .rounded))
+            .foregroundStyle(Theme.sageDeep)
+            .multilineTextAlignment(.center)
+            .frame(minHeight: 44)
+
             Text("Paiement via ton compte Apple. L'abonnement se renouvelle automatiquement sauf résiliation au moins 24 h avant la fin de la période. Tu peux gérer ou résilier à tout moment dans les réglages de l'App Store.")
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft.opacity(0.9))

@@ -20,6 +20,22 @@ struct FreshnessDot: View {
     }
 }
 
+/// Official SAVEAT app icon, used wherever the brand represents itself
+/// (assistant avatar, profile header, launch).
+///
+/// Draws the shipped app icon asset unmodified — never an emoji or a redrawn variant.
+struct BrandMark: View {
+    var size: CGFloat = 48
+
+    var body: some View {
+        Image("SaveatLogo")
+            .resizable()
+            .scaledToFit()
+            .frame(width: size, height: size)
+            .accessibilityLabel("SAVEAT")
+    }
+}
+
 /// Rounded emoji medallion used in every food row.
 struct FoodBadge: View {
     let emoji: String

@@ -21,6 +21,7 @@ struct ProfileView: View {
                 testStoreDiagnostics
                 savingsCard
                 menuSection
+                legalSection
                 promise
             }
             .padding(.horizontal, Theme.hMargin)
@@ -247,10 +248,7 @@ struct ProfileView: View {
 
     private var headerCard: some View {
         HStack(spacing: 16) {
-            ZStack {
-                Circle().fill(Theme.sageMist).frame(width: 62, height: 62)
-                Text(store.profile.goal.emoji).font(.system(size: 26))
-            }
+            BrandMark(size: 62)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text("Mon foyer")
@@ -344,6 +342,55 @@ struct ProfileView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
+            .contentShape(.rect)
+        }
+        .buttonStyle(SoftPressStyle())
+    }
+
+    /// Legal, support and version info required by App Store review.
+    /// Deliberately discreet: same row rhythm as the menu above, no extra branding.
+    private var legalSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionLabel(text: "Informations")
+
+            VStack(spacing: 0) {
+                legalRow(title: "Conditions d'utilisation", url: SaveatInfo.termsURL)
+                Divider().padding(.leading, 16)
+                legalRow(title: "Politique de confidentialité", url: SaveatInfo.privacyURL)
+                Divider().padding(.leading, 16)
+                legalRow(title: "Support", url: SaveatInfo.supportURL)
+                Divider().padding(.leading, 16)
+                HStack {
+                    Text("Version")
+                        .font(.system(size: 14.5, weight: .medium, design: .rounded))
+                        .foregroundStyle(Theme.ink)
+                    Spacer(minLength: 0)
+                    Text(SaveatInfo.versionText)
+                        .font(.system(size: 13.5, weight: .medium, design: .rounded).monospacedDigit())
+                        .foregroundStyle(Theme.inkSoft)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 13)
+            }
+            .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
+            .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
+        }
+    }
+
+    private func legalRow(title: String, url: URL) -> some View {
+        Link(destination: url) {
+            HStack {
+                Text(title)
+                    .font(.system(size: 14.5, weight: .medium, design: .rounded))
+                    .foregroundStyle(Theme.ink)
+                Spacer(minLength: 0)
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Theme.inkSoft.opacity(0.6))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 13)
+            .frame(minHeight: 44)
             .contentShape(.rect)
         }
         .buttonStyle(SoftPressStyle())

@@ -53,10 +53,7 @@ struct HomeView: View {
         } label: {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(spacing: 12) {
-                    ZStack {
-                        Circle().fill(.white.opacity(0.22)).frame(width: 52, height: 52)
-                        Text("🤖").font(.system(size: 25))
-                    }
+                    BrandMark(size: 52)
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Trouver mon repas")
                             .font(.system(size: 20, weight: .bold, design: .rounded))
