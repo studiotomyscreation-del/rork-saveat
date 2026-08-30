@@ -25,6 +25,10 @@ struct ContentView: View {
             if isLaunching { launchScreen }
         }
         .task {
+            // Reminders are re-planned from the stock restored at launch.
+            await NotificationService.shared.refreshAuthorization()
+            store.scheduleReminders()
+
             try? await Task.sleep(for: .milliseconds(600))
             withAnimation(.easeOut(duration: 0.35)) { isLaunching = false }
         }

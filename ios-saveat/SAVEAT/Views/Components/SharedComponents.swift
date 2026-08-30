@@ -426,6 +426,21 @@ struct MealCard: View {
                     }
                 }
 
+                if let highlight = meal.rescueHighlight {
+                    HStack(spacing: 6) {
+                        Image(systemName: "arrow.3.trianglepath").font(.system(size: 10))
+                        Text(highlight)
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .multilineTextAlignment(.leading)
+                        Spacer(minLength: 0)
+                    }
+                    .foregroundStyle(Theme.clay)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
+                    .background(Theme.clay.opacity(0.10), in: .rect(cornerRadius: 12))
+                }
+
                 if let note = meal.antiWasteNote, !note.isEmpty {
                     HStack(spacing: 6) {
                         Image(systemName: "leaf.fill").font(.system(size: 10))

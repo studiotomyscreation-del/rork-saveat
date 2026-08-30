@@ -14,14 +14,21 @@ final class AppStore {
         static let shopping = "saveat.shopping.v2"
         static let challenges = "saveat.challenges.v2"
         static let groceryRuns = "saveat.groceryRuns.v2"
+        static let waste = "saveat.waste.v1"
     }
 
     var profile: UserProfile {
-        didSet { persist(profile, key: Keys.profile) }
+        didSet {
+            persist(profile, key: Keys.profile)
+            if profile.reminderSettings != oldValue.reminderSettings { scheduleReminders() }
+        }
     }
 
     var inventory: [FoodItem] {
-        didSet { persist(inventory, key: Keys.inventory) }
+        didSet {
+            persist(inventory, key: Keys.inventory)
+            scheduleReminders()
+        }
     }
 
     var shoppingList: [ShoppingItem] {
@@ -40,6 +47,11 @@ final class AppStore {
     /// Completed grocery scanning sessions.
     private(set) var groceryRuns: [GroceryRun] {
         didSet { persist(groceryRuns, key: Keys.groceryRuns) }
+    }
+
+    /// Products that left the stock, either saved in time or thrown away.
+    private(set) var wasteLog: [WasteEvent] {
+        didSet { persist(wasteLog, key: Keys.waste) }
     }
 
     /// Toast-style confirmation shown after an action.
@@ -64,6 +76,12 @@ final class AppStore {
         challenges = load(Keys.challenges, fallback: MockData.challenges)
         cookedLog = load(Keys.cooked, fallback: CookedMeal.seed)
         groceryRuns = load(Keys.groceryRuns, fallback: [])
+        wasteLog = load(Keys.waste, fallback: [])
+    }
+
+    /// Re-plans every anti-waste reminder from the current stock and preferences.
+    func scheduleReminders() {
+        NotificationService.shared.refresh(inventory: inventory, settings: profile.reminderSettings)
     }
 
     private func persist<T: Encodable>(_ value: T, key: String) {
@@ -90,23 +108,39 @@ final class AppStore {
 
     var totalProducts: Int { inventory.count }
 
-    var urgentItems: [FoodItem] {
-        inventory.filter { $0.freshness == .urgent }
+    /// 🟠 Products that must be eaten quickly.
+    var rescueItems: [FoodItem] {
+        inventory.filter { $0.quantity > 0 && $0.status == .rescue }
     }
 
-    var soonItems: [FoodItem] {
-        inventory.filter { $0.freshness == .soon }
+    /// 🟡 Products whose date is approaching.
+    var planItems: [FoodItem] {
+        inventory.filter { $0.quantity > 0 && $0.status == .plan }
     }
 
-    /// Items worth cooking first: urgent, then soon, then opened packs.
+    /// 🔴 Products whose date is reached or passed.
+    var reachedItems: [FoodItem] {
+        inventory
+            .filter { $0.quantity > 0 && $0.status == .reached }
+            .sorted { ($0.daysLeft ?? 0) < ($1.daysLeft ?? 0) }
+    }
+
+    var urgentItems: [FoodItem] { rescueItems }
+
+    var soonItems: [FoodItem] { planItems }
+
+    /// The "À sauver" queue: 🟠 first, then 🟡, soonest date first.
+    ///
+    /// Products whose date is already reached live in `reachedItems` instead, so
+    /// they are never presented as something to cook right away.
     var rescueQueue: [FoodItem] {
         inventory
-            .filter { $0.freshness != .fresh || $0.isOpened }
+            .filter { $0.quantity > 0 && ($0.status == .rescue || $0.status == .plan) }
             .sorted { lhs, rhs in
-                if lhs.freshness.order != rhs.freshness.order {
-                    return lhs.freshness.order < rhs.freshness.order
+                if lhs.status.order != rhs.status.order {
+                    return lhs.status.order < rhs.status.order
                 }
-                return lhs.estimatedValue > rhs.estimatedValue
+                return (lhs.daysLeft ?? 9_999) < (rhs.daysLeft ?? 9_999)
             }
     }
 
@@ -172,6 +206,89 @@ final class AppStore {
         inventory[index].bestBefore = date
     }
 
+    // MARK: - Saved / thrown away
+
+    /// Marks a product as consumed before it was lost.
+    ///
+    /// Removes the used quantity, drops the item once it reaches zero and records
+    /// the save. Future reminders are re-planned automatically by `inventory`.
+    func markSaved(_ item: FoodItem, quantity: Double? = nil) {
+        guard let index = inventory.firstIndex(where: { $0.id == item.id }) else { return }
+
+        let used = quantity ?? inventory[index].quantity
+        let remaining = max(inventory[index].quantity - used, 0)
+
+        if remaining <= 0.001 {
+            inventory.remove(at: index)
+        } else {
+            inventory[index].quantity = (remaining * 100).rounded() / 100
+            inventory[index].isOpened = true
+        }
+
+        wasteLog.append(WasteEvent(itemName: item.name, emoji: item.emoji, outcome: .saved))
+        bumpChallenge(matching: "Sauver 5 produits", by: 1)
+
+        banner = BannerMessage(text: "\(item.name) sauvé 💚", tone: .success)
+    }
+
+    /// Records a product that had to be thrown away.
+    ///
+    /// Never counted as a save, and never framed as a failure to the user.
+    func markDiscarded(_ item: FoodItem) {
+        inventory.removeAll { $0.id == item.id }
+        wasteLog.append(WasteEvent(itemName: item.name, emoji: item.emoji, outcome: .discarded))
+        banner = BannerMessage(text: "\(item.name) retiré de ton stock", tone: .info)
+    }
+
+    private func wasteEvents(_ outcome: WasteOutcome, since date: Date) -> Int {
+        wasteLog.filter { $0.outcome == outcome && $0.date >= date }.count
+    }
+
+    /// Products saved since the start of the current week.
+    var savedThisWeek: Int {
+        let calendar = Calendar.current
+        let start = calendar.dateInterval(of: .weekOfYear, for: .now)?.start
+            ?? calendar.date(byAdding: .day, value: -7, to: .now) ?? .now
+        return wasteEvents(.saved, since: start)
+    }
+
+    /// Products saved since the start of the current month.
+    var savedThisMonth: Int {
+        let calendar = Calendar.current
+        let start = calendar.dateInterval(of: .month, for: .now)?.start
+            ?? calendar.date(byAdding: .day, value: -30, to: .now) ?? .now
+        return wasteEvents(.saved, since: start)
+    }
+
+    var savedAllTime: Int {
+        wasteLog.filter { $0.outcome == .saved }.count
+    }
+
+    /// Weekly saving goal, scaled to the household size.
+    var weeklySaveGoal: Int { max(profile.householdSize * 3, 5) }
+
+    /// Consecutive days without throwing anything away, capped by the account age.
+    var zeroWasteStreakDays: Int {
+        let calendar = Calendar.current
+        let discardDays = Set(
+            wasteLog
+                .filter { $0.outcome == .discarded }
+                .map { calendar.startOfDay(for: $0.date) }
+        )
+
+        var streak = 0
+        var day = calendar.startOfDay(for: .now)
+        while streak < 365, !discardDays.contains(day) {
+            streak += 1
+            guard let previous = calendar.date(byAdding: .day, value: -1, to: day) else { break }
+            day = previous
+        }
+
+        let joined = calendar.startOfDay(for: profile.joinedAt)
+        let age = (calendar.dateComponents([.day], from: joined, to: calendar.startOfDay(for: .now)).day ?? 0) + 1
+        return min(streak, max(age, 1))
+    }
+
     // MARK: - Grocery runs
 
     /// Stores a finished shopping trip and pushes every product into the stock.
@@ -200,16 +317,18 @@ final class AppStore {
     func cook(_ meal: Meal, deductions: [StockDeduction]) {
         var rescuedValue: Double = 0
         var rescuedCount = 0
+        var rescued: [WasteEvent] = []
 
         for deduction in deductions where deduction.used > 0 {
             guard let index = inventory.firstIndex(where: { $0.id == deduction.itemID }) else { continue }
             let item = inventory[index]
             let remaining = max(item.quantity - deduction.used, 0)
 
-            if item.freshness != .fresh || item.isOpened {
+            if item.status == .rescue || item.status == .plan || item.isOpened {
                 rescuedCount += 1
                 let share = item.quantity > 0 ? min(deduction.used / item.quantity, 1) : 1
                 rescuedValue += item.estimatedValue * share
+                rescued.append(WasteEvent(itemName: item.name, emoji: item.emoji, outcome: .saved))
             }
 
             if remaining <= 0.001 {
@@ -219,6 +338,8 @@ final class AppStore {
                 inventory[index].isOpened = true
             }
         }
+
+        wasteLog.append(contentsOf: rescued)
 
         let saved = max(rescuedValue - meal.extraCost, 0)
         cookedLog.append(CookedMeal(

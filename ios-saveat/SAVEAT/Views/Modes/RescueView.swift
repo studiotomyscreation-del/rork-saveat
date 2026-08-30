@@ -1,10 +1,17 @@
 import SwiftUI
 
 /// ♻️ À SAUVER — the products to use first and the meals built around them.
+///
+/// Order follows the priority levels: 🟠 first, then 🟡. Products whose date is
+/// reached get their own section with a cautious notice instead of a recipe.
 struct RescueView: View {
     @Environment(AppStore.self) private var store
 
+    @State private var discardCandidate: FoodItem?
+
     private var queue: [FoodItem] { store.rescueQueue }
+    private var reached: [FoodItem] { store.reachedItems }
+
     private var meals: [Meal] {
         Array(store.suggestions(focusItems: Array(queue.prefix(6))).prefix(5))
     }
@@ -12,7 +19,7 @@ struct RescueView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                if queue.isEmpty {
+                if queue.isEmpty && reached.isEmpty {
                     SoftEmptyState(
                         emoji: "🌿",
                         title: "Rien à sauver aujourd'hui",
@@ -20,9 +27,12 @@ struct RescueView: View {
                     )
                     .saveatCard()
                 } else {
-                    alertCard
-                    rescueList
-                    if !meals.isEmpty { mealsSection }
+                    if !queue.isEmpty {
+                        alertCard
+                        rescueList
+                    }
+                    if !reached.isEmpty { reachedSection }
+                    if !queue.isEmpty, !meals.isEmpty { mealsSection }
                 }
 
                 disclaimer
@@ -36,19 +46,35 @@ struct RescueView: View {
         .navigationTitle("À sauver")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .confirmationDialog(
+            "Jeter ce produit ?",
+            isPresented: Binding(
+                get: { discardCandidate != nil },
+                set: { if !$0 { discardCandidate = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Jeté", role: .destructive) {
+                if let item = discardCandidate { store.markDiscarded(item) }
+                discardCandidate = nil
+            }
+            Button("Annuler", role: .cancel) { discardCandidate = nil }
+        } message: {
+            Text("Il sera retiré de ton stock et ne comptera pas comme produit sauvé.")
+        }
     }
 
     private var alertCard: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
-                Text("🔴").font(.system(size: 15))
-                Text("\(store.urgentItems.count) produits à sauver")
+                Text("🟠").font(.system(size: 15))
+                Text("\(queue.count) produit\(queue.count > 1 ? "s" : "") à sauver")
                     .font(.system(size: 19, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.ink)
                 Spacer()
             }
 
-            Text("Je peux préparer ton dîner avec ces aliments avant qu'ils ne soient gaspillés.")
+            Text("Je peux préparer ton repas avec ces aliments avant qu'ils ne soient gaspillés.")
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
@@ -72,18 +98,64 @@ struct RescueView: View {
     private var rescueList: some View {
         VStack(alignment: .leading, spacing: 10) {
             SectionLabel(text: "Dans l'ordre de priorité")
-            VStack(spacing: 0) {
-                ForEach(Array(queue.prefix(8).enumerated()), id: \.element.id) { index, item in
-                    NavigationLink(value: Route.food(item)) {
-                        FoodRow(item: item)
-                    }
-                    .buttonStyle(SoftPressStyle())
 
-                    if index < min(queue.count, 8) - 1 { Divider().padding(.leading, 74) }
+            VStack(spacing: 12) {
+                ForEach(queue.prefix(8)) { item in
+                    VStack(spacing: 0) {
+                        NavigationLink(value: Route.food(item)) {
+                            RescueRow(item: item)
+                        }
+                        .buttonStyle(SoftPressStyle())
+
+                        Divider().padding(.horizontal, 16)
+
+                        SaveOrDiscardButtons(
+                            onSaved: { store.markSaved(item) },
+                            onDiscarded: { discardCandidate = item }
+                        )
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
+                    }
+                    .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
+                    .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
                 }
             }
-            .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
-            .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
+        }
+    }
+
+    /// Products whose date is reached: informed, never encouraged.
+    private var reachedSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 7) {
+                Text("🔴").font(.system(size: 11))
+                SectionLabel(text: "Date atteinte ou dépassée", color: Theme.alert)
+            }
+
+            VStack(spacing: 12) {
+                ForEach(reached.prefix(6)) { item in
+                    VStack(spacing: 0) {
+                        NavigationLink(value: Route.food(item)) {
+                            RescueRow(item: item)
+                        }
+                        .buttonStyle(SoftPressStyle())
+
+                        SafetyNotice(kind: item.dateType)
+                            .padding(.horizontal, 14)
+                            .padding(.bottom, 12)
+
+                        Divider().padding(.horizontal, 16)
+
+                        SaveOrDiscardButtons(
+                            onSaved: { store.markSaved(item) },
+                            onDiscarded: { discardCandidate = item }
+                        )
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
+                    }
+                    .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
+                    .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
+                }
+            }
         }
     }
 

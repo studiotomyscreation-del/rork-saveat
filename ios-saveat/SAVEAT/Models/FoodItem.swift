@@ -109,6 +109,10 @@ nonisolated struct FoodItem: Identifiable, Codable, Hashable, Sendable {
     var location: StorageLocation
     /// Best-before date entered by the user or read from the packaging. Nil means "no date known".
     var bestBefore: Date?
+    /// Kind of date printed on the pack (DLC / DDM), as told by the user.
+    /// Optional so items persisted before this feature keep decoding — read it
+    /// through `dateType`, never directly.
+    var dateKind: DateKind?
     var isOpened: Bool = false
     /// Rough retail value in euros, used for savings estimates (always presented as an estimate).
     var estimatedValue: Double = 1.5
@@ -128,11 +132,33 @@ nonisolated struct FoodItem: Identifiable, Codable, Hashable, Sendable {
         return Calendar.current.dateComponents([.day], from: start, to: end).day
     }
 
+    /// Kind of date, defaulting to "not specified" for older stock items.
+    nonisolated var dateType: DateKind { dateKind ?? .unknown }
+
+    /// Priority level derived from the date. Evolves on its own as days pass.
+    nonisolated var status: ConsumptionStatus { ExpiryRules.status(daysLeft: daysLeft) }
+
+    /// True once the date is reached or passed.
+    nonisolated var isPastDate: Bool { status == .reached }
+
+    /// A passed "à consommer jusqu'au" date: SAVEAT stops suggesting this product
+    /// in meals rather than encouraging its consumption.
+    nonisolated var isBlockedForMeals: Bool {
+        dateType == .dlc && status == .reached
+    }
+
+    /// Cautious wording shown when the date is reached, or nil before that.
+    nonisolated var safetyNotice: String? {
+        status == .reached ? dateType.passedNotice : nil
+    }
+
+    /// Legacy freshness bucket, now derived from `status` so the two can never diverge.
     nonisolated var freshness: FreshnessState {
-        guard let days = daysLeft else { return .fresh }
-        if days <= 1 { return .urgent }
-        if days <= 4 { return .soon }
-        return .fresh
+        switch status {
+        case .keep: .fresh
+        case .plan: .soon
+        case .rescue, .reached: .urgent
+        }
     }
 
     /// "2", "½", "1,5" — never "2.0".
@@ -161,7 +187,12 @@ nonisolated struct FoodItem: Identifiable, Codable, Hashable, Sendable {
     }
 
     /// Builds a stock line from a scanned grocery product.
-    nonisolated static func from(product: ScannedProduct, quantity: Double = 1, bestBefore: Date? = nil) -> FoodItem {
+    nonisolated static func from(
+        product: ScannedProduct,
+        quantity: Double = 1,
+        bestBefore: Date? = nil,
+        dateKind: DateKind = .unknown
+    ) -> FoodItem {
         FoodItem(
             name: product.displayTitle,
             emoji: product.emoji,
@@ -170,6 +201,7 @@ nonisolated struct FoodItem: Identifiable, Codable, Hashable, Sendable {
             category: product.suggestedCategory,
             location: product.suggestedLocation,
             bestBefore: bestBefore,
+            dateKind: dateKind,
             estimatedValue: product.estimatedPrice,
             barcode: product.barcode,
             brand: product.brand,

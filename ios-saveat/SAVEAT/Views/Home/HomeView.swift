@@ -15,9 +15,12 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 16) {
                 greeting
                 aiHero
+                rescueSection
                 bigActions
                 stockCard
                 weekCard
+                WhyScanCard()
+                SaveatLocalCard()
                 promise
             }
             .padding(.horizontal, Theme.hMargin)
@@ -92,6 +95,109 @@ struct HomeView: View {
         .buttonStyle(SoftPressStyle())
     }
 
+    // MARK: À sauver
+
+    /// The heart of the loop: what has to be eaten first, and a way to cook it.
+    /// 🟠 comes first, then 🟡. Reached dates get their own cautious row.
+    @ViewBuilder
+    private var rescueSection: some View {
+        let queue = store.rescueQueue
+        let reached = store.reachedItems
+
+        if !queue.isEmpty || !reached.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    SectionLabel(text: "À sauver")
+                    Spacer(minLength: 0)
+                    if !queue.isEmpty {
+                        Text("\(queue.count)")
+                            .font(.system(size: 12.5, weight: .bold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(Theme.clay)
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 4)
+                            .background(Theme.clay.opacity(0.14), in: .capsule)
+                    }
+                }
+
+                if !queue.isEmpty {
+                    Text("\(queue.count) produit\(queue.count > 1 ? "s" : "") à sauver")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundStyle(Theme.ink)
+                }
+
+                VStack(spacing: 0) {
+                    ForEach(Array(queue.prefix(4).enumerated()), id: \.element.id) { index, item in
+                        Button {
+                            Haptics.light()
+                            path.append(Route.food(item))
+                        } label: {
+                            RescueRow(item: item)
+                        }
+                        .buttonStyle(SoftPressStyle())
+
+                        if index < min(queue.count, 4) - 1 { Divider().padding(.leading, 76) }
+                    }
+
+                    if !reached.isEmpty {
+                        if !queue.isEmpty { Divider().padding(.leading, 76) }
+                        Button {
+                            Haptics.light()
+                            path.append(Route.rescue)
+                        } label: {
+                            HStack(spacing: 10) {
+                                Text("🔴").font(.system(size: 14))
+                                Text("\(reached.count) produit\(reached.count > 1 ? "s" : "") à la date atteinte")
+                                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                    .foregroundStyle(Theme.ink)
+                                Spacer(minLength: 0)
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(Theme.inkSoft.opacity(0.6))
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 13)
+                            .contentShape(.rect)
+                        }
+                        .buttonStyle(SoftPressStyle())
+                    }
+                }
+                .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
+                .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
+
+                if !queue.isEmpty {
+                    Button {
+                        Haptics.soft()
+                        onAskAI(MealPrompt(
+                            text: "Propose un repas qui utilise en priorité mes produits à sauver.",
+                            zeroEuroOnly: false
+                        ))
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "sparkles")
+                            Text("Trouver un repas avec mes produits à sauver")
+                                .fixedSize(horizontal: false, vertical: true)
+                                .multilineTextAlignment(.leading)
+                            Spacer(minLength: 0)
+                        }
+                        .font(.system(size: 14.5, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 14)
+                        .frame(maxWidth: .infinity, minHeight: 48)
+                        .background(Theme.clay, in: .capsule)
+                    }
+                    .buttonStyle(SoftPressStyle())
+                }
+            }
+            .padding(16)
+            .background(Theme.clay.opacity(0.07), in: .rect(cornerRadius: Theme.cardRadius))
+            .overlay {
+                RoundedRectangle(cornerRadius: Theme.cardRadius)
+                    .stroke(Theme.clay.opacity(0.28), lineWidth: 1.1)
+            }
+        }
+    }
+
     // MARK: Large actions
 
     private var bigActions: some View {
@@ -115,7 +221,7 @@ struct HomeView: View {
                 title: "À sauver",
                 subtitle: rescueSubtitle,
                 tint: Theme.clay,
-                isAlert: !store.urgentItems.isEmpty
+                isAlert: !store.rescueItems.isEmpty
             ) { path.append(Route.rescue) }
 
             actionRow(
@@ -128,12 +234,12 @@ struct HomeView: View {
     }
 
     private var rescueSubtitle: String {
-        let count = store.urgentItems.count
+        let count = store.rescueItems.count
         if count == 0 {
-            let soon = store.soonItems.count
-            return soon == 0 ? "Rien d'urgent, tout va bien" : "\(soon) produits à consommer bientôt"
+            let soon = store.planItems.count
+            return soon == 0 ? "Rien d'urgent, tout va bien" : "\(soon) produit\(soon > 1 ? "s" : "") à prévoir"
         }
-        return "\(count) produit\(count > 1 ? "s" : "") à utiliser rapidement"
+        return "\(count) produit\(count > 1 ? "s" : "") à consommer rapidement"
     }
 
     private func actionRow(

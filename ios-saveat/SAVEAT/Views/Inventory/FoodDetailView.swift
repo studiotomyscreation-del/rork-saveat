@@ -10,13 +10,16 @@ struct FoodDetailView: View {
     @State private var draft: FoodItem
     @State private var hasDate: Bool
     @State private var date: Date
+    @State private var dateKind: DateKind
     @State private var showsDeleteConfirm = false
+    @State private var showsDiscardConfirm = false
 
     init(item: FoodItem) {
         self.item = item
         _draft = State(initialValue: item)
         _hasDate = State(initialValue: item.bestBefore != nil)
         _date = State(initialValue: item.bestBefore ?? Calendar.current.date(byAdding: .day, value: 4, to: .now) ?? .now)
+        _dateKind = State(initialValue: item.dateType)
     }
 
     private var live: FoodItem {
@@ -31,6 +34,11 @@ struct FoodDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 headerCard
+                if let notice = live.safetyNotice {
+                    SafetyNotice(kind: live.dateType)
+                        .accessibilityLabel(notice)
+                }
+                if live.status != .keep { saveActionsCard }
                 if let product = draft.product { productCard(product) }
                 quantityCard
                 dateCard
@@ -53,6 +61,46 @@ struct FoodDetailView: View {
             }
             Button("Annuler", role: .cancel) {}
         }
+        .confirmationDialog("Jeter ce produit ?", isPresented: $showsDiscardConfirm, titleVisibility: .visible) {
+            Button("Jeté", role: .destructive) {
+                store.markDiscarded(live)
+                dismiss()
+            }
+            Button("Annuler", role: .cancel) {}
+        } message: {
+            Text("Il sera retiré de ton stock et ne comptera pas comme produit sauvé.")
+        }
+    }
+
+    // MARK: Saved / thrown away
+
+    /// Offered as soon as a product is at risk, so the stock stays truthful.
+    private var saveActionsCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                StatusPill(status: live.status)
+                Spacer(minLength: 0)
+            }
+
+            Text(live.status.detail)
+                .font(.system(size: 13.5, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+
+            SaveOrDiscardButtons(
+                onSaved: {
+                    store.markSaved(live)
+                    dismiss()
+                },
+                onDiscarded: { showsDiscardConfirm = true }
+            )
+
+            Text("« Sauvé » met ton stock à jour et arrête les rappels de ce produit.")
+                .font(.system(size: 11.5, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .saveatCard()
     }
 
     // MARK: Header
@@ -75,10 +123,11 @@ struct FoodDetailView: View {
                     SoftPill(text: "\(draft.location.emoji) \(draft.location.title)")
                     SoftPill(
                         text: live.deadlineText,
-                        tint: FreshnessDot.color(for: live.freshness),
-                        background: FreshnessDot.color(for: live.freshness).opacity(0.14)
+                        tint: StatusTint.color(for: live.status),
+                        background: StatusTint.color(for: live.status).opacity(0.14)
                     )
                 }
+                StatusPill(status: live.status)
             }
             Spacer(minLength: 0)
         }
@@ -147,6 +196,7 @@ struct FoodDetailView: View {
         .onChange(of: draft) { _, newValue in
             var updated = newValue
             updated.bestBefore = hasDate ? date : nil
+            updated.dateKind = dateKind
             store.update(updated)
         }
     }
@@ -155,8 +205,10 @@ struct FoodDetailView: View {
 
     private var dateCard: some View {
         VStack(alignment: .leading, spacing: 12) {
+            SectionLabel(text: "Date de consommation")
+
             Toggle(isOn: $hasDate) {
-                Text("Date à consommer de préférence")
+                Text(hasDate ? "Date renseignée" : "Sans date")
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.ink)
             }
@@ -167,6 +219,13 @@ struct FoodDetailView: View {
                     .datePickerStyle(.compact)
                     .labelsHidden()
                     .environment(\.locale, Locale(identifier: "fr_FR"))
+
+                Divider()
+
+                Text("Type de date")
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Theme.ink)
+                DateKindPicker(kind: $dateKind)
             }
 
             HStack(alignment: .top, spacing: 8) {
@@ -181,11 +240,13 @@ struct FoodDetailView: View {
         .saveatCard()
         .onChange(of: hasDate) { _, _ in save() }
         .onChange(of: date) { _, _ in save() }
+        .onChange(of: dateKind) { _, _ in save() }
     }
 
     private func save() {
         var updated = draft
         updated.bestBefore = hasDate ? date : nil
+        updated.dateKind = dateKind
         draft = updated
         store.update(updated)
     }

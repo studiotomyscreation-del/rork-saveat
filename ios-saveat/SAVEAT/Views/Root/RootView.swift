@@ -95,6 +95,21 @@ struct RootView: View {
             GroceryScanView()
         }
         .overlay(alignment: .top) { bannerOverlay }
+        .onChange(of: NotificationService.shared.rescueRequest) { _, request in
+            guard request != nil else { return }
+            openRescue()
+            NotificationService.shared.clearRescueRequest()
+        }
+    }
+
+    /// Opens "À sauver" from a reminder, wherever the user currently is.
+    private func openRescue() {
+        isScannerPresented = false
+        homePath = NavigationPath()
+        homePath.append(Route.rescue)
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+            selection = .home
+        }
     }
 
     private func openScanner() {

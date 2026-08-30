@@ -6,12 +6,19 @@ struct ScanEntry: Identifiable, Hashable {
     var product: ScannedProduct
     var quantity: Double = 1
     var bestBefore: Date?
+    /// DLC / DDM, always chosen by the user — never guessed from the barcode.
+    var dateKind: DateKind = .unknown
     var location: StorageLocation
 
     var estimatedValue: Double { product.estimatedPrice * quantity }
 
     func toFoodItem() -> FoodItem {
-        var item = FoodItem.from(product: product, quantity: quantity, bestBefore: bestBefore)
+        var item = FoodItem.from(
+            product: product,
+            quantity: quantity,
+            bestBefore: bestBefore,
+            dateKind: dateKind
+        )
         item.location = location
         return item
     }
@@ -470,6 +477,11 @@ struct GroceryScanView: View {
             onConfirm: {
                 store.finishGroceryRun(entries.map { $0.toFoodItem() })
                 Haptics.success()
+                // Natural moment to ask: the user has just entered real dates.
+                let settings = store.profile.reminderSettings
+                Task {
+                    await NotificationService.shared.requestAuthorizationIfUndetermined(settings: settings)
+                }
                 dismiss()
             },
             onCancel: { dismiss() }

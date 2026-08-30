@@ -79,6 +79,15 @@ nonisolated struct UserProfile: Codable, Sendable {
     var weeklyBudget: Double = 80
     var hasCompletedOnboarding: Bool = false
     var joinedAt: Date = .now
+    /// Anti-waste reminders. Optional so profiles saved before this feature keep
+    /// decoding — read and write it through `reminderSettings`.
+    var reminders: ReminderSettings?
+
+    /// Reminder preferences, falling back to the default set-up.
+    nonisolated var reminderSettings: ReminderSettings {
+        get { reminders ?? ReminderSettings() }
+        set { reminders = newValue }
+    }
 
     nonisolated var householdSize: Int { max(adults + children, 1) }
 

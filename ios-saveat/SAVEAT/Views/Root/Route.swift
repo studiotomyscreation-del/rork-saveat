@@ -12,6 +12,7 @@ nonisolated enum Route: Hashable, Sendable {
     case challenges
     case impact
     case settings
+    case reminders
 }
 
 /// Shared destination table so every tab resolves routes identically.
@@ -39,6 +40,8 @@ struct RouteDestinations: ViewModifier {
                 ImpactView()
             case .settings:
                 SettingsView()
+            case .reminders:
+                RemindersView()
             }
         }
     }

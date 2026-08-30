@@ -34,12 +34,15 @@ nonisolated enum MealEngine {
     }
 
     /// Finds the stock item that satisfies an ingredient, if any.
+    ///
+    /// Products with a passed "à consommer jusqu'au" date are deliberately
+    /// invisible here: SAVEAT never builds a meal around them.
     nonisolated static func stockItem(for ingredientName: String, in inventory: [FoodItem]) -> FoodItem? {
         let wanted = tokens(ingredientName)
         guard !wanted.isEmpty else { return nil }
 
         return inventory
-            .filter { $0.quantity > 0 }
+            .filter { $0.quantity > 0 && !$0.isBlockedForMeals }
             .first { item in
                 let have = tokens(item.name) + item.matchKeys.map(normalize)
                 return wanted.contains { w in
@@ -53,6 +56,8 @@ nonisolated enum MealEngine {
         var resolved = meal
         var rescued: [UUID] = []
         var urgency: FreshnessState = .fresh
+        var rescueCount = 0
+        var planCount = 0
 
         resolved.ingredients = meal.ingredients.map { ingredient in
             var line = ingredient
@@ -67,7 +72,14 @@ nonisolated enum MealEngine {
                 line.inStock = true
                 line.matchedItemID = item.id
                 line.category = item.category
-                if !rescued.contains(item.id) { rescued.append(item.id) }
+                if !rescued.contains(item.id) {
+                    rescued.append(item.id)
+                    switch item.status {
+                    case .rescue: rescueCount += 1
+                    case .plan: planCount += 1
+                    case .keep, .reached: break
+                    }
+                }
                 if item.freshness.order < urgency.order { urgency = item.freshness }
             } else {
                 line.inStock = false
@@ -79,6 +91,8 @@ nonisolated enum MealEngine {
 
         resolved.rescuedItemIDs = rescued
         resolved.topUrgency = urgency
+        resolved.rescueCount = rescueCount
+        resolved.planCount = planCount
         return resolved
     }
 

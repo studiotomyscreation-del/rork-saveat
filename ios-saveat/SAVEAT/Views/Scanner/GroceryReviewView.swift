@@ -147,11 +147,18 @@ struct GroceryReviewView: View {
                             Spacer(minLength: 4)
 
                             if let date = entry.bestBefore {
-                                Text(Self.dateText(date))
-                                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                                    .foregroundStyle(Theme.sageDeep)
-                                    .padding(.horizontal, 10).padding(.vertical, 6)
-                                    .background(Theme.sageMist, in: .capsule)
+                                VStack(alignment: .trailing, spacing: 3) {
+                                    Text(Self.dateText(date))
+                                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                        .foregroundStyle(Theme.sageDeep)
+                                        .padding(.horizontal, 10).padding(.vertical, 6)
+                                        .background(Theme.sageMist, in: .capsule)
+                                    if entry.dateKind != .unknown {
+                                        Text(entry.dateKind.badge)
+                                            .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                            .foregroundStyle(Theme.inkSoft)
+                                    }
+                                }
                             } else {
                                 Text("Ajouter la date")
                                     .font(.system(size: 12, weight: .semibold, design: .rounded))
@@ -209,6 +216,7 @@ struct ScanEntryEditor: View {
     @State private var draft: ScanEntry
     @State private var hasDate: Bool
     @State private var date: Date
+    @State private var dateKind: DateKind
     @State private var showsDateCapture = false
 
     init(entry: ScanEntry, onSave: @escaping (ScanEntry) -> Void) {
@@ -217,6 +225,7 @@ struct ScanEntryEditor: View {
         _draft = State(initialValue: entry)
         _hasDate = State(initialValue: entry.bestBefore != nil)
         _date = State(initialValue: entry.bestBefore ?? Calendar.current.date(byAdding: .day, value: 7, to: .now) ?? .now)
+        _dateKind = State(initialValue: entry.dateKind)
     }
 
     var body: some View {
@@ -279,7 +288,7 @@ struct ScanEntryEditor: View {
                     .saveatCard()
 
                     VStack(alignment: .leading, spacing: 12) {
-                        SectionLabel(text: "Date à consommer de préférence")
+                        SectionLabel(text: "Date de consommation")
 
                         Toggle(isOn: $hasDate) {
                             Text(hasDate ? "Date renseignée" : "Sans date")
@@ -293,6 +302,13 @@ struct ScanEntryEditor: View {
                                 .datePickerStyle(.compact)
                                 .labelsHidden()
                                 .environment(\.locale, Locale(identifier: "fr_FR"))
+
+                            Divider()
+
+                            Text("Type de date")
+                                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                .foregroundStyle(Theme.ink)
+                            DateKindPicker(kind: $dateKind)
                         }
 
                         Button {
@@ -311,7 +327,7 @@ struct ScanEntryEditor: View {
                         }
                         .buttonStyle(SoftPressStyle())
 
-                        Text("La date est lue sur l'emballage puis confirmée par toi. SAVEAT ne juge jamais la fraîcheur à partir d'une photo.")
+                        Text("La date est lue sur l'emballage puis confirmée par toi. SAVEAT ne juge jamais la fraîcheur à partir d'une photo et n'invente jamais de date.")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.inkSoft)
                             .fixedSize(horizontal: false, vertical: true)
@@ -336,6 +352,7 @@ struct ScanEntryEditor: View {
                     Button("Enregistrer") {
                         var updated = draft
                         updated.bestBefore = hasDate ? date : nil
+                        updated.dateKind = hasDate ? dateKind : .unknown
                         onSave(updated)
                         Haptics.success()
                         dismiss()

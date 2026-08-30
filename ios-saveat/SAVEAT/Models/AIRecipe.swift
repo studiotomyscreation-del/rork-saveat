@@ -49,6 +49,10 @@ nonisolated struct Meal: Identifiable, Codable, Hashable, Sendable {
     var rescuedItemIDs: [UUID] = []
     /// Freshness of the most urgent item used, filled by `MealEngine.resolve`.
     var topUrgency: FreshnessState = .fresh
+    /// 🟠 products this meal would use up, filled by `MealEngine.resolve`.
+    var rescueCount: Int = 0
+    /// 🟡 products this meal would use up, filled by `MealEngine.resolve`.
+    var planCount: Int = 0
 
     // MARK: Derived
 
@@ -81,15 +85,22 @@ nonisolated struct Meal: Identifiable, Codable, Hashable, Sendable {
             : "\(availableIngredients.count)/\(ingredients.count) ingrédients chez toi"
     }
 
+    /// "Ce repas te permet d'utiliser 3 produits à sauver.", or nil when it uses none.
+    nonisolated var rescueHighlight: String? {
+        if rescueCount > 0 {
+            return "Ce repas te permet d'utiliser \(rescueCount) produit\(rescueCount > 1 ? "s" : "") à sauver."
+        }
+        if planCount > 0 {
+            return "Ce repas utilise \(planCount) produit\(planCount > 1 ? "s" : "") dont la date approche."
+        }
+        return nil
+    }
+
     /// Higher is better: rescues expiring food, uses the stock, costs little, stays simple.
     nonisolated var score: Double {
         let availability = Double(availableIngredients.count) / Double(max(ingredients.count, 1)) * 100
-        let urgency: Double
-        switch topUrgency {
-        case .urgent: urgency = 60
-        case .soon: urgency = 28
-        case .fresh: urgency = 0
-        }
+        // 🟠 first, then 🟡, then everything else.
+        let urgency = Double(rescueCount) * 34 + Double(planCount) * 14
         let stockDepth = Double(rescuedItemIDs.count) * 6
         let costPenalty = extraCost * 7
         let speed = totalMinutes <= 20 ? 8.0 : 0

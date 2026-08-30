@@ -21,6 +21,7 @@ struct ProfileView: View {
                 testStoreDiagnostics
                 savingsCard
                 menuSection
+                SaveatLocalCard()
                 legalSection
                 promise
             }
@@ -313,12 +314,22 @@ struct ProfileView: View {
                     subtitle: "Optimise ton budget alimentaire",
                     route: .endOfMonth)
             Divider().padding(.leading, 66)
+            menuRow(emoji: "🔔", title: "Rappels anti-gaspi",
+                    subtitle: remindersSubtitle,
+                    route: .reminders)
+            Divider().padding(.leading, 66)
             menuRow(emoji: "⚙️", title: "Préférences du foyer",
                     subtitle: "Régime, allergies, budget",
                     route: .settings)
         }
         .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
         .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
+    }
+
+    private var remindersSubtitle: String {
+        let settings = store.profile.reminderSettings
+        guard settings.isEnabled, settings.hasAnyOffset else { return "Désactivés" }
+        return "Prévenu avant chaque date"
     }
 
     private func menuRow(emoji: String, title: String, subtitle: String, route: Route) -> some View {

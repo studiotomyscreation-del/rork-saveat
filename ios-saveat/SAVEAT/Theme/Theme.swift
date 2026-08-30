@@ -11,6 +11,7 @@ enum Theme {
     static let sageMist = Color(red: 0.929, green: 0.949, blue: 0.925)   // #EDF2EC
     static let terracotta = Color(red: 0.878, green: 0.643, blue: 0.494) // #E0A47E
     static let clay = Color(red: 0.788, green: 0.435, blue: 0.353)       // #C96F5A
+    static let alert = Color(red: 0.702, green: 0.278, blue: 0.216)      // #B34737
     static let ink = Color(red: 0.239, green: 0.290, blue: 0.243)        // #3D4A3E
     static let inkSoft = Color(red: 0.478, green: 0.522, blue: 0.482)    // #7A857B
 

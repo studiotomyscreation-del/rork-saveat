@@ -9,6 +9,7 @@ struct ChallengesView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
+                zeroWasteCard
                 headerCard
                 challengeList
                 badgeCard
@@ -21,6 +22,82 @@ struct ChallengesView: View {
         .navigationTitle("Défi Zéro Gaspi")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+    }
+
+    /// Challenge Zéro Gaspi — celebrates what was saved, never blames what was thrown.
+    ///
+    /// Counts products only: SAVEAT never invents a money figure it cannot prove.
+    private var zeroWasteCard: some View {
+        let saved = store.savedThisWeek
+        let goal = store.weeklySaveGoal
+        let streak = store.zeroWasteStreakDays
+        let remaining = max(goal - saved, 0)
+
+        return VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 8) {
+                Text("Challenge Zéro Gaspi")
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .foregroundStyle(Theme.ink)
+                Spacer(minLength: 0)
+                if streak > 0 {
+                    HStack(spacing: 4) {
+                        Text("🔥").font(.system(size: 12))
+                        Text("\(streak) j")
+                            .font(.system(size: 12.5, weight: .bold, design: .rounded).monospacedDigit())
+                    }
+                    .foregroundStyle(Theme.terracotta)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Theme.terracotta.opacity(0.15), in: .capsule)
+                }
+            }
+
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("\(saved)")
+                    .font(.system(size: 34, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(Theme.sageDeep)
+                    .contentTransition(.numericText())
+                Text("produit\(saved > 1 ? "s" : "") sauvé\(saved > 1 ? "s" : "") cette semaine")
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundStyle(Theme.inkSoft)
+                Spacer(minLength: 0)
+            }
+
+            SoftProgressBar(fraction: min(Double(saved) / Double(max(goal, 1)), 1))
+
+            Text(remaining > 0
+                 ? "Encore \(remaining) produit\(remaining > 1 ? "s" : "") pour atteindre ton objectif."
+                 : "Objectif de la semaine atteint. Beau travail 🌿")
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .foregroundStyle(Theme.sageDeep)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if streak > 0 {
+                Text("🔥 \(streak) jour\(streak > 1 ? "s" : "") consécutif\(streak > 1 ? "s" : "") sans rien jeter.")
+                    .font(.system(size: 12.5, weight: .medium, design: .rounded))
+                    .foregroundStyle(Theme.inkSoft)
+            }
+
+            Divider()
+
+            HStack(spacing: 18) {
+                monthStat(value: "\(store.savedThisMonth)", label: "ce mois-ci")
+                monthStat(value: "\(store.savedAllTime)", label: "depuis le début")
+                Spacer(minLength: 0)
+            }
+        }
+        .saveatCard()
+    }
+
+    private func monthStat(value: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(value)
+                .font(.system(size: 19, weight: .bold, design: .rounded).monospacedDigit())
+                .foregroundStyle(Theme.ink)
+            Text(label)
+                .font(.system(size: 11.5, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.inkSoft)
+        }
     }
 
     private var headerCard: some View {

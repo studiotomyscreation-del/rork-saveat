@@ -17,9 +17,9 @@ struct InventoryView: View {
         return base.filter { MealEngine.normalize($0.name).contains(key) }
     }
 
-    private var urgent: [FoodItem] { items.filter { $0.freshness == .urgent } }
-    private var soon: [FoodItem] { items.filter { $0.freshness == .soon } }
-    private var fresh: [FoodItem] { items.filter { $0.freshness == .fresh } }
+    private func items(_ status: ConsumptionStatus) -> [FoodItem] {
+        items.filter { $0.status == status }
+    }
 
     var body: some View {
         ScrollView {
@@ -27,14 +27,14 @@ struct InventoryView: View {
                 header
                 segmented
 
-                if !store.urgentItems.isEmpty { rescueCard }
+                if !store.rescueItems.isEmpty { rescueCard }
 
                 if items.isEmpty {
                     emptyState
                 } else {
-                    section(title: "À utiliser en priorité", state: .urgent, items: urgent)
-                    section(title: "À consommer bientôt", state: .soon, items: soon)
-                    section(title: "OK", state: .fresh, items: fresh)
+                    ForEach(ConsumptionStatus.allCases.sorted { $0.order < $1.order }, id: \.self) { status in
+                        section(status: status, items: items(status))
+                    }
                 }
 
                 addManuallyButton
@@ -113,14 +113,14 @@ struct InventoryView: View {
     private var rescueCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Text("🔴").font(.system(size: 14))
-                Text("\(store.urgentItems.count) produit\(store.urgentItems.count > 1 ? "s" : "") à sauver")
+                Text("🟠").font(.system(size: 14))
+                Text("\(store.rescueItems.count) produit\(store.rescueItems.count > 1 ? "s" : "") à sauver")
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.ink)
                 Spacer()
             }
 
-            Text(store.urgentItems.prefix(4).map(\.name).joined(separator: " • "))
+            Text(store.rescueItems.prefix(4).map(\.name).joined(separator: " • "))
                 .font(Theme.body(14))
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
@@ -139,12 +139,12 @@ struct InventoryView: View {
     }
 
     @ViewBuilder
-    private func section(title: String, state: FreshnessState, items: [FoodItem]) -> some View {
+    private func section(status: ConsumptionStatus, items: [FoodItem]) -> some View {
         if !items.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 7) {
-                    Text(state.dot).font(.system(size: 11))
-                    SectionLabel(text: title, color: FreshnessDot.color(for: state))
+                    Text(status.dot).font(.system(size: 11))
+                    SectionLabel(text: status.title, color: StatusTint.color(for: status))
                 }
 
                 VStack(spacing: 0) {
@@ -217,6 +217,7 @@ struct AddFoodSheet: View {
     @State private var location: StorageLocation
     @State private var hasDate = true
     @State private var bestBefore = Calendar.current.date(byAdding: .day, value: 4, to: .now) ?? .now
+    @State private var dateKind: DateKind = .unknown
     @State private var value: Double = 2
 
     private let emojis = ["🥕", "🍅", "🥬", "🍎", "🥚", "🧀", "🥩", "🍞", "🍝", "🥫", "🥛", "🐟", "🫘", "🥦"]
@@ -292,8 +293,10 @@ struct AddFoodSheet: View {
                     .saveatCard()
 
                     VStack(alignment: .leading, spacing: 12) {
+                        SectionLabel(text: "Date de consommation")
+
                         Toggle(isOn: $hasDate) {
-                            Text("Date à consommer de préférence")
+                            Text(hasDate ? "Date renseignée" : "Sans date")
                                 .font(.system(size: 15, weight: .medium, design: .rounded))
                                 .foregroundStyle(Theme.ink)
                         }
@@ -304,6 +307,13 @@ struct AddFoodSheet: View {
                                 .datePickerStyle(.compact)
                                 .labelsHidden()
                                 .environment(\.locale, Locale(identifier: "fr_FR"))
+
+                            Divider()
+
+                            Text("Type de date")
+                                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                .foregroundStyle(Theme.ink)
+                            DateKindPicker(kind: $dateKind)
                         }
 
                         Text("La date vient de l'emballage ou de toi. SAVEAT ne devine jamais la fraîcheur d'un aliment.")
@@ -322,6 +332,7 @@ struct AddFoodSheet: View {
                             category: category,
                             location: location,
                             bestBefore: hasDate ? bestBefore : nil,
+                            dateKind: hasDate ? dateKind : .unknown,
                             estimatedValue: value
                         )
                         store.add([item])
