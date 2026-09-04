@@ -369,10 +369,9 @@ final class SubscriptionStore {
     /// Monthly-equivalent price line for an annual package, e.g. "≈ 1,67 €/mois".
     ///
     /// Always derived from the real App Store price of the annual product
-    /// (`storeProduct.price` ÷ 12), never from a hardcoded amount, and rendered in
-    /// the currency App Store reported for that product — so a French storefront
-    /// shows euros, a US storefront dollars, and every other storefront its own
-    /// currency.
+    /// (`storeProduct.price` ÷ 12), never from a hardcoded amount. Displayed in
+    /// euros: SAVEAT is a French-only app, and a sandbox tester on a US
+    /// storefront must not see a dollar price on a French paywall.
     func monthlyEquivalent(for package: Package) -> String? {
         guard package.packageType == .annual else { return nil }
         let product = package.storeProduct
@@ -383,22 +382,31 @@ final class SubscriptionStore {
                                                                    raiseOnOverflow: false,
                                                                    raiseOnUnderflow: false,
                                                                    raiseOnDivideByZero: false))
-        guard monthly.doubleValue > 0,
-              let formatted = Self.formattedPrice(monthly.decimalValue, for: product) else { return nil }
-        return "≈ \(formatted)/mois"
+        guard monthly.doubleValue > 0 else { return nil }
+        return "≈ \(Self.euroPrice(monthly.decimalValue))/mois"
     }
 
-    /// Formats an amount using the currency App Store returned for this product.
+    /// Formats an amount in euros with French formatting ("9,99 €").
     ///
-    /// `StoreProduct.priceFormatter` is optional and can be `nil` (notably on the
-    /// StoreKit 2 path), which previously made the whole monthly-equivalent line
-    /// disappear. The store's own `currencyCode` is therefore the primary path and
-    /// the formatter only a fallback.
-    private static func formattedPrice(_ amount: Decimal, for product: StoreProduct) -> String? {
-        if let code = product.currencyCode, !code.isEmpty {
-            return amount.formatted(.currency(code: code))
-        }
-        return product.priceFormatter?.string(from: amount as NSDecimalNumber)
+    /// The amount always comes from the App Store product; only the rendering is
+    /// fixed to EUR because the app ships in French. `RevenueCat`'s
+    /// `localizedPriceString` follows the sandbox tester's storefront and would
+    /// show dollars for a US test account.
+    private static let euroFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.locale = Locale(identifier: "fr_FR")
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "EUR"
+        return formatter
+    }()
+
+    /// Displayed price of a package, always rendered in euros.
+    func priceLabel(for package: Package) -> String {
+        Self.euroPrice(package.storeProduct.price)
+    }
+
+    static func euroPrice(_ amount: Decimal) -> String {
+        euroFormatter.string(from: amount as NSDecimalNumber) ?? "€"
     }
 
     // MARK: - Purchases

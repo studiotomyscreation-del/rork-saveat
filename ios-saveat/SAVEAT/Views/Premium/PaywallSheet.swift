@@ -260,7 +260,7 @@ struct NativePaywallView: View {
 
                 Spacer(minLength: 0)
 
-                Text(package.storeProduct.localizedPriceString)
+                Text(subscriptions.priceLabel(for: package))
                     .font(.system(size: 17, weight: .bold, design: .rounded).monospacedDigit())
                     .foregroundStyle(Theme.ink)
             }
@@ -274,7 +274,7 @@ struct NativePaywallView: View {
             .contentShape(.rect)
         }
         .buttonStyle(SoftPressStyle())
-        .accessibilityLabel("\(planTitle(package)), \(package.storeProduct.localizedPriceString)")
+        .accessibilityLabel("\(planTitle(package)), \(subscriptions.priceLabel(for: package))")
     }
 
     private func planTitle(_ package: Package) -> String {
@@ -290,7 +290,7 @@ struct NativePaywallView: View {
     private func planSubtitle(_ package: Package) -> String? {
         if let intro = package.storeProduct.introductoryDiscount, intro.price == 0 {
             let unit = periodText(intro.subscriptionPeriod)
-            return "\(intro.subscriptionPeriod.value) \(unit) offert\(intro.subscriptionPeriod.value > 1 ? "s" : "") puis \(package.storeProduct.localizedPriceString)"
+            return "\(intro.subscriptionPeriod.value) \(unit) offert\(intro.subscriptionPeriod.value > 1 ? "s" : "") puis \(subscriptions.priceLabel(for: package))"
         }
         if let monthly = subscriptions.monthlyEquivalent(for: package) {
             return "\(monthly) • facturé une fois par an"
