@@ -38,23 +38,22 @@ struct ProfileView: View {
 
     // MARK: Premium
 
-    /// Developer-only card: shown in Debug builds (to verify the App Store offering,
-    /// prices and entitlement while testing) and, in TestFlight / App Store builds,
-    /// only when RevenueCat failed to configure. Invisible to real users otherwise.
+    /// Developer-only card: shown only while something looks wrong with the
+    /// purchase stack (configuration issue or no package exposed), so the exact
+    /// StoreKit/RevenueCat reason is never invisible. Hidden once the offering
+    /// loads, keeping everyday screens — screenshots included — clean.
     @ViewBuilder
     private var testStoreDiagnostics: some View {
         let isTestStore = subscriptions.environment.isTestStore
         let hasIssue = PurchasesBootstrap.configurationIssue != nil
 
-        // Temporary: also shown in TestFlight when the offering exposes no package,
-        // so the exact StoreKit/RevenueCat reason is reachable on a real device.
-        if PurchasesBootstrap.showsDiagnostics || subscriptions.packages.isEmpty {
+        if hasIssue || subscriptions.packages.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 8) {
                     Image(systemName: hasIssue ? "exclamationmark.triangle.fill" : "testtube.2")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(Theme.terracotta)
-                    Text(hasIssue ? "ACHATS INDISPONIBLES" : "DIAGNOSTIC REVENUECAT")
+                    Text(hasIssue ? S.Diagnostics.purchasesUnavailable.s : S.Diagnostics.revenueCat.s)
                         .font(.system(size: 10.5, weight: .bold, design: .rounded))
                         .tracking(1.5)
                         .foregroundStyle(Theme.terracotta)
@@ -89,7 +88,7 @@ struct ProfileView: View {
                     if subscriptions.isProbingStoreKit {
                         ProgressView().tint(Theme.inkSoft)
                     } else {
-                        Text("Diagnostic StoreKit")
+                        Text(S.Diagnostics.storeKitProbe.s)
                     }
                 }
                 .font(.system(size: 12.5, weight: .bold, design: .rounded))
@@ -116,7 +115,7 @@ struct ProfileView: View {
 
                 if !hasIssue {
                     HStack(spacing: 14) {
-                        Button("Recharger") {
+                        Button(S.Diagnostics.reload.s) {
                             Task {
                                 await subscriptions.loadOfferings()
                                 await subscriptions.refreshCustomerInfo()
@@ -125,7 +124,7 @@ struct ProfileView: View {
                         .font(.system(size: 12.5, weight: .bold, design: .rounded))
                         .foregroundStyle(Theme.sageDeep)
 
-                        Button("Ouvrir le paywall") {
+                        Button(S.Diagnostics.openPaywall.s) {
                             showsPaywall = true
                         }
                         .font(.system(size: 12.5, weight: .bold, design: .rounded))
@@ -143,7 +142,7 @@ struct ProfileView: View {
                                 if isRunningSelfTest {
                                     ProgressView().tint(Theme.inkSoft)
                                 } else {
-                                    Text("Auto-test")
+                                    Text(S.Diagnostics.selfTest.s)
                                 }
                             }
                             .font(.system(size: 12.5, weight: .bold, design: .rounded))
@@ -310,7 +309,7 @@ struct ProfileView: View {
                     subtitle: S.Profile.shoppingSubtitle.f(store.shoppingList.count),
                     route: .shopping)
             Divider().padding(.leading, 66)
-            menuRow(emoji: "💶", title: S.EndOfMonth.navTitle.s,
+            menuRow(emoji: LanguageRuntime.current == .fr ? "💶" : "💵", title: S.EndOfMonth.navTitle.s,
                     subtitle: S.Home.endOfMonthSubtitle.s,
                     route: .endOfMonth)
             Divider().padding(.leading, 66)

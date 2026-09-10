@@ -1,27 +1,32 @@
 [
   {
-    "id": "92a1aa05-fd44-438c-84ac-db0607cf2577",
-    "label": "Home",
-    "url": "https://r2-pub.rork.com/app-store-screenshots/92a1aa05-fd44-438c-84ac-db0607cf2577.jpg"
+    "id": "da556021-1937-4469-8ad4-abb7210d1ab1",
+    "label": "Save Money",
+    "url": "https://r2-pub.rork.com/app-store-screenshots/da556021-1937-4469-8ad4-abb7210d1ab1.jpg"
   },
   {
-    "id": "ed6017d3-989c-41f3-9e26-9f14ad526cf3",
+    "id": "e1315dc2-ca6c-40c4-a612-84f7ae8e2f2c",
     "label": "Scan Groceries",
-    "url": "https://r2-pub.rork.com/app-store-screenshots/ed6017d3-989c-41f3-9e26-9f14ad526cf3.jpg"
+    "url": "https://r2-pub.rork.com/app-store-screenshots/e1315dc2-ca6c-40c4-a612-84f7ae8e2f2c.jpg"
   },
   {
-    "id": "17467e77-0c7e-4888-8265-9af7ddb4a004",
-    "label": "My Food",
-    "url": "https://r2-pub.rork.com/app-store-screenshots/17467e77-0c7e-4888-8265-9af7ddb4a004.jpg"
+    "id": "20888c8f-f261-44dc-8eca-1b5aaee01330",
+    "label": "AI Meals",
+    "url": "https://r2-pub.rork.com/app-store-screenshots/20888c8f-f261-44dc-8eca-1b5aaee01330.jpg"
   },
   {
-    "id": "16af4111-b0e4-4a3e-afa5-57187d690e95",
-    "label": "Use Soon",
-    "url": "https://r2-pub.rork.com/app-store-screenshots/16af4111-b0e4-4a3e-afa5-57187d690e95.jpg"
+    "id": "104ab3b3-0d61-4fb2-903f-3b3a1337b2f4",
+    "label": "My Savings",
+    "url": "https://r2-pub.rork.com/app-store-screenshots/104ab3b3-0d61-4fb2-903f-3b3a1337b2f4.jpg"
   },
   {
-    "id": "b67923b0-ad10-43ef-be28-ce0d0011b173",
-    "label": "AI Recipes",
-    "url": "https://r2-pub.rork.com/app-store-screenshots/b67923b0-ad10-43ef-be28-ce0d0011b173.jpg"
+    "id": "cb46b943-db86-4ed1-90b4-543338a75f83",
+    "label": "End of Month",
+    "url": "https://r2-pub.rork.com/app-store-screenshots/cb46b943-db86-4ed1-90b4-543338a75f83.jpg"
+  },
+  {
+    "id": "a2a993b2-779a-46de-99a5-9e971f2e0bc9",
+    "label": "Saveat Local",
+    "url": "https://r2-pub.rork.com/app-store-screenshots/a2a993b2-779a-46de-99a5-9e971f2e0bc9.jpg"
   }
 ]
