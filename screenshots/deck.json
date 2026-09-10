@@ -1,0 +1,83 @@
+{
+  "appContext": {
+    "appName": "SAVEAT",
+    "category": "food waste reduction and kitchen inventory",
+    "summary": "SAVEAT helps home cooks stop throwing away groceries. People scan the barcodes of food they buy, the app tracks what is in their fridge, freezer and pantry, warns them before items expire, and uses AI to suggest real meals cooked from what they already own, so they shop less and waste less.",
+    "domainKeywords": [
+      "groceries",
+      "fridge",
+      "freezer",
+      "pantry",
+      "food inventory",
+      "expiration date",
+      "use by",
+      "best by",
+      "food waste",
+      "leftovers",
+      "barcode scan",
+      "AI recipes",
+      "meal ideas",
+      "grocery savings",
+      "cook at home"
+    ],
+    "forbiddenInterpretations": [
+      "calorie counting or diet tracking app",
+      "restaurant discovery or food delivery",
+      "fitness or weight loss coaching",
+      "grocery delivery marketplace",
+      "personal finance or budgeting bank app",
+      "farming or agriculture"
+    ]
+  },
+  "theme": {
+    "style": "A calm modern kitchen in soft daylight: warm cream and oat backgrounds, sage and deep herb greens, with a single amber accent like late-afternoon sun on a counter. Textures feel tactile and edible — matte paper, brushed ceramic, soft linen folds, gentle organic curves rather than hard geometry. Lighting is diffused and natural, coming from the upper left like a kitchen window, with airy negative space at the top so headlines breathe. Nothing shouts; the mood is reassuring, wholesome and quietly premium.",
+    "headlineFont": "font-family: 'Plus Jakarta Sans', sans-serif — @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap')",
+    "headlineFontSize": 124,
+    "mockupIds": {
+      "iphone": "silver",
+      "ipad": "silver"
+    },
+    "palette": {
+      "primary": "#F5EFE1",
+      "secondary": "#4A7C59",
+      "accent": "#E8A33D"
+    },
+    "layoutId": "hero-clipped"
+  },
+  "slides": [
+    {
+      "label": "Home",
+      "backgroundPrompt": "Abstract digital art of large soft organic blob shapes and gently overlapping curved forms floating across a warm cream canvas, rendered in oat, pale sage green and muted olive with a whisper of warm amber at the lower right. Diffused natural light falls from the upper left, leaving the top third calm and nearly plain cream for text, while the lower area gains soft dimensional shadow and subtle matte paper grain. Shallow depth of field softens the outer edges, 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups.\n",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/632baf6b-92ac-42b6-8a02-90d9d875b8c2.png"
+    },
+    {
+      "label": "Scan Groceries",
+      "backgroundPrompt": "Abstract digital art of smooth flowing ribbons of silk sweeping diagonally from the lower left to the upper right across a deep sage green field, layered in herb green, moss and soft eucalyptus with thin warm amber highlight lines catching the crests. Directional light from the upper left creates gentle rim glow along the ribbon folds while the upper third stays deep, even and uncluttered. Fine velvety grain and soft focus blur at the frame edges add depth, 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups.\n",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/985ce201-7402-43f7-9e74-2f811353dc45.png"
+    },
+    {
+      "label": "My Food",
+      "backgroundPrompt": "Abstract digital art of softly stacked translucent paper-like planes arranged in a calm horizontal rhythm across a light cream and warm ivory background, tinted with pale sage and faint oat shadows. Even diffused daylight from above keeps the upper third clean and airy, while thin sage edges of each plane catch light lower in the frame. Visible warm paper fiber texture and gentle vignette blur toward the corners create quiet depth, 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups.\n",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/abdb4e06-8824-46c6-bf1e-177cfca6f15b.png"
+    },
+    {
+      "label": "Use Soon",
+      "backgroundPrompt": "Abstract digital art of a wide glowing horizon of warm amber and golden honey light blooming from the lower center of the frame, dissolving upward into soft apricot and pale cream. Volumetric light rays fan gently outward from below while the upper third settles into a calm muted sand tone for text clarity. Delicate drifting dust motes, silky gradient banding-free blends and a soft focus halo add atmosphere, 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups.\n",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/a2bc55c4-b0d0-4a34-86eb-08df7626c655.png"
+    },
+    {
+      "label": "AI Recipes",
+      "backgroundPrompt": "Abstract digital art of layered translucent glass curves arcing across a rich deep forest green backdrop, blending pine, dark herb and emerald tones with thin molten amber light tracing the curve edges. Dramatic rim lighting enters from the right and pools softly in the lower half, while the upper third fades to a deep near-black green for maximum text contrast. Glass morphism layering, subtle fine grain and shallow depth of field blur at the borders create a cinematic premium finish, 8K quality, ultra smooth gradients, premium feel, no text, no letters, no UI elements, no device mockups.\n",
+      "backgroundUrl": "https://r2-pub.rork.com/app-store-screenshots/000dfdea-f43c-4e50-8415-ca25564260fd.png"
+    }
+  ],
+  "headlines": {
+    "en": {
+      "Home": "Dinner Is<br>Already Here",
+      "Scan Groceries": "One Quick<br>Scan",
+      "My Food": "Know What<br>You Have",
+      "Use Soon": "Before It<br>Goes Bad",
+      "AI Recipes": "Cook What<br>You Own"
+    }
+  }
+}
