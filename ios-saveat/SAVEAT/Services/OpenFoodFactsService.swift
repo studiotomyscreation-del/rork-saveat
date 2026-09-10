@@ -25,9 +25,12 @@ nonisolated struct OpenFoodFactsService: Sendable {
     /// French ones so a US barcode resolves with US wording; which one wins is
     /// decided per reader in `toProduct`.
     private static let fields = [
-        "code", "product_name", "product_name_fr", "product_name_en", "brands",
+        "code", "product_name", "product_name_fr", "product_name_en",
+        "product_name_es", "product_name_pt", "product_name_zh", "product_name_hi",
+        "brands",
         "image_front_url", "image_url", "quantity",
         "ingredients_text_fr", "ingredients_text_en", "ingredients_text",
+        "ingredients_text_es", "ingredients_text_pt",
         "allergens_tags", "additives_tags",
         "nutriscore_grade", "nova_group", "nutriments", "categories_tags"
     ].joined(separator: ",")
@@ -76,12 +79,18 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
     var productName: String?
     var productNameFR: String?
     var productNameEN: String?
+    var productNameES: String?
+    var productNamePT: String?
+    var productNameZH: String?
+    var productNameHI: String?
     var brands: String?
     var imageFrontURL: String?
     var imageURL: String?
     var quantity: String?
     var ingredientsTextFR: String?
     var ingredientsTextEN: String?
+    var ingredientsTextES: String?
+    var ingredientsTextPT: String?
     var ingredientsText: String?
     var allergensTags: [String]?
     var additivesTags: [String]?
@@ -94,12 +103,18 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
         case productName = "product_name"
         case productNameFR = "product_name_fr"
         case productNameEN = "product_name_en"
+        case productNameES = "product_name_es"
+        case productNamePT = "product_name_pt"
+        case productNameZH = "product_name_zh"
+        case productNameHI = "product_name_hi"
         case brands
         case imageFrontURL = "image_front_url"
         case imageURL = "image_url"
         case quantity
         case ingredientsTextFR = "ingredients_text_fr"
         case ingredientsTextEN = "ingredients_text_en"
+        case ingredientsTextES = "ingredients_text_es"
+        case ingredientsTextPT = "ingredients_text_pt"
         case ingredientsText = "ingredients_text"
         case allergensTags = "allergens_tags"
         case additivesTags = "additives_tags"
@@ -111,17 +126,34 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
 
     nonisolated func toProduct(barcode: String) -> ScannedProduct {
         // The reader's own language comes first, then the generic field, then
-        // the other language: a US shopper gets the English name when the
-        // database has one, and never an empty product sheet when it doesn't.
-        let namesByPreference: [String?] = LanguageRuntime.current == .fr
-            ? [productNameFR, productName, productNameEN]
-            : [productNameEN, productName, productNameFR]
+        // English, then French: a shopper in any of SAVEAT's languages gets
+        // their own wording when the database has it, and never an empty
+        // product sheet when it doesn't.
+        let language = LanguageRuntime.current
+        let localName: String?
+        switch language {
+        case .fr: localName = productNameFR
+        case .en: localName = productNameEN
+        case .es: localName = productNameES
+        case .ptBR: localName = productNamePT
+        case .zhCN: localName = productNameZH
+        case .hi: localName = productNameHI
+        }
+        let namesByPreference = [localName, productName, productNameEN, productNameFR]
+            .map { $0 as String? }
         let rawName = namesByPreference.compactMap { $0 }.first { !$0.isEmpty }
             ?? S.Lookup.fallbackName.f(String(barcode.suffix(4)))
         let name = rawName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let ingredientsByPreference: [String?] = LanguageRuntime.current == .fr
-            ? [ingredientsTextFR, ingredientsText, ingredientsTextEN]
-            : [ingredientsTextEN, ingredientsText, ingredientsTextFR]
+        let localIngredients: String?
+        switch language {
+        case .fr: localIngredients = ingredientsTextFR
+        case .en: localIngredients = ingredientsTextEN
+        case .es: localIngredients = ingredientsTextES
+        case .ptBR: localIngredients = ingredientsTextPT
+        case .zhCN, .hi: localIngredients = nil
+        }
+        let ingredientsByPreference = [localIngredients, ingredientsText, ingredientsTextEN, ingredientsTextFR]
+            .map { $0 as String? }
 
         // Sorting looks at every language field, so a US pack labelled only in
         // English still lands in the right place at home.
@@ -213,62 +245,79 @@ nonisolated enum ProductHeuristics {
             keys.contains { haystack.contains($0) }
         }
 
-        if has(["surgel", "frozen", "glace", "ice-cream", "ice cream", "popsicle"]) {
+        if has(["surgel", "frozen", "glace", "ice-cream", "ice cream", "popsicle",
+                "congelad", "冷冻"]) {
             return Profile(location: .freezer, category: .frozen, emoji: "🧊", unit: "sachet", price: 3.20, shelfLifeDays: 180)
         }
-        if has(["yaourt", "yogurt", "yoghurt", "skyr", "kefir"]) {
+        if has(["yaourt", "yogurt", "yoghurt", "skyr", "kefir",
+                "yogur", "iogurte", "酸奶", "दही"]) {
             return Profile(location: .fridge, category: .dairy, emoji: "🥣", unit: "pot", price: 2.30, shelfLifeDays: 21)
         }
-        if has(["lait", "milk", "half-and-half", "buttermilk"]) {
+        if has(["lait", "milk", "half-and-half", "buttermilk",
+                "leche", "leite", "牛奶", "दूध"]) {
             return Profile(location: .fridge, category: .dairy, emoji: "🥛", unit: "bouteille", price: 1.15, shelfLifeDays: 7)
         }
-        if has(["fromage", "cheese", "emmental", "comte", "mozzarella", "cheddar", "parmesan"]) {
+        if has(["fromage", "cheese", "emmental", "comte", "mozzarella", "cheddar", "parmesan",
+                "queso", "queijo", "奶酪", "芝士", "पनीर", "चीज़"]) {
             return Profile(location: .fridge, category: .dairy, emoji: "🧀", unit: "paquet", price: 2.60, shelfLifeDays: 20)
         }
-        if has(["beurre", "butter", "creme", "cream", "sour cream"]) {
+        if has(["beurre", "butter", "creme", "cream", "sour cream",
+                "mantequilla", "manteiga", "黄油", "मक्खन"]) {
             return Profile(location: .fridge, category: .dairy, emoji: "🧈", unit: "paquet", price: 2.40, shelfLifeDays: 30)
         }
-        if has(["jambon", "ham", "charcuterie", "lardon", "saucisse", "bacon", "sausage", "deli", "hot dog"]) {
+        if has(["jambon", "ham", "charcuterie", "lardon", "saucisse", "bacon", "sausage", "deli", "hot dog",
+                "jamon", "fiambre", "presunto", "mortadela", "火腿", "सॉसेज"]) {
             return Profile(location: .fridge, category: .protein, emoji: "🥓", unit: "paquet", price: 2.90, shelfLifeDays: 8)
         }
-        if has(["oeuf", "œuf", "egg"]) {
+        if has(["oeuf", "œuf", "egg", "huevo", "ovo", "鸡蛋", "अंडा"]) {
             return Profile(location: .fridge, category: .protein, emoji: "🥚", unit: "boîte", price: 3.20, shelfLifeDays: 21)
         }
         if has(["poulet", "boeuf", "porc", "dinde", "viande", "steak", "meat",
-                "chicken", "beef", "pork", "turkey", "ground", "tofu"]) {
+                "chicken", "beef", "pork", "turkey", "ground", "tofu",
+                "pollo", "carne", "frango", "picanha", "鸡肉", "चिकन", "मुर्ग"]) {
             return Profile(location: .fridge, category: .protein, emoji: "🍗", unit: "barquette", price: 6.50, shelfLifeDays: 4)
         }
-        if has(["thon", "sardine", "maquereau", "saumon", "poisson", "fish", "tuna", "salmon", "shrimp"]) {
+        if has(["thon", "sardine", "maquereau", "saumon", "poisson", "fish", "tuna", "salmon", "shrimp",
+                "atun", "pescado", "peixe", "atum", "鱼", "金枪鱼", "मछली"]) {
             return Profile(location: .pantry, category: .protein, emoji: "🐟", unit: "boîte", price: 2.10, shelfLifeDays: 720)
         }
-        if has(["pate", "spaghetti", "penne", "coquillette", "pasta", "nouille", "macaroni", "noodle"]) {
+        if has(["pate", "spaghetti", "penne", "coquillette", "pasta", "nouille", "macaroni", "noodle",
+                "fideo", "macarrao", "意面", "面条", "पास्ता"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🍝", unit: "paquet", price: 1.30, shelfLifeDays: 540)
         }
-        if has(["riz", "rice", "quinoa", "semoule", "boulgour", "couscous", "oats", "oatmeal", "flour", "farine"]) {
+        if has(["riz", "rice", "quinoa", "semoule", "boulgour", "couscous", "oats", "oatmeal", "flour", "farine",
+                "arroz", "米饭", "大米", "चावल", "आटा"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🍚", unit: "paquet", price: 2.40, shelfLifeDays: 540)
         }
-        if has(["sauce", "tomate pel", "coulis", "passata", "ketchup", "salsa", "mayonnaise", "mustard", "dressing"]) {
+        if has(["sauce", "tomate pel", "coulis", "passata", "ketchup", "salsa", "mayonnaise", "mustard", "dressing",
+                "molho", "mayonesa", "mostaza", "番茄酱", "酱", "चटनी"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🥫", unit: "pot", price: 1.60, shelfLifeDays: 400)
         }
         if has(["conserve", "haricot", "lentille", "pois chiche", "mais",
-                "canned", "bean", "lentil", "chickpea", "corn", "soup", "peanut butter"]) {
+                "canned", "bean", "lentil", "chickpea", "corn", "soup", "peanut butter",
+                "frijol", "garbanzo", "feijao", "grao", "罐头", "豆", "दाल"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🥫", unit: "boîte", price: 1.20, shelfLifeDays: 720)
         }
-        if has(["pain", "bread", "brioche", "biscotte", "bagel", "tortilla", "bun", "muffin"]) {
+        if has(["pain", "bread", "brioche", "biscotte", "bagel", "tortilla", "bun", "muffin",
+                "molde", "tostad", "pao de", "面包", "ब्रेड"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🍞", unit: "paquet", price: 1.50, shelfLifeDays: 5)
         }
         if has(["legume", "salade", "tomate", "carotte", "courgette", "vegetable", "fruit", "pomme", "banane",
-                "lettuce", "salad", "tomato", "carrot", "zucchini", "spinach", "apple", "banana", "berry", "produce"]) {
+                "lettuce", "salad", "tomato", "carrot", "zucchini", "spinach", "apple", "banana", "berry", "produce",
+                "fruta", "verdura", "hortaliza", "lechuga", "zanahoria", "alface", "cenoura",
+                "蔬菜", "水果", "सब्ज़ी", "फल"]) {
             return Profile(location: .fridge, category: .produce, emoji: "🥗", unit: "sachet", price: 2.20, shelfLifeDays: 6)
         }
         if has(["biscuit", "chocolat", "gateau", "bonbon", "snack", "chips",
-                "cookie", "chocolate", "candy", "cracker", "granola", "cereal"]) {
+                "cookie", "chocolate", "candy", "cracker", "granola", "cereal",
+                "galleta", "biscoito", "巧克力", "饼干", "चॉकलेट", "बिस्कुट"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🍫", unit: "paquet", price: 2.30, shelfLifeDays: 200)
         }
-        if has(["jus", "soda", "boisson", "eau", "juice", "drink", "water", "soft drink", "seltzer"]) {
+        if has(["jus", "soda", "boisson", "eau", "juice", "drink", "water", "soft drink", "seltzer",
+                "zumo", "jugo", "suco", "refresco", "gaseosa", "果汁", "饮料", "जूस", "पेय"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🧃", unit: "bouteille", price: 1.80, shelfLifeDays: 200)
         }
-        if has(["cafe", "the ", "infusion", "coffee", "tea"]) {
+        if has(["cafe", "the ", "infusion", "coffee", "tea", "té", "cha ", "咖啡", "茶", "कॉफ़ी", "चाय"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "☕️", unit: "paquet", price: 4.20, shelfLifeDays: 400)
         }
 

@@ -102,15 +102,32 @@ nonisolated enum Units {
         let formatter = NumberFormatter()
         formatter.locale = language.locale
         formatter.numberStyle = .currency
-        formatter.currencyCode = language == .fr ? "EUR" : "USD"
+        formatter.currencyCode = Units.currencyCode
         formatter.minimumFractionDigits = decimals
         formatter.maximumFractionDigits = decimals
         return formatter.string(from: NSNumber(value: value)) ?? Format.euro(value, decimals: decimals)
     }
 
+    /// Currency code behind SAVEAT's own savings estimates.
+    nonisolated static var currencyCode: String {
+        switch LanguageRuntime.current {
+        case .fr, .es: "EUR"
+        case .en: "USD"
+        case .ptBR: "BRL"
+        case .zhCN: "CNY"
+        case .hi: "INR"
+        }
+    }
+
     /// Currency symbol used in short labels such as "0 €" / "$0".
     nonisolated static var currencySymbol: String {
-        LanguageRuntime.current == .fr ? "€" : "$"
+        switch LanguageRuntime.current {
+        case .fr, .es: "€"
+        case .en: "$"
+        case .ptBR: "R$"
+        case .zhCN: "¥"
+        case .hi: "₹"
+        }
     }
 
     /// Cost badge for a meal that needs no extra shopping: "0 €" / "$0".
@@ -118,7 +135,13 @@ nonisolated enum Units {
     /// Only ever used where a price is expected. English copy never turns this
     /// into a "$0 meals" phrase, which could read as SAVEAT handing out free food.
     nonisolated static var zeroCostLabel: String {
-        LanguageRuntime.current == .fr ? "0 €" : "$0"
+        switch LanguageRuntime.current {
+        case .fr, .es: "0 €"
+        case .en: "$0"
+        case .ptBR: "R$ 0"
+        case .zhCN: "¥0"
+        case .hi: "₹0"
+        }
     }
 
     // MARK: - Mass for impact figures

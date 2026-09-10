@@ -4,11 +4,16 @@ import SwiftUI
 /// Languages SAVEAT ships in.
 ///
 /// French stays the production reference; English is written for a US audience
-/// (US units, Fahrenheit, US date order). Adding a language later means adding a
-/// case here and one more entry per `Loc` in the catalog — screens stay untouched.
+/// (US units, Fahrenheit, US date order). Spanish, Portuguese (Brazil),
+/// Simplified Chinese and Hindi translate the catalog: screens stay untouched.
+/// A missing translation falls back to English rather than rendering blank.
 nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Sendable {
     case fr
     case en
+    case es
+    case ptBR
+    case zhCN
+    case hi
 
     nonisolated var id: String { rawValue }
 
@@ -17,6 +22,10 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
         switch self {
         case .fr: "Français"
         case .en: "English (US)"
+        case .es: "Español"
+        case .ptBR: "Português (Brasil)"
+        case .zhCN: "简体中文"
+        case .hi: "हिन्दी"
         }
     }
 
@@ -24,6 +33,10 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
         switch self {
         case .fr: "🇫🇷"
         case .en: "🇺🇸"
+        case .es: "🇪🇸"
+        case .ptBR: "🇧🇷"
+        case .zhCN: "🇨🇳"
+        case .hi: "🇮🇳"
         }
     }
 
@@ -32,17 +45,45 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
         switch self {
         case .fr: Locale(identifier: "fr_FR")
         case .en: Locale(identifier: "en_US")
+        case .es: Locale(identifier: "es_ES")
+        case .ptBR: Locale(identifier: "pt_BR")
+        case .zhCN: Locale(identifier: "zh_CN")
+        case .hi: Locale(identifier: "hi_IN")
         }
     }
 
-    /// French uses grams / millilitres / Celsius, US English uses oz / cups / Fahrenheit.
-    nonisolated var usesMetric: Bool { self == .fr }
+    /// Spanish, Portuguese, Chinese and Hindi use metric measures; US English
+    /// uses oz / cups / Fahrenheit. French keeps grams / millilitres / Celsius.
+    nonisolated var usesMetric: Bool { self != .en }
+
+    /// Comma decimal separator (1,5 kg) as written in France, Spain and Brazil.
+    nonisolated var usesCommaDecimal: Bool {
+        switch self {
+        case .fr, .es, .ptBR: true
+        case .en, .zhCN, .hi: false
+        }
+    }
+
+    /// Day-first printed dates (09/12 = 9 December) for fr, es, pt-BR and hi;
+    /// month-first for US packs. China writes year-first, which the numeric
+    /// patterns still parse month-first — acceptable for the two-digit year
+    /// formats on Chinese packaging.
+    nonisolated var readsDayFirstDates: Bool {
+        switch self {
+        case .fr, .es, .ptBR, .hi: true
+        case .en, .zhCN: false
+        }
+    }
 
     /// Language name handed to the recipe assistant.
     nonisolated var promptLanguage: String {
         switch self {
         case .fr: "français"
         case .en: "American English"
+        case .es: "español de España"
+        case .ptBR: "português do Brasil"
+        case .zhCN: "简体中文"
+        case .hi: "हिन्दी"
         }
     }
 
@@ -51,13 +92,23 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
         switch self {
         case .fr: "fr"
         case .en: "en"
+        case .es: "es"
+        case .ptBR: "pt"
+        case .zhCN: "zh"
+        case .hi: "hi"
         }
     }
 
     /// Language matching the phone, falling back to English for everything else.
     nonisolated static var deviceDefault: AppLanguage {
         let preferred = Locale.preferredLanguages.first ?? "en"
-        return preferred.lowercased().hasPrefix("fr") ? .fr : .en
+        let prefix = preferred.lowercased()
+        if prefix.hasPrefix("fr") { return .fr }
+        if prefix.hasPrefix("es") { return .es }
+        if prefix.hasPrefix("pt") { return .ptBR }
+        if prefix.hasPrefix("zh") { return .zhCN }
+        if prefix.hasPrefix("hi") { return .hi }
+        return .en
     }
 }
 
@@ -86,6 +137,8 @@ nonisolated enum LanguageRuntime {
 ///
 /// The whole catalog lives in `Strings.swift`; screens only reference entries,
 /// never raw text, so a new language is a catalog change rather than a UI change.
+/// Spanish, Portuguese, Chinese and Hindi live in side tables keyed by the
+/// English source string — a missing entry falls back to English, never blank.
 nonisolated struct Loc: Sendable {
     private let fr: String
     private let en: String
@@ -100,6 +153,7 @@ nonisolated struct Loc: Sendable {
         switch LanguageRuntime.current {
         case .fr: fr
         case .en: en
+        default: TranslationCatalog.value(for: en, in: LanguageRuntime.current) ?? en
         }
     }
 
@@ -108,12 +162,30 @@ nonisolated struct Loc: Sendable {
         switch language {
         case .fr: fr
         case .en: en
+        default: TranslationCatalog.value(for: en, in: language) ?? en
         }
     }
 
     /// Fills `%@` / `%d` placeholders in the resolved copy.
     nonisolated func f(_ arguments: CVarArg...) -> String {
         String(format: s, arguments: arguments)
+    }
+}
+
+/// Per-language translation tables, keyed by the English source string.
+///
+/// One file per language under `Localization/Translations/`. Lookups are cheap
+/// dictionary hits; a missing key returns nil and the caller falls back to
+/// English so new copy can ship before its translation lands.
+nonisolated enum TranslationCatalog {
+    nonisolated static func value(for english: String, in language: AppLanguage) -> String? {
+        switch language {
+        case .fr, .en: nil
+        case .es: StringsEs.table[english]
+        case .ptBR: StringsPtBR.table[english]
+        case .zhCN: StringsZhCN.table[english]
+        case .hi: StringsHi.table[english]
+        }
     }
 }
 

@@ -299,6 +299,14 @@ struct ProfileView: View {
         .buttonStyle(SoftPressStyle())
     }
 
+    private static var budgetEmoji: String {
+        switch LanguageRuntime.current {
+        case .fr, .es: "💶"
+        case .zhCN: "💴"
+        case .en, .ptBR, .hi: "💵"
+        }
+    }
+
     private var menuSection: some View {
         VStack(spacing: 0) {
             menuRow(emoji: "🏅", title: S.Profile.challenges.s,
@@ -309,7 +317,7 @@ struct ProfileView: View {
                     subtitle: S.Profile.shoppingSubtitle.f(store.shoppingList.count),
                     route: .shopping)
             Divider().padding(.leading, 66)
-            menuRow(emoji: LanguageRuntime.current == .fr ? "💶" : "💵", title: S.EndOfMonth.navTitle.s,
+            menuRow(emoji: Self.budgetEmoji, title: S.EndOfMonth.navTitle.s,
                     subtitle: S.Home.endOfMonthSubtitle.s,
                     route: .endOfMonth)
             Divider().padding(.leading, 66)

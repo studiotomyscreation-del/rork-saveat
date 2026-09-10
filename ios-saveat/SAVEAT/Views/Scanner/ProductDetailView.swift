@@ -9,9 +9,12 @@ struct ProductDetailView: View {
     private var score: SaveatScore { product.score }
     private var analysis: NutritionAnalysis { product.nutritionAnalysis }
 
-    /// Nutri-Score is a European label with no official standing in the US, so it
-    /// is only surfaced to French readers. The underlying analysis is unchanged.
-    private var showsNutriScore: Bool { LanguageRuntime.current == .fr }
+    /// Nutri-Score is only shown where it is an official or widely-adopted
+    /// label (France, Spain). Showing it elsewhere would lend it false
+    /// authority. The underlying analysis is unchanged.
+    private var showsNutriScore: Bool {
+        [.fr, .es].contains(LanguageRuntime.current)
+    }
 
     var body: some View {
         ScrollView {

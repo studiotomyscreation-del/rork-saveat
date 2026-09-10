@@ -229,7 +229,7 @@ nonisolated enum DateTextParser {
     /// A US pack printing 09/12 means September 12; a French one means 9 December.
     /// Guessing the wrong way round would silently create a three-month error.
     private static var formats: [String] {
-        LanguageRuntime.current == .fr
+        LanguageRuntime.current.readsDayFirstDates
             ? dayFirstFormats + monthFirstFormats
             : monthFirstFormats + dayFirstFormats
     }

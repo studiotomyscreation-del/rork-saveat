@@ -88,6 +88,15 @@ nonisolated enum RecipeQuantity {
         "1 sachet": Loc(fr: "1 sachet", en: "1 bag")
     ]
 
+    private static let sliceOne = Loc(fr: "tranche", en: "slice")
+    private static let sliceMany = Loc(fr: "tranches", en: "slices")
+    private static let jarOne = Loc(fr: "pot", en: "jar")
+    private static let jarMany = Loc(fr: "pots", en: "jars")
+    private static let canOne = Loc(fr: "boîte", en: "can")
+    private static let canMany = Loc(fr: "boîtes", en: "cans")
+    private static let bagOne = Loc(fr: "sachet", en: "bag")
+    private static let bagMany = Loc(fr: "sachets", en: "bags")
+
     /// Rewrites a curated quantity such as "150 g" or "2 tranches" for the reader.
     nonisolated static func display(_ raw: String) -> String {
         guard LanguageRuntime.current != .fr else { return raw }
@@ -108,15 +117,15 @@ nonisolated enum RecipeQuantity {
         case "ml": return Units.volume(millilitres: amount)
         case "l": return Units.volume(millilitres: amount * 1_000)
         case "tranche", "tranches":
-            return "\(Int(amount)) " + (amount > 1 ? "slices" : "slice")
+            return "\(Int(amount)) " + (amount > 1 ? sliceMany.s : sliceOne.s)
         case "pièce", "pièces":
             return "\(Int(amount))"
         case "pot", "pots":
-            return "\(Int(amount)) " + (amount > 1 ? "jars" : "jar")
+            return "\(Int(amount)) " + (amount > 1 ? jarMany.s : jarOne.s)
         case "boîte", "boîtes":
-            return "\(Int(amount)) " + (amount > 1 ? "cans" : "can")
+            return "\(Int(amount)) " + (amount > 1 ? canMany.s : canOne.s)
         case "sachet", "sachets":
-            return "\(Int(amount)) " + (amount > 1 ? "bags" : "bag")
+            return "\(Int(amount)) " + (amount > 1 ? bagMany.s : bagOne.s)
         default:
             return raw
         }

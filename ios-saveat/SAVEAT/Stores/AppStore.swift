@@ -495,7 +495,8 @@ nonisolated struct BannerMessage: Identifiable, Equatable, Sendable {
 /// These are SAVEAT's own estimates. Subscription prices never come through
 /// here — they always come from the App Store for the user's own country.
 nonisolated enum Format {
-    /// An estimated value, in euros for French readers and dollars for US ones.
+    /// An estimated value, in the reader's currency: euros for French and
+    /// Spanish readers, dollars for US ones, reais, yuan and rupees elsewhere.
     nonisolated static func euro(_ value: Double, decimals: Int = 2) -> String {
         let language = LanguageRuntime.current
         let formatter = NumberFormatter()
@@ -504,7 +505,13 @@ nonisolated enum Format {
         formatter.minimumFractionDigits = decimals
         formatter.maximumFractionDigits = decimals
         let number = formatter.string(from: NSNumber(value: value)) ?? "0"
-        return language == .fr ? "\(number)\u{00a0}€" : "$\(number)"
+        switch language {
+        case .fr, .es: return "\(number)\u{00a0}€"
+        case .en: return "$\(number)"
+        case .ptBR: return "R$\u{00a0}\(number)"
+        case .zhCN: return "¥\(number)"
+        case .hi: return "₹\(number)"
+        }
     }
 
     /// Food weight avoided, in kilos for France and pounds for the US.
@@ -521,7 +528,7 @@ nonisolated enum Format {
             return "\(Int(rounded)) g"
         }
         let text = String(format: "%.1f g", rounded)
-        return LanguageRuntime.current == .fr
+        return LanguageRuntime.current.usesCommaDecimal
             ? text.replacingOccurrences(of: ".", with: ",")
             : text
     }
@@ -537,7 +544,7 @@ nonisolated enum Format {
         let fraction = rounded - whole
         if abs(fraction - 0.5) < 0.01 { return "\(Int(whole)) ½" }
         let text = String(format: "%.1f", rounded)
-        return LanguageRuntime.current == .fr
+        return LanguageRuntime.current.usesCommaDecimal
             ? text.replacingOccurrences(of: ".", with: ",")
             : text
     }
