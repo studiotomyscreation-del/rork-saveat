@@ -495,24 +495,28 @@ nonisolated struct BannerMessage: Identifiable, Equatable, Sendable {
 /// These are SAVEAT's own estimates. Subscription prices never come through
 /// here — they always come from the App Store for the user's own country.
 nonisolated enum Format {
-    /// An estimated value, in the reader's currency: euros for French and
-    /// Spanish readers, dollars for US ones, reais, yuan and rupees elsewhere.
-    nonisolated static func euro(_ value: Double, decimals: Int = 2) -> String {
-        let language = LanguageRuntime.current
+    /// An estimated value in the user's own currency.
+    ///
+    /// The currency follows the phone's country — the same country the App
+    /// Store bills in — while the language only decides how the number is
+    /// written and where the symbol sits. So a reader in Quebec sees Canadian
+    /// dollars whether they read French or English, and a reader in London
+    /// sees pounds either way.
+    nonisolated static func money(_ value: Double, decimals: Int = 2) -> String {
         let formatter = NumberFormatter()
-        formatter.locale = language.locale
+        formatter.locale = LanguageRuntime.current.locale
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = decimals
         formatter.maximumFractionDigits = decimals
         let number = formatter.string(from: NSNumber(value: value)) ?? "0"
-        switch language {
-        case .fr, .es: return "\(number)\u{00a0}€"
-        case .en: return "$\(number)"
-        case .enGB: return "£\(number)"
-        case .ptBR: return "R$\u{00a0}\(number)"
-        case .zhCN: return "¥\(number)"
-        case .hi: return "₹\(number)"
-        }
+        return Money.symbolLeads
+            ? "\(Money.symbol)\(number)"
+            : "\(number)\u{00a0}\(Money.symbol)"
+    }
+
+    /// Long-standing name for `money`, kept so existing screens stay untouched.
+    nonisolated static func euro(_ value: Double, decimals: Int = 2) -> String {
+        money(value, decimals: decimals)
     }
 
     /// Food weight avoided, in kilos for metric readers and pounds for the US.

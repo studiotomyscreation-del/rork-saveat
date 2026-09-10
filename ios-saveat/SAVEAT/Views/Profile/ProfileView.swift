@@ -299,12 +299,13 @@ struct ProfileView: View {
         .buttonStyle(SoftPressStyle())
     }
 
+    /// Follows the wallet the user actually pays with, not the language.
     private static var budgetEmoji: String {
-        switch LanguageRuntime.current {
-        case .fr, .es: "💶"
-        case .zhCN: "💴"
-        case .en, .ptBR, .hi: "💵"
-        case .enGB: "💷"
+        switch Money.code {
+        case "EUR": "💶"
+        case "GBP": "💷"
+        case "CNY", "JPY": "💴"
+        default: "💵"
         }
     }
 

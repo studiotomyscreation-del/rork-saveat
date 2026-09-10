@@ -98,53 +98,27 @@ nonisolated enum Units {
     /// This is only ever used for SAVEAT's own savings estimates — never for a
     /// subscription price, which always comes from the App Store itself.
     nonisolated static func money(_ value: Double, decimals: Int = 2) -> String {
-        let language = LanguageRuntime.current
         let formatter = NumberFormatter()
-        formatter.locale = language.locale
+        formatter.locale = LanguageRuntime.current.locale
         formatter.numberStyle = .currency
-        formatter.currencyCode = Units.currencyCode
+        formatter.currencyCode = Money.code
         formatter.minimumFractionDigits = decimals
         formatter.maximumFractionDigits = decimals
-        return formatter.string(from: NSNumber(value: value)) ?? Format.euro(value, decimals: decimals)
+        return formatter.string(from: NSNumber(value: value)) ?? Format.money(value, decimals: decimals)
     }
 
     /// Currency code behind SAVEAT's own savings estimates.
-    nonisolated static var currencyCode: String {
-        switch LanguageRuntime.current {
-        case .fr, .es: "EUR"
-        case .en: "USD"
-        case .enGB: "GBP"
-        case .ptBR: "BRL"
-        case .zhCN: "CNY"
-        case .hi: "INR"
-        }
-    }
+    nonisolated static var currencyCode: String { Money.code }
 
     /// Currency symbol used in short labels such as "0 €" / "$0".
-    nonisolated static var currencySymbol: String {
-        switch LanguageRuntime.current {
-        case .fr, .es: "€"
-        case .en: "$"
-        case .enGB: "£"
-        case .ptBR: "R$"
-        case .zhCN: "¥"
-        case .hi: "₹"
-        }
-    }
+    nonisolated static var currencySymbol: String { Money.symbol }
 
     /// Cost badge for a meal that needs no extra shopping: "0 €" / "$0".
     ///
     /// Only ever used where a price is expected. English copy never turns this
     /// into a "$0 meals" phrase, which could read as SAVEAT handing out free food.
     nonisolated static var zeroCostLabel: String {
-        switch LanguageRuntime.current {
-        case .fr, .es: "0 €"
-        case .en: "$0"
-        case .enGB: "£0"
-        case .ptBR: "R$ 0"
-        case .zhCN: "¥0"
-        case .hi: "₹0"
-        }
+        Money.symbolLeads ? "\(Money.symbol)0" : "0\u{00a0}\(Money.symbol)"
     }
 
     // MARK: - Mass for impact figures
@@ -218,5 +192,65 @@ nonisolated enum Units {
         formatter.minimumFractionDigits = 0
         formatter.maximumFractionDigits = decimals
         return formatter.string(from: NSNumber(value: rounded)) ?? "\(rounded)"
+    }
+}
+
+/// The currency SAVEAT's own estimates are shown in.
+///
+/// It follows the phone's country, exactly like the App Store does when it
+/// bills someone, and deliberately NOT the language being read. Someone in
+/// Quebec sees Canadian dollars whether they read French or English, someone
+/// in London sees pounds either way, and a French speaker living in the US
+/// sees dollars. Language only decides how the number is written and which
+/// side the symbol sits on.
+///
+/// Subscription prices never pass through here — those always come straight
+/// from the App Store.
+nonisolated enum Money {
+    /// ISO code for the phone's region, falling back to the language's home
+    /// currency when the device does not report one.
+    nonisolated static var code: String {
+        if let identifier = Locale.current.currency?.identifier.uppercased(),
+           identifier.count == 3 {
+            return identifier
+        }
+        return languageFallbackCode
+    }
+
+    /// Symbol for the resolved currency, with the ambiguous ones spelled the
+    /// way the local shopper writes them.
+    nonisolated static var symbol: String {
+        switch code {
+        case "EUR": "€"
+        case "USD", "CAD", "AUD", "NZD", "MXN": "$"
+        case "GBP": "£"
+        case "BRL": "R$"
+        case "CNY", "JPY": "¥"
+        case "INR": "₹"
+        case "CHF": "CHF"
+        default: Locale.current.currencySymbol ?? code
+        }
+    }
+
+    /// True where the symbol comes before the number ($12) rather than after
+    /// it (12 €). This is a writing convention, so it follows the language.
+    nonisolated static var symbolLeads: Bool {
+        switch LanguageRuntime.current {
+        case .fr, .es: false
+        case .en, .enGB, .ptBR, .zhCN, .hi: true
+        }
+    }
+
+    /// Home currency of the language, used only when the device region is
+    /// unavailable — never in place of a real region.
+    private nonisolated static var languageFallbackCode: String {
+        switch LanguageRuntime.current {
+        case .fr, .es: "EUR"
+        case .en: "USD"
+        case .enGB: "GBP"
+        case .ptBR: "BRL"
+        case .zhCN: "CNY"
+        case .hi: "INR"
+        }
     }
 }

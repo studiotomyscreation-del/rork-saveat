@@ -84,7 +84,7 @@ nonisolated struct MealAIService: Sendable {
         }
 
         var messages: [[String: Any]] = [
-            ["role": "system", "content": Self.systemPrompt(for: LanguageRuntime.current)],
+            ["role": "system", "content": Self.systemPrompt(for: LanguageRuntime.current) + Self.currencyInstruction],
             ["role": "user", "content": userPrompt(inventory: inventory, profile: profile, request: request)]
         ]
         if !request.history.isEmpty {
@@ -141,6 +141,17 @@ nonisolated struct MealAIService: Sendable {
     /// Both versions carry the same rules; only the language, the measurements
     /// and the currency of the estimates change, so a US cook gets cups, ounces
     /// and Fahrenheit rather than a converted French recipe.
+    /// Pins price estimates to the currency the user actually pays in, which
+    /// follows their country rather than the language they read. Appended last
+    /// so it overrides whichever currency the language prompt names.
+    private nonisolated static var currencyInstruction: String {
+        """
+
+
+        Currency rule, overriding any currency named above: every estimatedPrice is a rough estimate in \(Money.code) (\(Money.symbol)). Never mention any other currency.
+        """
+    }
+
     private nonisolated static func systemPrompt(for language: AppLanguage) -> String {
         switch language {
         case .fr: frenchSystemPrompt
