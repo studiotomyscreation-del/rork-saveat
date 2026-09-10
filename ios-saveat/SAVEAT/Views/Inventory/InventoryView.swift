@@ -45,7 +45,7 @@ struct InventoryView: View {
         }
         .scrollIndicators(.hidden)
         .saveatBackground()
-        .searchable(text: $search, prompt: "Chercher un produit")
+        .searchable(text: $search, prompt: S.Inventory.searchPrompt.s)
         .sheet(isPresented: $isAddingItem) {
             AddFoodSheet(defaultLocation: location)
         }
@@ -54,10 +54,10 @@ struct InventoryView: View {
     private var header: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Mon stock")
+                Text(S.Inventory.title.s)
                     .font(Theme.display(27))
                     .foregroundStyle(Theme.ink)
-                Text("\(store.totalProducts) produits • valeur estimée \(Format.euro(store.stockValue, decimals: 0))")
+                Text(S.Inventory.subtitle.f(store.totalProducts, Format.euro(store.stockValue, decimals: 0)))
                     .font(Theme.body(13))
                     .foregroundStyle(Theme.inkSoft)
             }
@@ -70,7 +70,7 @@ struct InventoryView: View {
                     .background(Theme.sage, in: .circle)
             }
             .buttonStyle(SoftPressStyle())
-            .accessibilityLabel("Scanner mes courses")
+            .accessibilityLabel(S.Inventory.scanAccessibility.s)
         }
         .padding(.top, 6)
     }
@@ -114,18 +114,20 @@ struct InventoryView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 Text("🟠").font(.system(size: 14))
-                Text("\(store.rescueItems.count) produit\(store.rescueItems.count > 1 ? "s" : "") à sauver")
+                Text(store.rescueItems.count > 1
+                    ? S.Inventory.rescueCountPlural.f(store.rescueItems.count)
+                    : S.Inventory.rescueCount.f(store.rescueItems.count))
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.ink)
                 Spacer()
             }
 
-            Text(store.rescueItems.prefix(4).map(\.name).joined(separator: " • "))
+            Text(store.rescueItems.prefix(4).map(\.displayName).joined(separator: " • "))
                 .font(Theme.body(14))
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Button("Trouver un repas") {
+            Button(S.Inventory.findMeal.s) {
                 path.append(Route.rescue)
             }
             .buttonStyle(SaveatButtonStyle(tint: Theme.clay))
@@ -174,7 +176,7 @@ struct InventoryView: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "plus.circle")
-                Text("Ajouter un produit manuellement")
+                Text(S.Inventory.addManually.s)
             }
             .font(.system(size: 15, weight: .semibold, design: .rounded))
             .foregroundStyle(Theme.sageDeep)
@@ -191,11 +193,11 @@ struct InventoryView: View {
     private var emptyState: some View {
         SoftEmptyState(
             emoji: "🧺",
-            title: search.isEmpty ? "\(location.title) : rien pour l'instant" : "Aucun résultat",
+            title: search.isEmpty ? S.Inventory.emptyTitle.f(location.title) : S.Inventory.noResults.s,
             message: search.isEmpty
-                ? "Scanne tes courses en rentrant : chaque code-barres remplit ton stock automatiquement."
-                : "Essaie un autre nom de produit.",
-            actionTitle: search.isEmpty ? "Scanner mes courses" : nil,
+                ? S.Inventory.emptyMessage.s
+                : S.Inventory.noResultsMessage.s,
+            actionTitle: search.isEmpty ? S.Home.scanTitle.s : nil,
             action: search.isEmpty ? onScan : nil
         )
         .saveatCard()
@@ -232,8 +234,8 @@ struct AddFoodSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 10) {
-                        SectionLabel(text: "Produit")
-                        TextField("Nom du produit", text: $name)
+                        SectionLabel(text: S.AddFood.productSection.s)
+                        TextField(S.AddFood.namePlaceholder.s, text: $name)
                             .font(.system(size: 17, weight: .medium, design: .rounded))
                             .padding(15)
                             .background(Theme.creamDeep, in: .rect(cornerRadius: 16))
@@ -257,22 +259,22 @@ struct AddFoodSheet: View {
 
                     VStack(spacing: 14) {
                         HStack {
-                            Text("Quantité").font(.system(size: 15, weight: .medium, design: .rounded))
+                            Text(S.AddFood.quantity.s).font(.system(size: 15, weight: .medium, design: .rounded))
                             Spacer()
                             StockStepper(value: $quantity, range: 0.5...99)
                         }
                         Divider()
                         HStack {
-                            Text("Unité").font(.system(size: 15, weight: .medium, design: .rounded))
+                            Text(S.AddFood.unit.s).font(.system(size: 15, weight: .medium, design: .rounded))
                             Spacer()
-                            TextField("pièce", text: $unit)
+                            TextField(S.AddFood.unitPlaceholder.s, text: $unit)
                                 .multilineTextAlignment(.trailing)
                                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                                 .frame(width: 120)
                         }
                         Divider()
                         HStack {
-                            Text("Rangement").font(.system(size: 15, weight: .medium, design: .rounded))
+                            Text(S.AddFood.storage.s).font(.system(size: 15, weight: .medium, design: .rounded))
                             Spacer()
                             Picker("", selection: $location) {
                                 ForEach(StorageLocation.allCases) { Text("\($0.emoji) \($0.title)").tag($0) }
@@ -281,7 +283,7 @@ struct AddFoodSheet: View {
                         }
                         Divider()
                         HStack {
-                            Text("Rayon").font(.system(size: 15, weight: .medium, design: .rounded))
+                            Text(S.AddFood.aisle.s).font(.system(size: 15, weight: .medium, design: .rounded))
                             Spacer()
                             Picker("", selection: $category) {
                                 ForEach(FoodCategory.allCases) { Text($0.title).tag($0) }
@@ -293,10 +295,10 @@ struct AddFoodSheet: View {
                     .saveatCard()
 
                     VStack(alignment: .leading, spacing: 12) {
-                        SectionLabel(text: "Date de consommation")
+                        SectionLabel(text: S.AddFood.dateSection.s)
 
                         Toggle(isOn: $hasDate) {
-                            Text(hasDate ? "Date renseignée" : "Sans date")
+                            Text(hasDate ? S.AddFood.hasDate.s : S.Common.noDate.s)
                                 .font(.system(size: 15, weight: .medium, design: .rounded))
                                 .foregroundStyle(Theme.ink)
                         }
@@ -306,24 +308,23 @@ struct AddFoodSheet: View {
                             DatePicker("", selection: $bestBefore, displayedComponents: .date)
                                 .datePickerStyle(.compact)
                                 .labelsHidden()
-                                .environment(\.locale, Locale(identifier: "fr_FR"))
 
                             Divider()
 
-                            Text("Type de date")
+                            Text(S.AddFood.dateType.s)
                                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                                 .foregroundStyle(Theme.ink)
                             DateKindPicker(kind: $dateKind)
                         }
 
-                        Text("La date vient de l'emballage ou de toi. SAVEAT ne devine jamais la fraîcheur d'un aliment.")
+                        Text(S.AddFood.dateNote.s)
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.inkSoft)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     .saveatCard()
 
-                    Button("Ajouter à mon stock") {
+                    Button(S.AddFood.addToStock.s) {
                         let item = FoodItem(
                             name: name.trimmingCharacters(in: .whitespaces),
                             emoji: emoji,
@@ -348,11 +349,11 @@ struct AddFoodSheet: View {
             }
             .scrollIndicators(.hidden)
             .saveatBackground()
-            .navigationTitle("Nouveau produit")
+            .navigationTitle(S.AddFood.navTitle.s)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Annuler") { dismiss() }
+                    Button(S.Common.cancel.s) { dismiss() }
                 }
             }
         }

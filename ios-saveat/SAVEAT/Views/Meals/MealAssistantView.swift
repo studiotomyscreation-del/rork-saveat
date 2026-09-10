@@ -33,18 +33,7 @@ struct MealAssistantView: View {
     @State private var usedAI = true
     @State private var hasLoaded = false
 
-    private let quickAsks: [String] = [
-        "Quelque chose de rapide ce soir",
-        "Maximum 15 minutes",
-        "Sans viande",
-        "Riche en protéines",
-        "Moins de 500 kcal",
-        "Repas économique",
-        "Pour les enfants",
-        "Quelque chose de réconfortant",
-        "Repas léger",
-        "Sans lactose"
-    ]
+    private var quickAsks: [String] { S.Assistant.quickAsks.map(\.s) }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -89,10 +78,10 @@ struct MealAssistantView: View {
             HStack(spacing: 12) {
                 BrandMark(size: 48)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Qu'est-ce qu'on mange ?")
+                    Text(S.Assistant.title.s)
                         .font(Theme.display(21))
                         .foregroundStyle(Theme.ink)
-                    Text("Je cuisine avec tes \(store.totalProducts) produits")
+                    Text(S.Assistant.subtitle.f(store.totalProducts))
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                 }
@@ -101,7 +90,7 @@ struct MealAssistantView: View {
 
             HStack(spacing: 10) {
                 HStack(spacing: 8) {
-                    Text("Personnes")
+                    Text(S.Assistant.servingsLabel.s)
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                     QuantityStepper(value: $servings, range: 1...12)
@@ -113,12 +102,12 @@ struct MealAssistantView: View {
                 Button {
                     zeroEuroOnly.toggle()
                     Haptics.light()
-                    Task { await ask(zeroEuroOnly ? "Uniquement avec ce que j'ai, sans rien acheter" : nil) }
+                    Task { await ask(zeroEuroOnly ? S.Assistant.zeroCostPrompt.s : nil) }
                 } label: {
                     HStack(spacing: 6) {
-                        Image(systemName: zeroEuroOnly ? "checkmark.circle.fill" : "eurosign.circle")
+                        Image(systemName: zeroEuroOnly ? "checkmark.circle.fill" : "tag.circle")
                             .font(.system(size: 13, weight: .semibold))
-                        Text("0 €")
+                        Text(Units.zeroCostLabel)
                             .font(.system(size: 13, weight: .semibold, design: .rounded))
                     }
                     .foregroundStyle(zeroEuroOnly ? .white : Theme.sageDeep)
@@ -135,7 +124,7 @@ struct MealAssistantView: View {
         .onChange(of: servings) { _, newValue in
             // Only re-ask once the first suggestions are on screen.
             guard hasLoaded, !isThinking else { return }
-            Task { await ask("Pour \(newValue) personne\(newValue > 1 ? "s" : "")") }
+            Task { await ask(S.Assistant.servingsPrompt.f(newValue)) }
         }
     }
 
@@ -148,11 +137,13 @@ struct MealAssistantView: View {
                     Image(systemName: "sparkles")
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(Theme.sageDeep)
-                    Text("\(subscriptions.remainingAIRequests) suggestion\(subscriptions.remainingAIRequests > 1 ? "s" : "") IA restante\(subscriptions.remainingAIRequests > 1 ? "s" : "") aujourd'hui")
+                    Text(subscriptions.remainingAIRequests > 1
+                        ? S.Assistant.quotaLeftPlural.f(subscriptions.remainingAIRequests)
+                        : S.Assistant.quotaLeft.f(subscriptions.remainingAIRequests))
                         .font(.system(size: 12.5, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                     Spacer(minLength: 0)
-                    Button("Premium") {
+                    Button(S.Assistant.premium.s) {
                         Haptics.light()
                         showsPaywall = true
                     }
@@ -165,7 +156,7 @@ struct MealAssistantView: View {
             } else {
                 PremiumLockCard(
                     feature: .unlimitedAI,
-                    message: "Tes \(SubscriptionStore.freeDailyAIRequests) suggestions IA du jour sont utilisées. Les idées ci-dessous restent basées sur ton stock."
+                    message: S.Assistant.quotaSpent.f(SubscriptionStore.freeDailyAIRequests)
                 ) {
                     Haptics.light()
                     showsPaywall = true
@@ -178,23 +169,23 @@ struct MealAssistantView: View {
         Button {
             Haptics.light()
             Task {
-                await ask("Utilise en priorité ce qui va se perdre",
+                await ask(S.Assistant.rescuePrompt.s,
                           focusNames: store.urgentItems.map(\.name))
             }
         } label: {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
                     Text("🔴").font(.system(size: 13))
-                    Text("\(store.urgentItems.count) produits à sauver")
+                    Text(S.Assistant.rescueCount.f(store.urgentItems.count))
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.ink)
                     Spacer()
                 }
-                Text(store.urgentItems.prefix(4).map(\.name).joined(separator: " • "))
+                Text(store.urgentItems.prefix(4).map(\.displayName).joined(separator: " • "))
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
                     .lineLimit(1)
-                Text("Je peux préparer ton dîner avec ces aliments avant qu'ils ne soient gaspillés.")
+                Text(S.Assistant.rescueLine.s)
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.clay)
                     .fixedSize(horizontal: false, vertical: true)
@@ -240,7 +231,7 @@ struct MealAssistantView: View {
     private var thinkingCard: some View {
         HStack(spacing: 12) {
             ProgressView().tint(Theme.sageDeep)
-            Text("Je regarde ton stock…")
+            Text(S.Assistant.thinking.s)
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
             Spacer(minLength: 0)
@@ -254,10 +245,10 @@ struct MealAssistantView: View {
     private var mealsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                SectionLabel(text: "\(meals.count) repas trouvés")
+                SectionLabel(text: S.Assistant.mealsFound.f(meals.count))
                 Spacer()
                 if !usedAI {
-                    Text("mode hors ligne")
+                    Text(S.Assistant.offlineMode.s)
                         .font(.system(size: 11, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                 }
@@ -274,7 +265,7 @@ struct MealAssistantView: View {
 
     private var quickAskSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(text: "Dis-moi ce que tu veux")
+            SectionLabel(text: S.Assistant.quickAskSection.s)
             ScrollView(.horizontal) {
                 HStack(spacing: 8) {
                     ForEach(quickAsks, id: \.self) { ask in
@@ -301,7 +292,7 @@ struct MealAssistantView: View {
 
     private var composer: some View {
         HStack(spacing: 10) {
-            TextField("Écris ta demande…", text: $draft, axis: .vertical)
+            TextField(S.Assistant.composerPlaceholder.s, text: $draft, axis: .vertical)
                 .font(.system(size: 15, weight: .medium, design: .rounded))
                 .lineLimit(1...3)
                 .padding(.horizontal, 16)
@@ -319,7 +310,7 @@ struct MealAssistantView: View {
             }
             .buttonStyle(SoftPressStyle())
             .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty || isThinking)
-            .accessibilityLabel("Envoyer")
+            .accessibilityLabel(S.Assistant.send.s)
         }
         .padding(.horizontal, Theme.hMargin)
         .padding(.vertical, 10)
@@ -361,7 +352,7 @@ struct MealAssistantView: View {
             zeroEuroOnly: zeroEuroOnly,
             maxMinutes: RequestParser.maxMinutes(in: text ?? ""),
             focusNames: focusNames,
-            history: bubbles.suffix(6).map { "\($0.role == .user ? "Utilisateur" : "SAVEAT") : \($0.text)" }
+            history: bubbles.suffix(6).map { "\($0.role == .user ? S.Assistant.userLabel.s : "SAVEAT") : \($0.text)" }
         )
 
         let answer: MealAIService.Answer
@@ -406,12 +397,12 @@ struct MealAssistantView: View {
 
     private func assistantLine(answer: MealAIService.Answer, count: Int) -> String {
         guard count > 0 else {
-            return "Ton stock est un peu court pour cette demande. Scanne tes courses et je te proposerai des repas."
+            return S.Assistant.emptyAnswer.s
         }
         if zeroEuroOnly {
-            return "J'ai trouvé \(count) repas à 0 € avec ton stock. Aucun achat nécessaire."
+            return S.Assistant.zeroCostAnswer.f(count, Units.zeroCostLabel)
         }
-        return answer.message.isEmpty ? "J'ai trouvé \(count) repas avec ce que tu as." : answer.message
+        return answer.message.isEmpty ? S.Assistant.defaultAnswer.f(count) : answer.message
     }
 }
 
@@ -419,7 +410,8 @@ struct MealAssistantView: View {
 nonisolated enum RequestParser {
     nonisolated static func maxMinutes(in text: String) -> Int? {
         let normalized = MealEngine.normalize(text)
-        guard normalized.contains("min") || normalized.contains("rapide") || normalized.contains("vite") else { return nil }
+        let speedWords = ["min", "rapide", "vite", "quick", "fast"]
+        guard speedWords.contains(where: normalized.contains) else { return nil }
 
         let pattern = #"(\d{1,3})\s*(min|minutes)"#
         if let regex = try? NSRegularExpression(pattern: pattern),
@@ -431,13 +423,20 @@ nonisolated enum RequestParser {
         return 20
     }
 
+    /// Reads "pour 4 personnes" as well as "for 4 servings" / "for 4 people".
     nonisolated static func servings(in text: String) -> Int? {
         let normalized = MealEngine.normalize(text)
-        let pattern = #"pour\s*(\d{1,2})\s*(personne|personnes|pers)"#
-        guard let regex = try? NSRegularExpression(pattern: pattern),
-              let match = regex.firstMatch(in: normalized, range: NSRange(normalized.startIndex..., in: normalized)),
-              let range = Range(match.range(at: 1), in: normalized),
-              let value = Int(normalized[range]) else { return nil }
-        return min(max(value, 1), 12)
+        let patterns = [
+            #"pour\s*(\d{1,2})\s*(personne|personnes|pers)"#,
+            #"for\s*(\d{1,2})\s*(serving|servings|people|person)"#
+        ]
+        for pattern in patterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern),
+                  let match = regex.firstMatch(in: normalized, range: NSRange(normalized.startIndex..., in: normalized)),
+                  let range = Range(match.range(at: 1), in: normalized),
+                  let value = Int(normalized[range]) else { continue }
+            return min(max(value, 1), 12)
+        }
+        return nil
     }
 }

@@ -79,13 +79,13 @@ struct NativePaywallView: View {
         .onChange(of: packages.count) { _, _ in
             selectedPackage = selectedPackage ?? packages.first
         }
-        .alert("Oups", isPresented: alertBinding(for: \.errorMessage)) {
-            Button("OK") { subscriptions.errorMessage = nil }
+        .alert(S.Paywall.oops.s, isPresented: alertBinding(for: \.errorMessage)) {
+            Button(S.Common.ok.s) { subscriptions.errorMessage = nil }
         } message: {
             Text(subscriptions.errorMessage ?? "")
         }
-        .alert("Achat en attente", isPresented: alertBinding(for: \.pendingMessage)) {
-            Button("OK") { subscriptions.pendingMessage = nil }
+        .alert(S.Paywall.pendingPurchase.s, isPresented: alertBinding(for: \.pendingMessage)) {
+            Button(S.Common.ok.s) { subscriptions.pendingMessage = nil }
         } message: {
             Text(subscriptions.pendingMessage ?? "")
         }
@@ -129,12 +129,12 @@ struct NativePaywallView: View {
         .buttonStyle(SoftPressStyle())
         .padding(.trailing, Theme.hMargin)
         .padding(.top, 10)
-        .accessibilityLabel("Fermer")
+        .accessibilityLabel(S.Common.close.s)
     }
 
     private var hero: some View {
         VStack(spacing: 12) {
-            Text("SAVEAT PREMIUM")
+            Text(S.Paywall.badge.s)
                 .font(.system(size: 12, weight: .bold, design: .rounded))
                 .tracking(3)
                 .foregroundStyle(Theme.sageDeep)
@@ -142,7 +142,7 @@ struct NativePaywallView: View {
                 .padding(.vertical, 7)
                 .background(Theme.sageMist, in: .capsule)
 
-            Text("Fais économiser encore plus à ton frigo.")
+            Text(S.Paywall.title.s)
                 .font(.system(size: 27, weight: .bold, design: .rounded))
                 .foregroundStyle(Theme.ink)
                 .multilineTextAlignment(.center)
@@ -155,7 +155,7 @@ struct NativePaywallView: View {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
-                Text("Scanne sans limite, cuisine avec l'IA et suis tes économies mois après mois.")
+                Text(S.Paywall.subtitle.s)
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
                     .multilineTextAlignment(.center)
@@ -167,22 +167,24 @@ struct NativePaywallView: View {
 
     private func upsellLine(for feature: PremiumFeature) -> String {
         switch feature {
-        case .unlimitedScans: "Tu as atteint tes scans gratuits du jour. Passe en illimité pour finir tes courses."
-        case .unlimitedAI: "Tu as utilisé tes suggestions IA du jour. Débloque l'IA cuisine illimitée."
-        case .zeroEuroMode: "Le mode 0 € trouve des repas complets sans rien acheter."
-        case .endOfMonth: "Le mode fin de mois étire ton budget jusqu'au dernier jour."
-        case .savingsStats: "Suis précisément l'argent que tu ne jettes plus."
+        case .unlimitedScans: S.Paywall.upsellScans.s
+        case .unlimitedAI: S.Paywall.upsellAI.s
+        case .zeroEuroMode: S.Paywall.upsellZeroCost.s
+        case .endOfMonth: S.Paywall.upsellEndOfMonth.s
+        case .savingsStats: S.Paywall.upsellStats.s
         }
     }
 
-    private let perks: [(String, String, String)] = [
-        ("barcode.viewfinder", "Scans illimités", "Scanne toutes tes courses d'un coup, sans compteur."),
-        ("sparkles", "IA cuisine illimitée", "Des recettes générées à partir de ton stock réel."),
-        ("eurosign.circle.fill", "Mode 0 €", "Des repas complets sans dépenser un centime."),
-        ("calendar.badge.clock", "Mode fin de mois", "Un plan repas qui tient jusqu'au dernier jour."),
-        ("chart.line.uptrend.xyaxis", "Stats d'économies", "Estimation de ce que tu ne jettes plus."),
-        ("bell.badge.fill", "Alertes produits à sauver", "Prévenu avant que ça se perde.")
-    ]
+    private var perks: [(String, String, String)] {
+        [
+            ("barcode.viewfinder", S.Paywall.perkScansTitle.s, S.Paywall.perkScansBody.s),
+            ("sparkles", S.Paywall.perkAITitle.s, S.Paywall.perkAIBody.s),
+            ("tag.circle.fill", S.Paywall.perkZeroTitle.s, S.Paywall.perkZeroBody.s),
+            ("calendar.badge.clock", S.Paywall.perkBudgetTitle.s, S.Paywall.perkBudgetBody.s),
+            ("chart.line.uptrend.xyaxis", S.Paywall.perkStatsTitle.s, S.Paywall.perkStatsBody.s),
+            ("bell.badge.fill", S.Paywall.perkAlertsTitle.s, S.Paywall.perkAlertsBody.s)
+        ]
+    }
 
     private var benefits: some View {
         VStack(spacing: 14) {
@@ -243,7 +245,7 @@ struct NativePaywallView: View {
                             .font(.system(size: 16, weight: .semibold, design: .rounded))
                             .foregroundStyle(Theme.ink)
                         if isBest {
-                            Text("⭐ Meilleure offre")
+                            Text(S.Paywall.bestValue.s)
                                 .font(.system(size: 10.5, weight: .bold, design: .rounded))
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 8)
@@ -279,44 +281,48 @@ struct NativePaywallView: View {
 
     private func planTitle(_ package: Package) -> String {
         switch package.packageType {
-        case .annual: "Annuel"
-        case .monthly: "Mensuel"
-        case .lifetime: "À vie"
-        case .weekly: "Hebdomadaire"
+        case .annual: S.Paywall.annual.s
+        case .monthly: S.Paywall.monthly.s
+        case .lifetime: S.Paywall.lifetime.s
+        case .weekly: S.Paywall.weekly.s
         default: package.storeProduct.localizedTitle
         }
     }
 
     private func planSubtitle(_ package: Package) -> String? {
         if let intro = package.storeProduct.introductoryDiscount, intro.price == 0 {
-            let unit = periodText(intro.subscriptionPeriod)
-            return "\(intro.subscriptionPeriod.value) \(unit) offert\(intro.subscriptionPeriod.value > 1 ? "s" : "") puis \(subscriptions.priceLabel(for: package))"
+            let value = intro.subscriptionPeriod.value
+            let trial = "\(value) \(periodText(intro.subscriptionPeriod))"
+            let price = subscriptions.priceLabel(for: package)
+            return value > 1
+                ? S.Paywall.trialThenPlural.f(trial, price)
+                : S.Paywall.trialThen.f(trial, price)
         }
         if let monthly = subscriptions.monthlyEquivalent(for: package) {
-            return "\(monthly) • facturé une fois par an"
+            return S.Paywall.billedYearly.f(monthly)
         }
         if package.packageType == .lifetime {
-            return "Paiement unique, accès définitif"
+            return S.Paywall.lifetimeNote.s
         }
         if package.packageType == .monthly {
-            return "Sans engagement, résiliable à tout moment"
+            return S.Paywall.monthlyNote.s
         }
         return nil
     }
 
     private func periodText(_ period: SubscriptionPeriod) -> String {
         switch period.unit {
-        case .day: period.value > 1 ? "jours" : "jour"
-        case .week: period.value > 1 ? "semaines" : "semaine"
-        case .month: "mois"
-        case .year: period.value > 1 ? "ans" : "an"
+        case .day: period.value > 1 ? S.Paywall.days.s : S.Paywall.day.s
+        case .week: period.value > 1 ? S.Paywall.weeks.s : S.Paywall.week.s
+        case .month: S.Paywall.months.s
+        case .year: period.value > 1 ? S.Paywall.years.s : S.Paywall.year.s
         }
     }
 
     private var unavailableCard: some View {
         VStack(spacing: 12) {
             Text("😕").font(.system(size: 34))
-            Text("Offres indisponibles")
+            Text(S.Paywall.unavailableTitle.s)
                 .font(Theme.title(18))
                 .foregroundStyle(Theme.ink)
             Text(subscriptions.unavailableReason)
@@ -331,7 +337,7 @@ struct NativePaywallView: View {
                 if subscriptions.isLoadingOfferings {
                     ProgressView().tint(Theme.sageDeep)
                 } else {
-                    Text("Réessayer")
+                    Text(S.Common.retry.s)
                 }
             }
             .buttonStyle(SaveatButtonStyle(tint: Theme.sage, isProminent: false))
@@ -358,7 +364,7 @@ struct NativePaywallView: View {
             .disabled(selectedPackage == nil || subscriptions.isPurchasing)
 
             HStack(spacing: 18) {
-                Button("Continuer gratuitement") { dismiss() }
+                Button(S.Paywall.continueFree.s) { dismiss() }
                     .font(.system(size: 13.5, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
 
@@ -368,7 +374,7 @@ struct NativePaywallView: View {
                     if subscriptions.isRestoring {
                         ProgressView().tint(Theme.inkSoft)
                     } else {
-                        Text("Restaurer mes achats")
+                        Text(S.Paywall.restore.s)
                     }
                 }
                 .font(.system(size: 13.5, weight: .semibold, design: .rounded))
@@ -383,31 +389,31 @@ struct NativePaywallView: View {
     }
 
     private var ctaTitle: String {
-        guard let package = selectedPackage else { return "Passer à SAVEAT Premium" }
+        guard let package = selectedPackage else { return S.Paywall.subscribeCTA.s }
         if let intro = package.storeProduct.introductoryDiscount, intro.price == 0 {
-            return "Commencer l'essai gratuit"
+            return S.Paywall.trialCTA.s
         }
-        return "Passer à SAVEAT Premium"
+        return S.Paywall.subscribeCTA.s
     }
 
     private var legal: some View {
         VStack(spacing: 10) {
             HStack(spacing: 8) {
-                Link("Conditions d'utilisation", destination: SaveatInfo.termsURL)
+                Link(S.Profile.terms.s, destination: SaveatInfo.termsURL)
                 Text("·")
-                Link("Politique de confidentialité", destination: SaveatInfo.privacyURL)
+                Link(S.Profile.privacy.s, destination: SaveatInfo.privacyURL)
             }
             .font(.system(size: 12.5, weight: .semibold, design: .rounded))
             .foregroundStyle(Theme.sageDeep)
             .multilineTextAlignment(.center)
             .frame(minHeight: 44)
 
-            Text("Paiement via ton compte Apple. L'abonnement se renouvelle automatiquement sauf résiliation au moins 24 h avant la fin de la période. Tu peux gérer ou résilier à tout moment dans les réglages de l'App Store.")
+            Text(S.Paywall.renewalTerms.s)
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft.opacity(0.9))
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
-            Text("Toutes les économies affichées dans SAVEAT sont des estimations.")
+            Text(S.Paywall.estimatesNote.s)
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft.opacity(0.75))
                 .multilineTextAlignment(.center)

@@ -86,16 +86,16 @@ struct GroceryScanView: View {
             .presentationDetents([.medium, .large])
             .presentationContentInteraction(.scrolls)
         }
-        .alert("Saisir un code-barres", isPresented: $showsManualEntry) {
-            TextField("Ex. 3017620422003", text: $manualCode)
+        .alert(S.Scan.manualEntryTitle.s, isPresented: $showsManualEntry) {
+            TextField(S.Scan.manualEntryPlaceholder.s, text: $manualCode)
                 .keyboardType(.numberPad)
-            Button("Rechercher") {
+            Button(S.Scan.searchAction.s) {
                 let code = manualCode.trimmingCharacters(in: .whitespaces)
                 manualCode = ""
                 guard !code.isEmpty else { return }
                 handle(code: code)
             }
-            Button("Annuler", role: .cancel) { manualCode = "" }
+            Button(S.Common.cancel.s, role: .cancel) { manualCode = "" }
         }
     }
 
@@ -118,20 +118,20 @@ struct GroceryScanView: View {
             case .denied:
                 cameraMessage(
                     emoji: "🔒",
-                    title: "Accès caméra refusé",
-                    message: "Autorise la caméra dans Réglages pour scanner tes codes-barres, ou saisis-les à la main."
+                    title: S.Scan.cameraDeniedTitle.s,
+                    message: S.Scan.cameraDeniedMessage.s
                 )
             case .noDevice:
                 cameraMessage(
                     emoji: "📷",
-                    title: "Aucune caméra détectée",
-                    message: "Tu peux saisir un code-barres ou utiliser les produits de démonstration ci-dessous."
+                    title: S.Scan.noCameraTitle.s,
+                    message: S.Scan.noCameraMessage.s
                 )
             case .failed:
                 cameraMessage(
                     emoji: "⚠️",
-                    title: "Caméra indisponible",
-                    message: "Réessaie plus tard, ou ajoute tes produits manuellement."
+                    title: S.Scan.cameraFailedTitle.s,
+                    message: S.Scan.cameraFailedMessage.s
                 )
             case .idle:
                 ProgressView().tint(.white)
@@ -180,11 +180,11 @@ struct GroceryScanView: View {
                     .frame(width: 38, height: 38)
                     .background(.white.opacity(0.18), in: .circle)
             }
-            .accessibilityLabel("Fermer")
+            .accessibilityLabel(S.Common.close.s)
 
             Spacer()
 
-            Text("Scanner mes courses")
+            Text(S.Scan.title.s)
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white)
 
@@ -200,7 +200,7 @@ struct GroceryScanView: View {
                     .frame(width: 38, height: 38)
                     .background(.white.opacity(0.18), in: .circle)
             }
-            .accessibilityLabel("Saisir un code-barres")
+            .accessibilityLabel(S.Scan.manualEntryTitle.s)
         }
     }
 
@@ -222,7 +222,7 @@ struct GroceryScanView: View {
             case .searching(let code):
                 HStack(spacing: 10) {
                     ProgressView().tint(.white).scaleEffect(0.8)
-                    Text("Recherche du produit \(code.suffix(6))…")
+                    Text(S.Scan.searching.f(String(code.suffix(6))))
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
                 }
@@ -247,7 +247,7 @@ struct GroceryScanView: View {
                     .background(Theme.sageDeep.opacity(0.92), in: .capsule)
                     .transition(.scale.combined(with: .opacity))
                 } else {
-                    Text("Vise un code-barres, il s'ajoute tout seul")
+                    Text(S.Scan.aimHint.s)
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundStyle(.white.opacity(0.85))
                         .padding(.horizontal, 16).padding(.vertical, 11)
@@ -295,12 +295,12 @@ struct GroceryScanView: View {
                         .font(.system(size: 30, weight: .bold, design: .rounded).monospacedDigit())
                         .foregroundStyle(Theme.ink)
                         .contentTransition(.numericText())
-                    Text("produit\(entries.count > 1 ? "s" : "") ajouté\(entries.count > 1 ? "s" : "")")
+                    Text(entries.count > 1 ? S.Scan.itemsAddedPlural.s : S.Scan.itemsAdded.s)
                         .font(.system(size: 15, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                 }
                 if total > 0 {
-                    Text("Courses enregistrées : \(Format.euro(total)) — estimation")
+                    Text(S.Scan.runTotal.f(Format.euro(total)))
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.sageDeep)
                 }
@@ -328,14 +328,14 @@ struct GroceryScanView: View {
                                     .foregroundStyle(Theme.ink)
                                     .lineLimit(1)
                                 HStack(spacing: 5) {
-                                    Text("\(Format.quantity(entry.quantity)) × \(entry.product.unit)")
+                                    Text("\(Format.quantity(entry.quantity)) × \(FoodUnits.display(entry.product.unit, quantity: entry.quantity))")
                                         .font(.system(size: 11, weight: .medium, design: .rounded))
                                         .foregroundStyle(Theme.inkSoft)
                                     Text("• \(entry.location.emoji)")
                                         .font(.system(size: 11, weight: .medium, design: .rounded))
                                         .foregroundStyle(Theme.inkSoft)
                                     if entry.bestBefore == nil {
-                                        Text("• sans date")
+                                        Text(S.Scan.noDate.s)
                                             .font(.system(size: 11, weight: .semibold, design: .rounded))
                                             .foregroundStyle(Theme.terracotta)
                                     }
@@ -361,7 +361,7 @@ struct GroceryScanView: View {
 
     private var demoSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Pas de code-barres sous la main ? Essaie :")
+            Text(S.Scan.demoHint.s)
                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
 
@@ -373,7 +373,7 @@ struct GroceryScanView: View {
                         } label: {
                             HStack(spacing: 6) {
                                 Text(product.emoji)
-                                Text(product.name)
+                                Text(product.displayTitle)
                                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                                     .foregroundStyle(Theme.ink)
                                     .lineLimit(1)
@@ -398,24 +398,27 @@ struct GroceryScanView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 Text("⚠️").font(.system(size: 17))
-                Text("Tu en as déjà")
+                Text(S.Scan.duplicateTitle.s)
                     .font(.system(size: 17, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.ink)
                 Spacer()
             }
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(candidate.existing.name)
+                Text(candidate.existing.displayName)
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.ink)
-                Text("Tu as déjà \(candidate.existing.stockLine) dans \(candidate.existing.location.title.lowercased()).")
+                Text(S.Scan.duplicateBody.f(
+                    candidate.existing.stockLine,
+                    candidate.existing.location.title.lowercased()
+                ))
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             HStack(spacing: 10) {
-                Button("Ne pas ajouter") {
+                Button(S.Scan.dontAdd.s) {
                     withAnimation { duplicate = nil }
                     Haptics.light()
                 }
@@ -425,7 +428,7 @@ struct GroceryScanView: View {
                 .padding(.vertical, 13)
                 .background(Theme.creamDeep, in: .capsule)
 
-                Button("Ajouter quand même") {
+                Button(S.Scan.addAnyway.s) {
                     append(product: candidate.product)
                     withAnimation { duplicate = nil }
                 }
@@ -451,12 +454,12 @@ struct GroceryScanView: View {
                 camera.stop()
                 withAnimation { stage = .review }
             } label: {
-                Text(entries.isEmpty ? "Fermer" : "Terminer mes courses")
+                Text(entries.isEmpty ? S.Common.close.s : S.Scan.finish.s)
             }
             .buttonStyle(SaveatButtonStyle(tint: entries.isEmpty ? Theme.inkSoft : Theme.sage))
             .disabled(false)
 
-            Text("Chaque produit rejoint automatiquement ton stock.")
+            Text(S.Scan.autoAddNote.s)
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
         }

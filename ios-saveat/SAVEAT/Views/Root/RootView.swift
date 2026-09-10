@@ -7,11 +7,11 @@ nonisolated enum AppTab: String, CaseIterable, Identifiable, Sendable {
 
     nonisolated var title: String {
         switch self {
-        case .home: "Accueil"
-        case .stock: "Stock"
-        case .meals: "Repas"
-        case .scanner: "Scanner"
-        case .profile: "Profil"
+        case .home: S.Tabs.home.s
+        case .stock: S.Tabs.stock.s
+        case .meals: S.Tabs.meals.s
+        case .scanner: S.Tabs.scanner.s
+        case .profile: S.Tabs.profile.s
         }
     }
 

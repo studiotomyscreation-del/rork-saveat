@@ -10,9 +10,9 @@ nonisolated enum StorageLocation: String, Codable, CaseIterable, Identifiable, S
 
     nonisolated var title: String {
         switch self {
-        case .fridge: "Frigo"
-        case .pantry: "Placards"
-        case .freezer: "Congélateur"
+        case .fridge: S.Storage.fridge.s
+        case .pantry: S.Storage.pantry.s
+        case .freezer: S.Storage.freezer.s
         }
     }
 
@@ -43,9 +43,9 @@ nonisolated enum FreshnessState: String, Codable, Sendable, CaseIterable {
 
     nonisolated var label: String {
         switch self {
-        case .fresh: "OK"
-        case .soon: "À consommer bientôt"
-        case .urgent: "À utiliser en priorité"
+        case .fresh: S.Freshness.fresh.s
+        case .soon: S.Freshness.soon.s
+        case .urgent: S.Freshness.urgent.s
         }
     }
 
@@ -78,11 +78,11 @@ nonisolated enum FoodCategory: String, Codable, CaseIterable, Identifiable, Send
 
     nonisolated var title: String {
         switch self {
-        case .produce: "Fruits & légumes"
-        case .dairy: "Produits frais"
-        case .protein: "Viandes / protéines"
-        case .grocery: "Épicerie"
-        case .frozen: "Surgelés"
+        case .produce: S.Category.produce.s
+        case .dairy: S.Category.dairy.s
+        case .protein: S.Category.protein.s
+        case .grocery: S.Category.grocery.s
+        case .frozen: S.Category.frozen.s
         }
     }
 
@@ -165,24 +165,23 @@ nonisolated struct FoodItem: Identifiable, Codable, Hashable, Sendable {
     nonisolated var quantityText: String { Format.quantity(quantity) }
 
     nonisolated var stockLine: String {
-        "\(quantityText) \(unit)\(quantity > 1 && !unit.hasSuffix("s") ? "s" : "")"
+        "\(quantityText) \(FoodUnits.display(unit, quantity: quantity))"
     }
 
-    nonisolated var displayName: String { name }
+    nonisolated var displayName: String { FoodNames.display(name) }
 
-    /// Human friendly deadline copy, e.g. "dans 3 jours" or "12 sept.".
+    /// Human friendly deadline copy, e.g. "dans 3 jours" or "in 3 days".
+    ///
+    /// Past a week the exact date is shown in the reader's own format, so a US
+    /// user reads "Sep 12" where a French user reads "12 sept.".
     nonisolated var deadlineText: String {
-        guard let bestBefore, let days = daysLeft else { return "Sans date" }
+        guard let bestBefore, let days = daysLeft else { return S.Common.noDate.s }
         switch days {
-        case ..<0: return "Dépassé"
-        case 0: return "Aujourd'hui"
-        case 1: return "Demain"
-        case 2...6: return "dans \(days) jours"
-        default:
-            let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "fr_FR")
-            formatter.dateFormat = "d MMM"
-            return formatter.string(from: bestBefore)
+        case ..<0: return S.Common.expired.s
+        case 0: return S.Common.today.s
+        case 1: return S.Common.tomorrow.s
+        case 2...6: return S.Common.inDays.f(days)
+        default: return Units.shortDate(bestBefore)
         }
     }
 

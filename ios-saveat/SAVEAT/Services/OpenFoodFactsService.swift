@@ -6,8 +6,8 @@ nonisolated enum ProductLookupError: LocalizedError, Sendable {
 
     nonisolated var errorDescription: String? {
         switch self {
-        case .notFound: "Produit introuvable dans la base."
-        case .network: "Connexion impossible pour l'instant."
+        case .notFound: S.Lookup.notFound.s
+        case .network: S.Lookup.network.s
         }
     }
 }
@@ -19,9 +19,16 @@ nonisolated enum ProductLookupError: LocalizedError, Sendable {
 nonisolated struct OpenFoodFactsService: Sendable {
     nonisolated static let shared = OpenFoodFactsService()
 
+    /// Fields requested from Open Food Facts.
+    ///
+    /// The English product and ingredient fields are requested alongside the
+    /// French ones so a US barcode resolves with US wording; which one wins is
+    /// decided per reader in `toProduct`.
     private static let fields = [
-        "code", "product_name", "product_name_fr", "brands", "image_front_url", "image_url",
-        "quantity", "ingredients_text_fr", "ingredients_text", "allergens_tags", "additives_tags",
+        "code", "product_name", "product_name_fr", "product_name_en", "brands",
+        "image_front_url", "image_url", "quantity",
+        "ingredients_text_fr", "ingredients_text_en", "ingredients_text",
+        "allergens_tags", "additives_tags",
         "nutriscore_grade", "nova_group", "nutriments", "categories_tags"
     ].joined(separator: ",")
 
@@ -31,6 +38,8 @@ nonisolated struct OpenFoodFactsService: Sendable {
             return .success(local)
         }
 
+            // The world endpoint covers US barcodes as well as European ones, so a
+        // shopper in either country resolves against the same database.
         guard let url = URL(string: "https://world.openfoodfacts.org/api/v2/product/\(barcode).json?fields=\(Self.fields)") else {
             return .failure(.notFound)
         }
@@ -66,11 +75,13 @@ private nonisolated struct OFFResponse: Decodable, Sendable {
 private nonisolated struct OFFProduct: Decodable, Sendable {
     var productName: String?
     var productNameFR: String?
+    var productNameEN: String?
     var brands: String?
     var imageFrontURL: String?
     var imageURL: String?
     var quantity: String?
     var ingredientsTextFR: String?
+    var ingredientsTextEN: String?
     var ingredientsText: String?
     var allergensTags: [String]?
     var additivesTags: [String]?
@@ -82,11 +93,13 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
     enum CodingKeys: String, CodingKey {
         case productName = "product_name"
         case productNameFR = "product_name_fr"
+        case productNameEN = "product_name_en"
         case brands
         case imageFrontURL = "image_front_url"
         case imageURL = "image_url"
         case quantity
         case ingredientsTextFR = "ingredients_text_fr"
+        case ingredientsTextEN = "ingredients_text_en"
         case ingredientsText = "ingredients_text"
         case allergensTags = "allergens_tags"
         case additivesTags = "additives_tags"
@@ -97,10 +110,26 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
     }
 
     nonisolated func toProduct(barcode: String) -> ScannedProduct {
-        let rawName = [productNameFR, productName].compactMap { $0 }.first { !$0.isEmpty } ?? "Produit \(barcode.suffix(4))"
+        // The reader's own language comes first, then the generic field, then
+        // the other language: a US shopper gets the English name when the
+        // database has one, and never an empty product sheet when it doesn't.
+        let namesByPreference: [String?] = LanguageRuntime.current == .fr
+            ? [productNameFR, productName, productNameEN]
+            : [productNameEN, productName, productNameFR]
+        let rawName = namesByPreference.compactMap { $0 }.first { !$0.isEmpty }
+            ?? S.Lookup.fallbackName.f(String(barcode.suffix(4)))
         let name = rawName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let ingredientsByPreference: [String?] = LanguageRuntime.current == .fr
+            ? [ingredientsTextFR, ingredientsText, ingredientsTextEN]
+            : [ingredientsTextEN, ingredientsText, ingredientsTextFR]
+
+        // Sorting looks at every language field, so a US pack labelled only in
+        // English still lands in the right place at home.
         let tags = categoriesTags ?? []
-        let profile = ProductHeuristics.profile(name: name, tags: tags)
+        let sortingText = [name, productNameEN, productNameFR, productName]
+            .compactMap { $0 }
+            .joined(separator: " ")
+        let profile = ProductHeuristics.profile(name: sortingText, tags: tags)
 
         return ScannedProduct(
             barcode: barcode,
@@ -108,7 +137,7 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
             brand: brands?.split(separator: ",").first.map { String($0).trimmingCharacters(in: .whitespaces) },
             imageURLString: imageFrontURL ?? imageURL,
             packagingText: quantity,
-            ingredientsText: [ingredientsTextFR, ingredientsText].compactMap { $0 }.first { !$0.isEmpty },
+            ingredientsText: ingredientsByPreference.compactMap { $0 }.first { !$0.isEmpty },
             allergens: (allergensTags ?? []).map { ProductHeuristics.cleanTag($0) },
             additives: (additivesTags ?? []).map { ProductHeuristics.cleanTag($0) },
             // A missing key means "not documented"; an empty array means "none".
@@ -171,66 +200,75 @@ nonisolated enum ProductHeuristics {
         tag.split(separator: ":").last.map(String.init) ?? tag
     }
 
+    /// Sorts a scanned product into a storage place, category and unit.
+    ///
+    /// Keywords cover French **and** American shelves: a US pack labelled only
+    /// in English ("shredded cheddar", "ground beef", "peanut butter") must land
+    /// in the right place at home just as reliably as a French one.
     nonisolated static func profile(name: String, tags: [String]) -> Profile {
         let haystack = (name + " " + tags.joined(separator: " "))
-            .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: Locale(identifier: "fr_FR"))
+            .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: Locale(identifier: "en_US_POSIX"))
 
         func has(_ keys: [String]) -> Bool {
             keys.contains { haystack.contains($0) }
         }
 
-        if has(["surgel", "frozen", "glace", "ice-cream"]) {
+        if has(["surgel", "frozen", "glace", "ice-cream", "ice cream", "popsicle"]) {
             return Profile(location: .freezer, category: .frozen, emoji: "🧊", unit: "sachet", price: 3.20, shelfLifeDays: 180)
         }
-        if has(["yaourt", "yogurt", "yoghurt"]) {
-            return Profile(location: .fridge, category: .dairy, emoji: "🥣", unit: "pack", price: 2.30, shelfLifeDays: 21)
+        if has(["yaourt", "yogurt", "yoghurt", "skyr", "kefir"]) {
+            return Profile(location: .fridge, category: .dairy, emoji: "🥣", unit: "pot", price: 2.30, shelfLifeDays: 21)
         }
-        if has(["lait", "milk"]) {
+        if has(["lait", "milk", "half-and-half", "buttermilk"]) {
             return Profile(location: .fridge, category: .dairy, emoji: "🥛", unit: "bouteille", price: 1.15, shelfLifeDays: 7)
         }
-        if has(["fromage", "cheese", "emmental", "comte", "mozzarella"]) {
+        if has(["fromage", "cheese", "emmental", "comte", "mozzarella", "cheddar", "parmesan"]) {
             return Profile(location: .fridge, category: .dairy, emoji: "🧀", unit: "paquet", price: 2.60, shelfLifeDays: 20)
         }
-        if has(["beurre", "butter", "creme", "cream"]) {
+        if has(["beurre", "butter", "creme", "cream", "sour cream"]) {
             return Profile(location: .fridge, category: .dairy, emoji: "🧈", unit: "paquet", price: 2.40, shelfLifeDays: 30)
         }
-        if has(["jambon", "ham", "charcuterie", "lardon", "saucisse"]) {
+        if has(["jambon", "ham", "charcuterie", "lardon", "saucisse", "bacon", "sausage", "deli", "hot dog"]) {
             return Profile(location: .fridge, category: .protein, emoji: "🥓", unit: "paquet", price: 2.90, shelfLifeDays: 8)
         }
         if has(["oeuf", "œuf", "egg"]) {
             return Profile(location: .fridge, category: .protein, emoji: "🥚", unit: "boîte", price: 3.20, shelfLifeDays: 21)
         }
-        if has(["poulet", "boeuf", "porc", "dinde", "viande", "steak", "meat"]) {
+        if has(["poulet", "boeuf", "porc", "dinde", "viande", "steak", "meat",
+                "chicken", "beef", "pork", "turkey", "ground", "tofu"]) {
             return Profile(location: .fridge, category: .protein, emoji: "🍗", unit: "barquette", price: 6.50, shelfLifeDays: 4)
         }
-        if has(["thon", "sardine", "maquereau", "saumon", "poisson", "fish", "tuna"]) {
+        if has(["thon", "sardine", "maquereau", "saumon", "poisson", "fish", "tuna", "salmon", "shrimp"]) {
             return Profile(location: .pantry, category: .protein, emoji: "🐟", unit: "boîte", price: 2.10, shelfLifeDays: 720)
         }
-        if has(["pate", "spaghetti", "penne", "coquillette", "pasta", "nouille"]) {
+        if has(["pate", "spaghetti", "penne", "coquillette", "pasta", "nouille", "macaroni", "noodle"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🍝", unit: "paquet", price: 1.30, shelfLifeDays: 540)
         }
-        if has(["riz", "rice", "quinoa", "semoule", "boulgour"]) {
+        if has(["riz", "rice", "quinoa", "semoule", "boulgour", "couscous", "oats", "oatmeal", "flour", "farine"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🍚", unit: "paquet", price: 2.40, shelfLifeDays: 540)
         }
-        if has(["sauce", "tomate pel", "coulis", "passata", "ketchup"]) {
+        if has(["sauce", "tomate pel", "coulis", "passata", "ketchup", "salsa", "mayonnaise", "mustard", "dressing"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🥫", unit: "pot", price: 1.60, shelfLifeDays: 400)
         }
-        if has(["conserve", "haricot", "lentille", "pois chiche", "mais"]) {
+        if has(["conserve", "haricot", "lentille", "pois chiche", "mais",
+                "canned", "bean", "lentil", "chickpea", "corn", "soup", "peanut butter"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🥫", unit: "boîte", price: 1.20, shelfLifeDays: 720)
         }
-        if has(["pain", "bread", "brioche", "biscotte"]) {
+        if has(["pain", "bread", "brioche", "biscotte", "bagel", "tortilla", "bun", "muffin"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🍞", unit: "paquet", price: 1.50, shelfLifeDays: 5)
         }
-        if has(["legume", "salade", "tomate", "carotte", "courgette", "vegetable", "fruit", "pomme", "banane"]) {
+        if has(["legume", "salade", "tomate", "carotte", "courgette", "vegetable", "fruit", "pomme", "banane",
+                "lettuce", "salad", "tomato", "carrot", "zucchini", "spinach", "apple", "banana", "berry", "produce"]) {
             return Profile(location: .fridge, category: .produce, emoji: "🥗", unit: "sachet", price: 2.20, shelfLifeDays: 6)
         }
-        if has(["biscuit", "chocolat", "gateau", "bonbon", "snack", "chips"]) {
+        if has(["biscuit", "chocolat", "gateau", "bonbon", "snack", "chips",
+                "cookie", "chocolate", "candy", "cracker", "granola", "cereal"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🍫", unit: "paquet", price: 2.30, shelfLifeDays: 200)
         }
-        if has(["jus", "soda", "boisson", "eau", "juice", "drink"]) {
+        if has(["jus", "soda", "boisson", "eau", "juice", "drink", "water", "soft drink", "seltzer"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "🧃", unit: "bouteille", price: 1.80, shelfLifeDays: 200)
         }
-        if has(["cafe", "the ", "infusion", "coffee"]) {
+        if has(["cafe", "the ", "infusion", "coffee", "tea"]) {
             return Profile(location: .pantry, category: .grocery, emoji: "☕️", unit: "paquet", price: 4.20, shelfLifeDays: 400)
         }
 

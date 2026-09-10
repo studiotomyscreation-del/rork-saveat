@@ -22,8 +22,8 @@ struct RescueView: View {
                 if queue.isEmpty && reached.isEmpty {
                     SoftEmptyState(
                         emoji: "🌿",
-                        title: "Rien à sauver aujourd'hui",
-                        message: "Ton stock est sous contrôle. Continue à scanner tes courses pour garder l'avance."
+                        title: S.Rescue.emptyTitle.s,
+                        message: S.Rescue.emptyMessage.s
                     )
                     .saveatCard()
                 } else {
@@ -43,24 +43,24 @@ struct RescueView: View {
         }
         .scrollIndicators(.hidden)
         .saveatBackground()
-        .navigationTitle("À sauver")
+        .navigationTitle(S.Rescue.navTitle.s)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .confirmationDialog(
-            "Jeter ce produit ?",
+            S.FoodDetail.discardConfirmTitle.s,
             isPresented: Binding(
                 get: { discardCandidate != nil },
                 set: { if !$0 { discardCandidate = nil } }
             ),
             titleVisibility: .visible
         ) {
-            Button("Jeté", role: .destructive) {
+            Button(S.Rescue.markDiscarded.s, role: .destructive) {
                 if let item = discardCandidate { store.markDiscarded(item) }
                 discardCandidate = nil
             }
-            Button("Annuler", role: .cancel) { discardCandidate = nil }
+            Button(S.Common.cancel.s, role: .cancel) { discardCandidate = nil }
         } message: {
-            Text("Il sera retiré de ton stock et ne comptera pas comme produit sauvé.")
+            Text(S.FoodDetail.discardConfirmMessage.s)
         }
     }
 
@@ -68,20 +68,20 @@ struct RescueView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 Text("🟠").font(.system(size: 15))
-                Text("\(queue.count) produit\(queue.count > 1 ? "s" : "") à sauver")
+                Text(queue.count > 1 ? S.Rescue.countPlural.f(queue.count) : S.Rescue.count.f(queue.count))
                     .font(.system(size: 19, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.ink)
                 Spacer()
             }
 
-            Text("Je peux préparer ton repas avec ces aliments avant qu'ils ne soient gaspillés.")
+            Text(S.Rescue.intro.s)
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 6) {
-                Image(systemName: "eurosign.circle.fill").font(.system(size: 12))
-                Text("≈ \(Format.euro(store.potentialSavings)) de nourriture à sauver — estimation")
+                Image(systemName: "tag.circle.fill").font(.system(size: 12))
+                Text(S.Rescue.potentialSavings.f(Format.euro(store.potentialSavings)))
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
             }
             .foregroundStyle(Theme.sageDeep)
@@ -97,7 +97,7 @@ struct RescueView: View {
 
     private var rescueList: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(text: "Dans l'ordre de priorité")
+            SectionLabel(text: S.Rescue.priorityOrder.s)
 
             VStack(spacing: 12) {
                 ForEach(queue.prefix(8)) { item in
@@ -128,7 +128,7 @@ struct RescueView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 7) {
                 Text("🔴").font(.system(size: 11))
-                SectionLabel(text: "Date atteinte ou dépassée", color: Theme.alert)
+                SectionLabel(text: S.Rescue.reachedSection.s, color: Theme.alert)
             }
 
             VStack(spacing: 12) {
@@ -161,7 +161,7 @@ struct RescueView: View {
 
     private var mealsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionLabel(text: "Repas qui les utilisent")
+            SectionLabel(text: S.Rescue.mealsSection.s)
             ForEach(meals) { meal in
                 NavigationLink(value: Route.meal(meal)) {
                     MealCard(meal: meal)
@@ -174,7 +174,7 @@ struct RescueView: View {
     private var disclaimer: some View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: "info.circle").font(.system(size: 12))
-            Text("Les priorités reposent sur les dates que tu as saisies ou lues sur l'emballage. SAVEAT ne peut pas juger si un aliment est encore consommable.")
+            Text(S.Rescue.disclaimer.s)
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
@@ -203,8 +203,8 @@ struct ZeroEuroView: View {
                 } else if meals.isEmpty {
                     SoftEmptyState(
                         emoji: "🥣",
-                        title: "Pas encore de repas complet",
-                        message: "Il manque quelques bases dans ton stock. Scanne tes courses et je trouverai des repas sans dépenser un euro."
+                        title: S.ZeroCost.emptyTitle.s,
+                        message: S.ZeroCost.emptyMessage.s
                     )
                     .saveatCard()
                 } else {
@@ -224,7 +224,7 @@ struct ZeroEuroView: View {
         }
         .scrollIndicators(.hidden)
         .saveatBackground()
-        .navigationTitle("Repas à 0 €")
+        .navigationTitle(S.ZeroCost.navTitle.s)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .task {
@@ -239,7 +239,7 @@ struct ZeroEuroView: View {
             inventory: store.inventory,
             profile: store.profile,
             request: MealAIService.Request(
-                userText: "Propose uniquement des repas réalisables sans acheter quoi que ce soit.",
+                userText: S.ZeroCost.prompt.s,
                 servings: store.profile.householdSize,
                 zeroEuroOnly: true
             )
@@ -270,17 +270,17 @@ struct ZeroEuroView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("💰")
                 .font(.system(size: 32))
-            Text("Repas à 0 €")
+            Text(S.ZeroCost.heroTitle.s)
                 .font(Theme.display(25))
                 .foregroundStyle(.white)
-            Text("On cuisine uniquement avec ce que tu as déjà.")
+            Text(S.ZeroCost.heroSubtitle.s)
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundStyle(.white.opacity(0.92))
                 .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 6) {
                 Image(systemName: "checkmark.seal.fill").font(.system(size: 11))
-                Text("Aucun achat nécessaire.")
+                Text(S.ZeroCost.noPurchase.s)
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
             }
             .foregroundStyle(.white)
@@ -300,7 +300,7 @@ struct ZeroEuroView: View {
     private var loadingCard: some View {
         HStack(spacing: 12) {
             ProgressView().tint(Theme.sageDeep)
-            Text("Je cherche des repas gratuits dans ton stock…")
+            Text(S.ZeroCost.loading.s)
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
             Spacer(minLength: 0)
@@ -309,7 +309,7 @@ struct ZeroEuroView: View {
     }
 
     private var promise: some View {
-        Text("En mode Repas à 0 €, SAVEAT ne te proposera jamais d'acheter quoi que ce soit. Les basiques du placard (sel, poivre, huile) sont considérés comme déjà présents.")
+        Text(S.ZeroCost.promise.s)
             .font(.system(size: 12, weight: .medium, design: .rounded))
             .foregroundStyle(Theme.inkSoft)
             .fixedSize(horizontal: false, vertical: true)

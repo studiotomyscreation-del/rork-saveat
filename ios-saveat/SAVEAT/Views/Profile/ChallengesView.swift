@@ -19,7 +19,7 @@ struct ChallengesView: View {
         }
         .scrollIndicators(.hidden)
         .saveatBackground()
-        .navigationTitle("Défi Zéro Gaspi")
+        .navigationTitle(S.Challenges.navTitle.s)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
     }
@@ -35,14 +35,14 @@ struct ChallengesView: View {
 
         return VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 8) {
-                Text("Challenge Zéro Gaspi")
+                Text(S.Challenges.cardTitle.s)
                     .font(.system(size: 17, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.ink)
                 Spacer(minLength: 0)
                 if streak > 0 {
                     HStack(spacing: 4) {
                         Text("🔥").font(.system(size: 12))
-                        Text("\(streak) j")
+                        Text(S.Challenges.streakDays.f(streak))
                             .font(.system(size: 12.5, weight: .bold, design: .rounded).monospacedDigit())
                     }
                     .foregroundStyle(Theme.terracotta)
@@ -57,7 +57,7 @@ struct ChallengesView: View {
                     .font(.system(size: 34, weight: .bold, design: .rounded).monospacedDigit())
                     .foregroundStyle(Theme.sageDeep)
                     .contentTransition(.numericText())
-                Text("produit\(saved > 1 ? "s" : "") sauvé\(saved > 1 ? "s" : "") cette semaine")
+                Text(saved > 1 ? S.Challenges.savedThisWeekPlural.s : S.Challenges.savedThisWeek.s)
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
                 Spacer(minLength: 0)
@@ -66,14 +66,18 @@ struct ChallengesView: View {
             SoftProgressBar(fraction: min(Double(saved) / Double(max(goal, 1)), 1))
 
             Text(remaining > 0
-                 ? "Encore \(remaining) produit\(remaining > 1 ? "s" : "") pour atteindre ton objectif."
-                 : "Objectif de la semaine atteint. Beau travail 🌿")
+                 ? (remaining > 1
+                    ? S.Challenges.remainingPlural.f(remaining)
+                    : S.Challenges.remaining.f(remaining))
+                 : S.Challenges.goalReached.s)
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.sageDeep)
                 .fixedSize(horizontal: false, vertical: true)
 
             if streak > 0 {
-                Text("🔥 \(streak) jour\(streak > 1 ? "s" : "") consécutif\(streak > 1 ? "s" : "") sans rien jeter.")
+                Text(streak > 1
+                    ? S.Challenges.streakLinePlural.f(streak)
+                    : S.Challenges.streakLine.f(streak))
                     .font(.system(size: 12.5, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
             }
@@ -81,8 +85,8 @@ struct ChallengesView: View {
             Divider()
 
             HStack(spacing: 18) {
-                monthStat(value: "\(store.savedThisMonth)", label: "ce mois-ci")
-                monthStat(value: "\(store.savedAllTime)", label: "depuis le début")
+                monthStat(value: "\(store.savedThisMonth)", label: S.Challenges.thisMonth.s)
+                monthStat(value: "\(store.savedAllTime)", label: S.Challenges.allTime.s)
                 Spacer(minLength: 0)
             }
         }
@@ -105,10 +109,10 @@ struct ChallengesView: View {
             HStack(spacing: 12) {
                 Text("🏅").font(.system(size: 32))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Défi Zéro Gaspi — 7 jours")
+                    Text(S.Challenges.sevenDays.s)
                         .font(Theme.title(18))
                         .foregroundStyle(Theme.ink)
-                    Text("\(completed)/\(store.challenges.count) missions accomplies")
+                    Text(S.Challenges.missionsDone.f(completed, store.challenges.count))
                         .font(Theme.body(13))
                         .foregroundStyle(Theme.inkSoft)
                 }
@@ -129,11 +133,11 @@ struct ChallengesView: View {
                                   tint: challenge.isDone ? Theme.sage.opacity(0.25) : Theme.sageMist,
                                   size: 44)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(challenge.title)
+                            Text(SeedCopy.display(challenge.title))
                                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                                 .foregroundStyle(Theme.ink)
                                 .fixedSize(horizontal: false, vertical: true)
-                            Text(challenge.detail)
+                            Text(SeedCopy.display(challenge.detail))
                                 .font(.system(size: 12, weight: .medium, design: .rounded))
                                 .foregroundStyle(Theme.inkSoft)
                         }
@@ -162,14 +166,14 @@ struct ChallengesView: View {
 
     private var badgeCard: some View {
         let impact = store.weeklyImpact
-        let text = "Cette semaine j'ai économisé \(Format.euro(impact.moneySaved)) et sauvé \(impact.savedItems) produits avec SAVEAT."
+        let text = S.Challenges.shareText.f(Format.euro(impact.moneySaved), impact.savedItems)
 
         return VStack(alignment: .leading, spacing: 14) {
-            SectionLabel(text: "Ta carte de réussite")
+            SectionLabel(text: S.Challenges.achievementCard.s)
 
             VStack(spacing: 10) {
                 Text("🌱").font(.system(size: 34))
-                Text("Cette semaine j'ai économisé \(Format.euro(impact.moneySaved)) et sauvé \(impact.savedItems) produits.")
+                Text(S.Challenges.cardText.f(Format.euro(impact.moneySaved), impact.savedItems))
                     .font(Theme.display(18))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
@@ -189,7 +193,7 @@ struct ChallengesView: View {
             ShareLink(item: text) {
                 HStack(spacing: 8) {
                     Image(systemName: "square.and.arrow.up")
-                    Text("Partager")
+                    Text(S.Challenges.share.s)
                 }
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.sageDeep)

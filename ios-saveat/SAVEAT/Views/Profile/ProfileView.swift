@@ -187,7 +187,7 @@ struct ProfileView: View {
                 Spacer(minLength: 0)
             }
 
-            Button("Gérer mon abonnement") {
+            Button(S.Profile.manageSubscription.s) {
                 Haptics.light()
                 showsCustomerCenter = true
             }
@@ -203,7 +203,7 @@ struct ProfileView: View {
         } label: {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 8) {
-                    Text("SAVEAT PREMIUM")
+                    Text(S.Profile.premiumBadge.s)
                         .font(.system(size: 11, weight: .bold, design: .rounded))
                         .tracking(2)
                         .foregroundStyle(.white.opacity(0.9))
@@ -212,19 +212,19 @@ struct ProfileView: View {
                         .font(.system(size: 12, weight: .bold))
                         .foregroundStyle(.white.opacity(0.9))
                 }
-                Text("Fais économiser encore plus à ton frigo.")
+                Text(S.Profile.upsellTitle.s)
                     .font(.system(size: 19, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .fixedSize(horizontal: false, vertical: true)
                     .multilineTextAlignment(.leading)
-                Text("Scans illimités • IA cuisine illimitée • mode 0 € • fin de mois")
+                Text(S.Profile.upsellFeatures.s)
                     .font(.system(size: 12.5, weight: .medium, design: .rounded))
                     .foregroundStyle(.white.opacity(0.92))
                     .fixedSize(horizontal: false, vertical: true)
                     .multilineTextAlignment(.leading)
 
                 HStack(spacing: 8) {
-                    Text("Voir les offres")
+                    Text(S.Profile.seeOffers.s)
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.sageDeep)
                         .padding(.horizontal, 16)
@@ -252,7 +252,7 @@ struct ProfileView: View {
             BrandMark(size: 62)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text("Mon foyer")
+                Text(S.Profile.household.s)
                     .font(Theme.title(19))
                     .foregroundStyle(Theme.ink)
                 Text(store.profile.householdText)
@@ -271,7 +271,7 @@ struct ProfileView: View {
             path.append(Route.impact)
         } label: {
             VStack(alignment: .leading, spacing: 10) {
-                Text("Depuis mon inscription")
+                Text(S.Profile.sinceJoining.s)
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .tracking(1)
                     .foregroundStyle(.white.opacity(0.85))
@@ -284,7 +284,7 @@ struct ProfileView: View {
                         .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(.white.opacity(0.85))
                 }
-                Text("économisés • \(impact.savedItems) produits sauvés — estimations")
+                Text(S.Profile.savedSummary.f(impact.savedItems))
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(.white.opacity(0.9))
                     .fixedSize(horizontal: false, vertical: true)
@@ -302,24 +302,24 @@ struct ProfileView: View {
 
     private var menuSection: some View {
         VStack(spacing: 0) {
-            menuRow(emoji: "🏅", title: "Défis Zéro Gaspi",
-                    subtitle: "\(store.challenges.filter(\.isDone).count) missions accomplies",
+            menuRow(emoji: "🏅", title: S.Profile.challenges.s,
+                    subtitle: S.Profile.challengesSubtitle.f(store.challenges.filter(\.isDone).count),
                     route: .challenges)
             Divider().padding(.leading, 66)
-            menuRow(emoji: "🛒", title: "Courses intelligentes",
-                    subtitle: "\(store.shoppingList.count) articles à acheter",
+            menuRow(emoji: "🛒", title: S.Shopping.navTitle.s,
+                    subtitle: S.Profile.shoppingSubtitle.f(store.shoppingList.count),
                     route: .shopping)
             Divider().padding(.leading, 66)
-            menuRow(emoji: "💶", title: "Fin de mois",
-                    subtitle: "Optimise ton budget alimentaire",
+            menuRow(emoji: "💶", title: S.EndOfMonth.navTitle.s,
+                    subtitle: S.Home.endOfMonthSubtitle.s,
                     route: .endOfMonth)
             Divider().padding(.leading, 66)
-            menuRow(emoji: "🔔", title: "Rappels anti-gaspi",
+            menuRow(emoji: "🔔", title: S.Profile.reminders.s,
                     subtitle: remindersSubtitle,
                     route: .reminders)
             Divider().padding(.leading, 66)
-            menuRow(emoji: "⚙️", title: "Préférences du foyer",
-                    subtitle: "Régime, allergies, budget",
+            menuRow(emoji: "⚙️", title: S.Profile.preferences.s,
+                    subtitle: S.Profile.preferencesSubtitle.s,
                     route: .settings)
         }
         .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
@@ -328,8 +328,8 @@ struct ProfileView: View {
 
     private var remindersSubtitle: String {
         let settings = store.profile.reminderSettings
-        guard settings.isEnabled, settings.hasAnyOffset else { return "Désactivés" }
-        return "Prévenu avant chaque date"
+        guard settings.isEnabled, settings.hasAnyOffset else { return S.Profile.remindersOff.s }
+        return S.Profile.remindersOn.s
     }
 
     private func menuRow(emoji: String, title: String, subtitle: String, route: Route) -> some View {
@@ -362,17 +362,17 @@ struct ProfileView: View {
     /// Deliberately discreet: same row rhythm as the menu above, no extra branding.
     private var legalSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(text: "Informations")
+            SectionLabel(text: S.Profile.information.s)
 
             VStack(spacing: 0) {
-                legalRow(title: "Conditions d'utilisation", url: SaveatInfo.termsURL)
+                legalRow(title: S.Profile.terms.s, url: SaveatInfo.termsURL)
                 Divider().padding(.leading, 16)
-                legalRow(title: "Politique de confidentialité", url: SaveatInfo.privacyURL)
+                legalRow(title: S.Profile.privacy.s, url: SaveatInfo.privacyURL)
                 Divider().padding(.leading, 16)
-                legalRow(title: "Support", url: SaveatInfo.supportURL)
+                legalRow(title: S.Profile.support.s, url: SaveatInfo.supportURL)
                 Divider().padding(.leading, 16)
                 HStack {
-                    Text("Version")
+                    Text(S.Profile.version.s)
                         .font(.system(size: 14.5, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.ink)
                     Spacer(minLength: 0)
@@ -413,7 +413,7 @@ struct ProfileView: View {
                 .font(.system(size: 13, weight: .bold, design: .rounded))
                 .tracking(4)
                 .foregroundStyle(Theme.sageDeep)
-            Text("Scanne tes courses. Cuisine ton stock. Jette moins.")
+            Text(S.Profile.tagline.s)
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
         }
@@ -425,29 +425,32 @@ struct ProfileView: View {
 /// Household preferences, editable after onboarding.
 struct SettingsView: View {
     @Environment(AppStore.self) private var store
+    @Environment(LanguageStore.self) private var languages
 
     var body: some View {
         @Bindable var store = store
 
         return ScrollView {
             VStack(alignment: .leading, spacing: 18) {
+                languageCard
+
                 VStack(spacing: 0) {
                     HStack {
-                        Text("Adultes").font(.system(size: 15, weight: .medium, design: .rounded))
+                        Text(S.Settings.adults.s).font(.system(size: 15, weight: .medium, design: .rounded))
                         Spacer()
                         QuantityStepper(value: $store.profile.adults, range: 1...10)
                     }
                     .padding(16)
                     Divider()
                     HStack {
-                        Text("Enfants").font(.system(size: 15, weight: .medium, design: .rounded))
+                        Text(S.Settings.children.s).font(.system(size: 15, weight: .medium, design: .rounded))
                         Spacer()
                         QuantityStepper(value: $store.profile.children, range: 0...10)
                     }
                     .padding(16)
                     Divider()
                     HStack {
-                        Text("Objectif").font(.system(size: 15, weight: .medium, design: .rounded))
+                        Text(S.Settings.goal.s).font(.system(size: 15, weight: .medium, design: .rounded))
                         Spacer()
                         Picker("", selection: $store.profile.goal) {
                             ForEach(HouseholdGoal.allCases) { Text($0.title).tag($0) }
@@ -457,7 +460,7 @@ struct SettingsView: View {
                     .padding(16)
                     Divider()
                     HStack {
-                        Text("Régime").font(.system(size: 15, weight: .medium, design: .rounded))
+                        Text(S.Settings.diet.s).font(.system(size: 15, weight: .medium, design: .rounded))
                         Spacer()
                         Picker("", selection: $store.profile.diet) {
                             ForEach(DietPreference.allCases) { Text($0.title).tag($0) }
@@ -470,7 +473,7 @@ struct SettingsView: View {
                 .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
 
                 VStack(alignment: .leading, spacing: 12) {
-                    SectionLabel(text: "Budget courses hebdomadaire")
+                    SectionLabel(text: S.Settings.weeklyBudget.s)
                     Text(Format.euro(store.profile.weeklyBudget, decimals: 0))
                         .font(.system(size: 30, weight: .bold, design: .rounded).monospacedDigit())
                         .foregroundStyle(Theme.sageDeep)
@@ -483,7 +486,7 @@ struct SettingsView: View {
                 .saveatCard()
 
                 VStack(alignment: .leading, spacing: 12) {
-                    SectionLabel(text: "Allergies")
+                    SectionLabel(text: S.Settings.allergies.s)
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 110), spacing: 10)], spacing: 10) {
                         ForEach(Allergen.allCases) { allergen in
                             Button {
@@ -511,7 +514,7 @@ struct SettingsView: View {
                 .saveatCard()
 
                 VStack(alignment: .leading, spacing: 12) {
-                    SectionLabel(text: "Je ne mange pas")
+                    SectionLabel(text: S.Settings.dislikes.s)
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 110), spacing: 10)], spacing: 10) {
                         ForEach(DislikeCatalog.all, id: \.self) { food in
                             Button {
@@ -524,7 +527,7 @@ struct SettingsView: View {
                                 }
                                 Haptics.light()
                             } label: {
-                                Text(food)
+                                Text(DislikeCatalog.display(food))
                                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                                     .foregroundStyle(store.profile.dislikes.contains(food) ? .white : Theme.ink)
                                     .frame(maxWidth: .infinity)
@@ -538,7 +541,7 @@ struct SettingsView: View {
                 }
                 .saveatCard()
 
-                Button("Refaire l'introduction") {
+                Button(S.Settings.replayOnboarding.s) {
                     store.resetOnboarding()
                     Haptics.light()
                 }
@@ -552,8 +555,52 @@ struct SettingsView: View {
         }
         .scrollIndicators(.hidden)
         .saveatBackground()
-        .navigationTitle("Préférences")
+        .navigationTitle(S.Settings.navTitle.s)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+    }
+
+    /// Language switcher.
+    ///
+    /// Picking a language only swaps wording and formatting: the stock, dates,
+    /// history and subscription are untouched, which is why the note says so.
+    private var languageCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionLabel(text: S.Settings.language.s)
+
+            HStack(spacing: 8) {
+                ForEach(AppLanguage.allCases) { option in
+                    Button {
+                        guard languages.language != option else { return }
+                        Haptics.light()
+                        languages.select(option)
+                    } label: {
+                        HStack(spacing: 7) {
+                            Text(option.flag).font(.system(size: 15))
+                            Text(option.displayName)
+                                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                        }
+                        .foregroundStyle(languages.language == option ? .white : Theme.ink)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: 46)
+                        .background(
+                            languages.language == option ? Theme.sage : Theme.creamDeep,
+                            in: .capsule
+                        )
+                    }
+                    .buttonStyle(SoftPressStyle())
+                    .accessibilityLabel(option.displayName)
+                    .accessibilityAddTraits(languages.language == option ? .isSelected : [])
+                }
+            }
+
+            Text(S.Settings.languageNote.s)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .saveatCard()
     }
 }

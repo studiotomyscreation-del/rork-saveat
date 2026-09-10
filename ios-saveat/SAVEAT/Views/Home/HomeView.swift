@@ -35,10 +35,10 @@ struct HomeView: View {
 
     private var greeting: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Bonjour 👋")
+            Text(S.Home.greeting.s)
                 .font(.system(size: 17, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.sageDeep)
-            Text("Qu'est-ce qu'on mange\naujourd'hui ?")
+            Text(S.Home.headline.s)
                 .font(Theme.display(29))
                 .foregroundStyle(Theme.ink)
                 .lineSpacing(2)
@@ -58,10 +58,10 @@ struct HomeView: View {
                 HStack(spacing: 12) {
                     BrandMark(size: 52)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Trouver mon repas")
+                        Text(S.Home.heroTitle.s)
                             .font(.system(size: 20, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
-                        Text("Avec ce que tu as déjà chez toi")
+                        Text(S.Home.heroSubtitle.s)
                             .font(.system(size: 13, weight: .medium, design: .rounded))
                             .foregroundStyle(.white.opacity(0.9))
                     }
@@ -73,7 +73,7 @@ struct HomeView: View {
 
                 HStack(spacing: 6) {
                     Image(systemName: "sparkles").font(.system(size: 11))
-                    Text("\(store.totalProducts) produits connus • l'IA cuisine avec ton stock réel")
+                    Text(S.Home.heroStock.f(store.totalProducts))
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
@@ -107,7 +107,7 @@ struct HomeView: View {
         if !queue.isEmpty || !reached.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
-                    SectionLabel(text: "À sauver")
+                    SectionLabel(text: S.Home.rescueSection.s)
                     Spacer(minLength: 0)
                     if !queue.isEmpty {
                         Text("\(queue.count)")
@@ -120,7 +120,9 @@ struct HomeView: View {
                 }
 
                 if !queue.isEmpty {
-                    Text("\(queue.count) produit\(queue.count > 1 ? "s" : "") à sauver")
+                    Text(queue.count > 1
+                        ? S.Home.rescueCountPlural.f(queue.count)
+                        : S.Home.rescueCount.f(queue.count))
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundStyle(Theme.ink)
                 }
@@ -146,7 +148,9 @@ struct HomeView: View {
                         } label: {
                             HStack(spacing: 10) {
                                 Text("🔴").font(.system(size: 14))
-                                Text("\(reached.count) produit\(reached.count > 1 ? "s" : "") à la date atteinte")
+                                Text(reached.count > 1
+                                    ? S.Home.reachedCountPlural.f(reached.count)
+                                    : S.Home.reachedCount.f(reached.count))
                                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                                     .foregroundStyle(Theme.ink)
                                 Spacer(minLength: 0)
@@ -168,13 +172,13 @@ struct HomeView: View {
                     Button {
                         Haptics.soft()
                         onAskAI(MealPrompt(
-                            text: "Propose un repas qui utilise en priorité mes produits à sauver.",
+                            text: S.Home.rescuePrompt.s,
                             zeroEuroOnly: false
                         ))
                     } label: {
                         HStack(spacing: 8) {
                             Image(systemName: "sparkles")
-                            Text("Trouver un repas avec mes produits à sauver")
+                            Text(S.Home.rescueCTA.s)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .multilineTextAlignment(.leading)
                             Spacer(minLength: 0)
@@ -204,21 +208,21 @@ struct HomeView: View {
         VStack(spacing: 10) {
             actionRow(
                 emoji: "🛒",
-                title: "Scanner mes courses",
-                subtitle: "Enregistre rapidement tes achats",
+                title: S.Home.scanTitle.s,
+                subtitle: S.Home.scanSubtitle.s,
                 tint: Theme.sage
             ) { onScan() }
 
             actionRow(
                 emoji: "💰",
-                title: "Repas à 0 €",
-                subtitle: "Cuisine uniquement avec ton stock",
+                title: S.Home.zeroEuroTitle.s,
+                subtitle: S.Home.zeroEuroSubtitle.s,
                 tint: Theme.sageDeep
             ) { path.append(Route.zeroEuro) }
 
             actionRow(
                 emoji: "♻️",
-                title: "À sauver",
+                title: S.Home.rescueTitle.s,
                 subtitle: rescueSubtitle,
                 tint: Theme.clay,
                 isAlert: !store.rescueItems.isEmpty
@@ -226,8 +230,8 @@ struct HomeView: View {
 
             actionRow(
                 emoji: "💶",
-                title: "Fin de mois",
-                subtitle: "Optimise ton budget alimentaire",
+                title: S.Home.endOfMonthTitle.s,
+                subtitle: S.Home.endOfMonthSubtitle.s,
                 tint: Theme.terracotta
             ) { path.append(Route.endOfMonth) }
         }
@@ -237,9 +241,10 @@ struct HomeView: View {
         let count = store.rescueItems.count
         if count == 0 {
             let soon = store.planItems.count
-            return soon == 0 ? "Rien d'urgent, tout va bien" : "\(soon) produit\(soon > 1 ? "s" : "") à prévoir"
+            if soon == 0 { return S.Home.nothingUrgent.s }
+            return soon > 1 ? S.Home.planSubtitlePlural.f(soon) : S.Home.planSubtitle.f(soon)
         }
-        return "\(count) produit\(count > 1 ? "s" : "") à consommer rapidement"
+        return count > 1 ? S.Home.rescueSubtitlePlural.f(count) : S.Home.rescueSubtitle.f(count)
     }
 
     private func actionRow(
@@ -300,12 +305,12 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 2) {
-                        SectionLabel(text: "Mon stock")
+                        SectionLabel(text: S.Home.stockSection.s)
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
                             Text("\(store.totalProducts)")
                                 .font(.system(size: 30, weight: .bold, design: .rounded).monospacedDigit())
                                 .foregroundStyle(Theme.ink)
-                            Text("produits")
+                            Text(S.Common.products.s)
                                 .font(.system(size: 14, weight: .medium, design: .rounded))
                                 .foregroundStyle(Theme.inkSoft)
                         }
@@ -348,12 +353,12 @@ struct HomeView: View {
     private var weekCard: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                SectionLabel(text: "Cette semaine")
+                SectionLabel(text: S.Home.weekSection.s)
                 Button {
                     path.append(Route.impact)
                 } label: {
                     HStack(spacing: 3) {
-                        Text("Détails")
+                        Text(S.Home.details.s)
                         Image(systemName: "chevron.right").font(.system(size: 10, weight: .bold))
                     }
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
@@ -366,14 +371,14 @@ struct HomeView: View {
                 ProgressRing(fraction: impact.goalFraction, size: 118)
 
                 VStack(alignment: .leading, spacing: 14) {
-                    stat(value: Format.euro(impact.moneySaved), label: "économisés", tint: Theme.terracotta)
-                    stat(value: "\(impact.savedItems)", label: "produits sauvés", tint: Theme.sageDeep)
-                    stat(value: "\(impact.mealsCooked)", label: "repas préparés", tint: Theme.ink)
+                    stat(value: Format.euro(impact.moneySaved), label: S.Home.savedMoney.s, tint: Theme.terracotta)
+                    stat(value: "\(impact.savedItems)", label: S.Home.savedItemsLabel.s, tint: Theme.sageDeep)
+                    stat(value: "\(impact.mealsCooked)", label: S.Home.mealsCookedLabel.s, tint: Theme.ink)
                 }
                 Spacer(minLength: 0)
             }
 
-            Text("Estimations calculées à partir des prix moyens des produits que tu sauves.")
+            Text(S.Home.estimateNote.s)
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
@@ -396,10 +401,10 @@ struct HomeView: View {
 
     private var promise: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Scanne tes courses. SAVEAT se souvient de ce que tu as.")
+            Text(S.Home.promiseTitle.s)
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.sageDeep)
-            Text("Mange ce que tu as. Achète seulement ce qu'il te manque. Jette le moins possible.")
+            Text(S.Home.promiseBody.s)
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)

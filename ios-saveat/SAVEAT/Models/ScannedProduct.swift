@@ -56,11 +56,15 @@ nonisolated struct ScannedProduct: Identifiable, Codable, Hashable, Sendable {
     }
 
     nonisolated var displayTitle: String {
-        name.isEmpty ? "Produit sans nom" : name
+        name.isEmpty ? S.Product.unnamed.s : FoodNames.display(name)
     }
 
+    /// Brand and pack size, the latter rewritten in the reader's units.
     nonisolated var subtitle: String {
-        [brand, packagingText].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " • ")
+        [brand, packagingText.map(Units.packaging)]
+            .compactMap { $0 }
+            .filter { !$0.isEmpty }
+            .joined(separator: " • ")
     }
 
     nonisolated var score: SaveatScore { SaveatScore.evaluate(self) }
@@ -105,11 +109,11 @@ nonisolated struct SaveatScore: Hashable, Sendable {
 
     nonisolated var label: String {
         switch value {
-        case 80...: "Excellent choix"
-        case 60..<80: "Bon produit"
-        case 40..<60: "Correct"
-        case 20..<40: "À limiter"
-        default: "À consommer rarement"
+        case 80...: S.Product.excellent.s
+        case 60..<80: S.Product.good.s
+        case 40..<60: S.Product.fine.s
+        case 20..<40: S.Product.limit.s
+        default: S.Product.rarely.s
         }
     }
 
@@ -132,16 +136,16 @@ nonisolated struct SaveatScore: Hashable, Sendable {
             let verdict: String
             let tone: ScoreTone
             switch grade {
-            case .a: points = 30; verdict = "Très bonne"; tone = .good
-            case .b: points = 18; verdict = "Bonne"; tone = .good
-            case .c: points = 4; verdict = "Moyenne"; tone = .medium
-            case .d: points = -12; verdict = "Faible"; tone = .poor
-            case .e: points = -24; verdict = "Très faible"; tone = .poor
+            case .a: points = 30; verdict = S.Product.veryGood.s; tone = .good
+            case .b: points = 18; verdict = S.Product.goodVerdict.s; tone = .good
+            case .c: points = 4; verdict = S.Product.average.s; tone = .medium
+            case .d: points = -12; verdict = S.Product.weak.s; tone = .poor
+            case .e: points = -24; verdict = S.Product.veryWeak.s; tone = .poor
             }
             total += points
             criteria.append(Criterion(
-                emoji: "🥦", title: "Nutrition", verdict: verdict,
-                detail: "Nutri-Score \(grade.letter) publié pour ce produit.",
+                emoji: "🥦", title: S.Product.nutrition.s, verdict: verdict,
+                detail: S.Product.nutriScorePublished.f(grade.letter),
                 points: points, tone: tone
             ))
         }
@@ -151,15 +155,15 @@ nonisolated struct SaveatScore: Hashable, Sendable {
             let verdict: String
             let tone: ScoreTone
             switch sugars {
-            case ..<5: points = 8; verdict = "Faibles"; tone = .good
-            case 5..<12: points = 2; verdict = "Modérés"; tone = .medium
-            case 12..<22: points = -6; verdict = "Élevés"; tone = .poor
-            default: points = -12; verdict = "Très élevés"; tone = .poor
+            case ..<5: points = 8; verdict = S.Product.low.s; tone = .good
+            case 5..<12: points = 2; verdict = S.Product.moderate.s; tone = .medium
+            case 12..<22: points = -6; verdict = S.Product.high.s; tone = .poor
+            default: points = -12; verdict = S.Product.veryHigh.s; tone = .poor
             }
             total += points
             criteria.append(Criterion(
-                emoji: "🍬", title: "Sucres", verdict: verdict,
-                detail: "\(Format.grams(sugars)) pour 100 g.",
+                emoji: "🍬", title: S.Product.sugars.s, verdict: verdict,
+                detail: S.Product.per100g.f(Format.grams(sugars)),
                 points: points, tone: tone
             ))
         }
@@ -169,15 +173,15 @@ nonisolated struct SaveatScore: Hashable, Sendable {
             let verdict: String
             let tone: ScoreTone
             switch salt {
-            case ..<0.3: points = 6; verdict = "Faible"; tone = .good
-            case 0.3..<1: points = 1; verdict = "Modéré"; tone = .medium
-            case 1..<1.5: points = -5; verdict = "Élevé"; tone = .poor
-            default: points = -10; verdict = "Très élevé"; tone = .poor
+            case ..<0.3: points = 6; verdict = S.Product.lowSingular.s; tone = .good
+            case 0.3..<1: points = 1; verdict = S.Product.moderateSingular.s; tone = .medium
+            case 1..<1.5: points = -5; verdict = S.Product.highSingular.s; tone = .poor
+            default: points = -10; verdict = S.Product.veryHighSingular.s; tone = .poor
             }
             total += points
             criteria.append(Criterion(
-                emoji: "🧂", title: "Sel", verdict: verdict,
-                detail: "\(Format.grams(salt)) pour 100 g.",
+                emoji: "🧂", title: S.Product.salt.s, verdict: verdict,
+                detail: S.Product.per100g.f(Format.grams(salt)),
                 points: points, tone: tone
             ))
         }
@@ -187,15 +191,15 @@ nonisolated struct SaveatScore: Hashable, Sendable {
             let verdict: String
             let tone: ScoreTone
             switch sat {
-            case ..<1.5: points = 6; verdict = "Faibles"; tone = .good
-            case 1.5..<5: points = 1; verdict = "Modérées"; tone = .medium
-            case 5..<10: points = -5; verdict = "Élevées"; tone = .poor
-            default: points = -10; verdict = "Très élevées"; tone = .poor
+            case ..<1.5: points = 6; verdict = S.Product.low.s; tone = .good
+            case 1.5..<5: points = 1; verdict = S.Product.moderate.s; tone = .medium
+            case 5..<10: points = -5; verdict = S.Product.high.s; tone = .poor
+            default: points = -10; verdict = S.Product.veryHigh.s; tone = .poor
             }
             total += points
             criteria.append(Criterion(
-                emoji: "🧈", title: "Graisses saturées", verdict: verdict,
-                detail: "\(Format.grams(sat)) pour 100 g.",
+                emoji: "🧈", title: S.Product.saturatedFat.s, verdict: verdict,
+                detail: S.Product.per100g.f(Format.grams(sat)),
                 points: points, tone: tone
             ))
         }
@@ -203,8 +207,8 @@ nonisolated struct SaveatScore: Hashable, Sendable {
         if let proteins = n.proteins, proteins >= 8 {
             total += 5
             criteria.append(Criterion(
-                emoji: "💪", title: "Protéines", verdict: "Intéressantes",
-                detail: "\(Format.grams(proteins)) pour 100 g.",
+                emoji: "💪", title: S.Product.proteins.s, verdict: S.Product.interesting.s,
+                detail: S.Product.per100g.f(Format.grams(proteins)),
                 points: 5, tone: .good
             ))
         }
@@ -212,8 +216,8 @@ nonisolated struct SaveatScore: Hashable, Sendable {
         if let fiber = n.fiber, fiber >= 3 {
             total += 5
             criteria.append(Criterion(
-                emoji: "🌾", title: "Fibres", verdict: "Bonne source",
-                detail: "\(Format.grams(fiber)) pour 100 g.",
+                emoji: "🌾", title: S.Product.fiber.s, verdict: S.Product.goodSource.s,
+                detail: S.Product.per100g.f(Format.grams(fiber)),
                 points: 5, tone: .good
             ))
         }
@@ -223,15 +227,15 @@ nonisolated struct SaveatScore: Hashable, Sendable {
             let verdict: String
             let tone: ScoreTone
             switch nova {
-            case 1: points = 12; verdict = "Aliment brut"; tone = .good
-            case 2: points = 6; verdict = "Peu transformé"; tone = .good
-            case 3: points = -5; verdict = "Transformé"; tone = .medium
-            default: points = -16; verdict = "Ultra-transformé"; tone = .poor
+            case 1: points = 12; verdict = S.Product.rawFood.s; tone = .good
+            case 2: points = 6; verdict = S.Product.lightlyProcessed.s; tone = .good
+            case 3: points = -5; verdict = S.Product.processed.s; tone = .medium
+            default: points = -16; verdict = S.Product.ultraProcessed.s; tone = .poor
             }
             total += points
             criteria.append(Criterion(
-                emoji: "🏭", title: "Transformation", verdict: "NOVA \(nova) — \(verdict)",
-                detail: "Classification NOVA du degré de transformation.",
+                emoji: "🏭", title: S.Product.processing.s, verdict: S.Product.novaTitle.f(nova, verdict),
+                detail: S.Product.novaDetail.s,
                 points: points, tone: tone
             ))
         }
@@ -241,9 +245,9 @@ nonisolated struct SaveatScore: Hashable, Sendable {
             let points = max(-15, -3 * additiveCount)
             total += points
             criteria.append(Criterion(
-                emoji: "🧪", title: "Additifs identifiés", verdict: "\(additiveCount)",
+                emoji: "🧪", title: S.Product.additives.s, verdict: "\(additiveCount)",
                 detail: additiveCount == 0
-                    ? "Aucun additif listé dans la base de données."
+                    ? S.Product.noAdditives.s
                     : product.additives.prefix(4).joined(separator: ", ").uppercased(),
                 points: points, tone: additiveCount == 0 ? .good : (additiveCount <= 2 ? .medium : .poor)
             ))
@@ -256,12 +260,7 @@ nonisolated struct SaveatScore: Hashable, Sendable {
         )
     }
 
-    nonisolated static let methodology: [String] = [
-        "On part de 50 points, puis on ajoute ou retire des points selon les données publiques du produit.",
-        "Le Nutri-Score officiel pèse le plus lourd quand il est publié.",
-        "Le groupe NOVA mesure le degré de transformation, pas la qualité gustative.",
-        "Chaque additif listé retire 3 points, dans la limite de 15.",
-        "Sucres, sel et graisses saturées sont comparés aux repères pour 100 g.",
-        "SAVEAT n'est pas un avis médical et ne remplace pas l'étiquette du produit."
-    ]
+    nonisolated static var methodology: [String] {
+        S.Product.methodology.map(\.s)
+    }
 }

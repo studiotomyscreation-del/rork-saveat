@@ -37,11 +37,11 @@ final class NotificationService {
 
     // MARK: - Set-up
 
-    /// Registers the notification category and its "Voir mes produits à sauver" action.
+    /// Registers the notification category and its "see what to use" action.
     func configure() {
         let action = UNNotificationAction(
             identifier: Self.openRescueAction,
-            title: "Voir mes produits à sauver",
+            title: S.Reminders.action.s,
             options: [.foreground]
         )
         let category = UNNotificationCategory(
@@ -203,8 +203,10 @@ final class NotificationService {
                 var bucket = buckets[key] ?? (offset: offset, names: [])
                 // The most urgent product of the day drives the wording.
                 bucket.offset = min(bucket.offset, offset)
-                if !bucket.names.contains(item.name) {
-                    bucket.names.append(item.name)
+                // Stored under the display name so the notification reads in
+                // the same language as the rest of the app.
+                if !bucket.names.contains(item.displayName) {
+                    bucket.names.append(item.displayName)
                 }
                 buckets[key] = bucket
             }
@@ -229,7 +231,10 @@ final class NotificationService {
             }
     }
 
-    /// French wording for one reminder, singular or grouped.
+    /// Wording for one reminder, singular or grouped, in the reader's language.
+    ///
+    /// Never states that a food is or isn't safe to eat: the copy sends the user
+    /// back to the package, exactly as the in-app notices do.
     nonisolated static func wording(
         offset: Int,
         names: [String]
@@ -241,23 +246,23 @@ final class NotificationService {
             switch offset {
             case 0:
                 return (
-                    "À vérifier 🔴",
-                    "\(name) arrive aujourd'hui à sa date. Vérifie son type de date et les indications présentes sur son emballage."
+                    S.Reminders.checkTitleOne.s,
+                    S.Reminders.bodyTodayOne.f(name)
                 )
             case 1:
                 return (
-                    "À sauver 🟠",
-                    "\(name) arrive demain à sa date. Pense à le consommer."
+                    S.Reminders.rescueTitleOne.s,
+                    S.Reminders.bodyTomorrowOne.f(name)
                 )
             case 2:
                 return (
-                    "À sauver 🟠",
-                    "\(name) est à consommer rapidement. SAVEAT peut te proposer un repas avec ce que tu as déjà."
+                    S.Reminders.rescueTitleOne.s,
+                    S.Reminders.bodySoonOne.f(name)
                 )
             default:
                 return (
-                    "À prévoir 🟡",
-                    "\(name) approche de sa date. Pense à l'intégrer à tes prochains repas."
+                    S.Reminders.planTitleOne.s,
+                    S.Reminders.bodyPlanOne.f(name)
                 )
             }
         }
@@ -265,28 +270,28 @@ final class NotificationService {
         switch offset {
         case 0:
             return (
-                "\(count) produits arrivent aujourd'hui à leur date 🔴",
-                "\(list) arrivent à leur date. Vérifie leur type de date et les indications présentes sur leur emballage."
+                S.Reminders.checkTitleMany.f(count),
+                S.Reminders.bodyTodayMany.f(list)
             )
         case 1:
             return (
-                "\(count) produits à sauver demain 🟠",
-                "\(list) arrivent demain à leur date. Pense à les consommer."
+                S.Reminders.rescueTitleTomorrow.f(count),
+                S.Reminders.bodyTomorrowMany.f(list)
             )
         case 2:
             return (
-                "\(count) produits à sauver 🟠",
-                "\(list) sont à consommer rapidement. SAVEAT peut te proposer un repas avec ce que tu as déjà."
+                S.Reminders.rescueTitleMany.f(count),
+                S.Reminders.bodySoonMany.f(list)
             )
         default:
             return (
-                "\(count) produits à prévoir 🟡",
-                "\(list) approchent de leur date. Pense à les intégrer à tes prochains repas."
+                S.Reminders.planTitleMany.f(count),
+                S.Reminders.bodyPlanMany.f(list)
             )
         }
     }
 
-    /// "a, b et c", capped so the message stays readable.
+    /// "a, b and c", capped so the message stays readable.
     nonisolated static func enumerate(_ names: [String]) -> String {
         let shown = Array(names.prefix(3))
         let rest = names.count - shown.count
@@ -295,11 +300,16 @@ final class NotificationService {
         switch shown.count {
         case 0: text = ""
         case 1: text = shown[0]
-        default: text = shown.dropLast().joined(separator: ", ") + " et " + (shown.last ?? "")
+        default:
+            text = shown.dropLast().joined(separator: ", ")
+                + S.Reminders.listJoiner.s
+                + (shown.last ?? "")
         }
 
         if rest > 0 {
-            text += " et \(rest) autre\(rest > 1 ? "s" : "")"
+            text += rest > 1
+                ? S.Reminders.listMorePlural.f(rest)
+                : S.Reminders.listMore.f(rest)
         }
         return text
     }

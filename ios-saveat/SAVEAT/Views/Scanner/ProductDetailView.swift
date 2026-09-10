@@ -9,6 +9,10 @@ struct ProductDetailView: View {
     private var score: SaveatScore { product.score }
     private var analysis: NutritionAnalysis { product.nutritionAnalysis }
 
+    /// Nutri-Score is a European label with no official standing in the US, so it
+    /// is only surfaced to French readers. The underlying analysis is unchanged.
+    private var showsNutriScore: Bool { LanguageRuntime.current == .fr }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -28,7 +32,7 @@ struct ProductDetailView: View {
         }
         .scrollIndicators(.hidden)
         .saveatBackground()
-        .navigationTitle("Fiche produit")
+        .navigationTitle(S.Product.navTitle.s)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
     }
@@ -49,7 +53,7 @@ struct ProductDetailView: View {
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                 }
-                Text(product.isDemoData ? "Fiche de démonstration" : "Base de données ouverte")
+                Text(product.isDemoData ? S.Product.demoSheet.s : S.Product.openDatabase.s)
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.sageDeep)
             }
@@ -62,7 +66,7 @@ struct ProductDetailView: View {
 
     private var scoreCard: some View {
         VStack(spacing: 14) {
-            SectionLabel(text: "Score SAVEAT")
+            SectionLabel(text: S.Product.saveatScore.s)
 
             ScoreDial(score: score, size: 138)
 
@@ -71,21 +75,23 @@ struct ProductDetailView: View {
                 .foregroundStyle(ScoreTint.color(for: score.tone))
 
             if !score.hasEnoughData {
-                Text("Données partielles pour ce produit — le score reste indicatif.")
+                Text(S.Product.partialData.s)
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
                     .multilineTextAlignment(.center)
             }
 
             HStack(spacing: 8) {
-                if let grade = product.nutriScore?.uppercased(), !grade.isEmpty {
-                    SoftPill(text: "Nutri-Score \(grade)")
+                if showsNutriScore, let grade = product.nutriScore?.uppercased(), !grade.isEmpty {
+                    SoftPill(text: S.Product.nutriScorePill.f(grade))
                 }
                 if let nova = product.nova {
                     SoftPill(text: "NOVA \(nova)", tint: Theme.terracotta, background: Theme.terracotta.opacity(0.15))
                 }
                 SoftPill(
-                    text: "\(product.additives.count) additif\(product.additives.count > 1 ? "s" : "")",
+                    text: product.additives.count > 1
+                        ? S.Product.additivesPill.f(product.additives.count)
+                        : S.Product.additivePill.f(product.additives.count),
                     tint: product.additives.isEmpty ? Theme.sageDeep : Theme.clay,
                     background: (product.additives.isEmpty ? Theme.sage : Theme.clay).opacity(0.14)
                 )
@@ -101,14 +107,15 @@ struct ProductDetailView: View {
     /// Anything the database does not provide is stated as unavailable.
     private var nutritionAnalysisCard: some View {
         VStack(alignment: .leading, spacing: 14) {
-            SectionLabel(text: "Analyse nutritionnelle")
+            SectionLabel(text: S.Product.analysisSection.s)
 
-            nutriScoreRow
+            if showsNutriScore { nutriScoreRow }
             appreciationRow
+            servingBasisNote
 
             if !analysis.positives.isEmpty {
                 pointsBlock(
-                    title: "Points positifs",
+                    title: S.Product.positives.s,
                     color: Theme.sageDeep,
                     points: analysis.positives
                 )
@@ -116,7 +123,7 @@ struct ProductDetailView: View {
 
             if !analysis.watchOuts.isEmpty {
                 pointsBlock(
-                    title: "Points à surveiller",
+                    title: S.Product.watchOuts.s,
                     color: Theme.clay,
                     points: analysis.watchOuts
                 )
@@ -154,16 +161,16 @@ struct ProductDetailView: View {
                             )
                     }
                 }
-                Text("Nutri-Score officiel \(grade.letter)")
+                Text(S.Product.officialNutriScore.f(grade.letter))
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
             }
             .accessibilityElement()
-            .accessibilityLabel("Nutri-Score officiel")
+            .accessibilityLabel(S.Product.nutriScoreAccessibility.s)
             .accessibilityValue(grade.letter)
         } else {
             HStack(spacing: 8) {
-                Text("Nutri-Score")
+                Text(S.Product.nutriScoreLabel.s)
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.ink)
                 Spacer(minLength: 8)
@@ -189,10 +196,23 @@ struct ProductDetailView: View {
         }
     }
 
+    /// Reminds US readers that these figures are per 100 g, not the per-serving
+    /// values a Nutrition Facts panel would show. SAVEAT does not convert them,
+    /// because the pack rarely states its own serving size.
+    @ViewBuilder
+    private var servingBasisNote: some View {
+        if !showsNutriScore, !product.nutriments.isEmpty {
+            Text(S.Nutrition.servingNote.s)
+                .font(.system(size: 11.5, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
     private var appreciationRow: some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 8) {
-                Text("Appréciation")
+                Text(S.Product.appreciation.s)
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
                 Spacer(minLength: 8)
@@ -237,7 +257,7 @@ struct ProductDetailView: View {
 
     private var additivesBlock: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionLabel(text: "Additifs", color: analysis.additives.codes.isEmpty ? Theme.sageDeep : Theme.terracotta)
+            SectionLabel(text: S.Product.additivesSection.s, color: analysis.additives.codes.isEmpty ? Theme.sageDeep : Theme.terracotta)
 
             Text(analysis.additives.summary)
                 .font(.system(size: 13, weight: .medium, design: .rounded))
@@ -311,7 +331,7 @@ struct ProductDetailView: View {
                 Haptics.light()
             } label: {
                 HStack {
-                    Text("Pourquoi cette note ?")
+                    Text(S.Product.whyThisScore.s)
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.ink)
                     Spacer()
@@ -346,16 +366,16 @@ struct ProductDetailView: View {
 
     private var nutritionCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionLabel(text: "Valeurs pour 100 g")
+            SectionLabel(text: S.Product.valuesPer100g.s)
 
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 2), spacing: 10) {
-                nutrient("Énergie", product.nutriments.energyKcal.map { "\(Int($0)) kcal" })
-                nutrient("Protéines", product.nutriments.proteins.map(Format.grams))
-                nutrient("Glucides — sucres", product.nutriments.sugars.map(Format.grams))
-                nutrient("Matières grasses", product.nutriments.fat.map(Format.grams))
-                nutrient("dont saturées", product.nutriments.saturatedFat.map(Format.grams))
-                nutrient("Sel", product.nutriments.salt.map(Format.grams))
-                nutrient("Fibres", product.nutriments.fiber.map(Format.grams))
+                nutrient(S.Product.energy.s, product.nutriments.energyKcal.map { "\(Int($0)) kcal" })
+                nutrient(S.Product.proteins.s, product.nutriments.proteins.map(Format.grams))
+                nutrient(S.Product.carbsSugars.s, product.nutriments.sugars.map(Format.grams))
+                nutrient(S.Product.fat.s, product.nutriments.fat.map(Format.grams))
+                nutrient(S.Product.ofWhichSaturated.s, product.nutriments.saturatedFat.map(Format.grams))
+                nutrient(S.Product.salt.s, product.nutriments.salt.map(Format.grams))
+                nutrient(S.Product.fiber.s, product.nutriments.fiber.map(Format.grams))
             }
         }
         .saveatCard()
@@ -384,7 +404,7 @@ struct ProductDetailView: View {
 
     private var allergensCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(text: "Allergènes déclarés", color: Theme.clay)
+            SectionLabel(text: S.Product.allergensSection.s, color: Theme.clay)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 8)], spacing: 8) {
                 ForEach(product.allergens, id: \.self) { allergen in
                     Text(allergen.capitalized)
@@ -401,7 +421,7 @@ struct ProductDetailView: View {
 
     private func ingredientsCard(_ text: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionLabel(text: "Ingrédients")
+            SectionLabel(text: S.Product.ingredientsSection.s)
             Text(text)
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
@@ -413,7 +433,7 @@ struct ProductDetailView: View {
     private var disclaimer: some View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: "info.circle").font(.system(size: 12))
-            Text("Informations issues de bases de données publiques et de l'étiquetage. Le score SAVEAT est une aide à la lecture, pas un avis médical. Réfère-toi toujours à l'emballage.")
+            Text(S.Product.disclaimer.s)
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)

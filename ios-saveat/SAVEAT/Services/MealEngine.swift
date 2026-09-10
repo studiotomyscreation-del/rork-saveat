@@ -259,6 +259,7 @@ nonisolated enum MealEngine {
             return lhs.extraCost < rhs.extraCost
         }
 
+        // Stored in French so the plan card can key off it; displayed translated.
         let slots = ["Déjeuner", "Dîner"]
         var planned: [PlannedMeal] = []
         var paidMeals: [Meal] = []
@@ -303,7 +304,7 @@ nonisolated enum MealEngine {
             let used = suggestedUsage(for: ingredient, item: item)
             return StockDeduction(
                 itemID: item.id,
-                name: item.name,
+                name: item.displayName,
                 emoji: item.emoji,
                 unit: item.unit,
                 before: item.quantity,
@@ -316,20 +317,22 @@ nonisolated enum MealEngine {
     nonisolated static func suggestedUsage(for ingredient: MealIngredient, item: FoodItem) -> Double {
         let text = normalize(ingredient.quantityText)
 
-        // Countable units map directly onto the stock count.
-        if item.unit.contains("pièce") || item.unit.contains("tranche") || item.unit.contains("pot")
-            || item.unit.contains("œuf") || item.unit.contains("oeuf") {
+        // Countable units map directly onto the stock count, in either language.
+        let countableUnits = ["pièce", "tranche", "pot", "œuf", "oeuf",
+                              "count", "slice", "cup", "egg", "jar", "can"]
+        if countableUnits.contains(where: item.unit.lowercased().contains) {
             if let number = leadingNumber(in: text) {
                 return min(max(number, 0.5), item.quantity)
             }
         }
 
-        if text.contains("moitie") || text.contains("1/2") || text.contains("demi") {
+        if text.contains("moitie") || text.contains("1/2") || text.contains("demi") || text.contains("half") {
             return min(0.5, item.quantity)
         }
 
-        // Weights and volumes consume a share of one pack.
-        if text.contains("g") || text.contains("cl") || text.contains("ml") {
+        // Weights and volumes consume a share of one pack, metric or US.
+        if text.contains("g") || text.contains("cl") || text.contains("ml")
+            || text.contains("oz") || text.contains("lb") || text.contains("cup") {
             return min(item.quantity, item.quantity >= 2 ? 1 : 0.5)
         }
 

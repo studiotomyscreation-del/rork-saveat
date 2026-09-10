@@ -127,7 +127,7 @@ struct ProgressRing: View {
                 + Text(" %")
                     .font(.system(size: 17, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.ink)
-                Text("de ton objectif")
+                Text(S.Impact.ofYourGoal.s)
                     .font(.system(size: 11, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
             }
@@ -142,8 +142,8 @@ struct ProgressRing: View {
             withAnimation(.spring(response: 0.7, dampingFraction: 0.85)) { animated = newValue }
         }
         .accessibilityElement()
-        .accessibilityLabel("Objectif hebdomadaire")
-        .accessibilityValue("\(Int(fraction * 100)) pour cent")
+        .accessibilityLabel(S.Impact.weeklyGoal.s)
+        .accessibilityValue(S.Impact.percent.f(Int(fraction * 100)))
     }
 }
 
@@ -186,8 +186,8 @@ struct ScoreDial: View {
             }
         }
         .accessibilityElement()
-        .accessibilityLabel("Score SAVEAT")
-        .accessibilityValue("\(score.value) sur 100, \(score.label)")
+        .accessibilityLabel(S.Product.saveatScore.s)
+        .accessibilityValue(S.Product.scoreValue.f(score.value, score.label))
     }
 }
 
@@ -253,7 +253,7 @@ struct FoodRow: View {
             ProductThumb(product: item.product, fallbackEmoji: item.emoji, size: 46, radius: 13)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(item.name)
+                Text(item.displayName)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.ink)
                     .lineLimit(1)
@@ -262,7 +262,7 @@ struct FoodRow: View {
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                     if item.isOpened {
-                        Text("• entamé")
+                        Text(S.Inventory.openedBullet.s)
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.terracotta)
                     }
@@ -397,12 +397,12 @@ struct MealCard: View {
                 HStack(alignment: .top, spacing: 10) {
                     Text(meal.emoji).font(.system(size: 24))
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(meal.name)
+                        Text(meal.displayName)
                             .font(.system(size: 17, weight: .semibold, design: .rounded))
                             .foregroundStyle(Theme.ink)
                             .fixedSize(horizontal: false, vertical: true)
                             .multilineTextAlignment(.leading)
-                        Text("\(meal.timeText) • \(meal.difficulty) • \(meal.servings) personne\(meal.servings > 1 ? "s" : "")")
+                        Text("\(meal.timeText) • \(meal.displayDifficulty) • \(meal.servingsText)")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.inkSoft)
                     }
@@ -411,16 +411,16 @@ struct MealCard: View {
 
                 HStack(spacing: 8) {
                     if meal.isZeroEuro {
-                        SoftPill(text: "Tu as tout ce qu'il faut", tint: Theme.sageDeep, background: Theme.sageMist, icon: "checkmark.seal.fill")
+                        SoftPill(text: S.Meals.haveEverything.s, tint: Theme.sageDeep, background: Theme.sageMist, icon: "checkmark.seal.fill")
                     } else {
                         SoftPill(text: meal.availabilityText, tint: Theme.terracotta, background: Theme.terracotta.opacity(0.14))
                     }
                     Spacer(minLength: 0)
                     VStack(alignment: .trailing, spacing: 0) {
-                        Text(meal.isZeroEuro ? "0 €" : "+ \(Format.euro(meal.extraCost))")
+                        Text(meal.isZeroEuro ? Units.zeroCostLabel : "+ \(Format.euro(meal.extraCost))")
                             .font(.system(size: 17, weight: .bold, design: .rounded).monospacedDigit())
                             .foregroundStyle(meal.isZeroEuro ? Theme.sageDeep : Theme.terracotta)
-                        Text(meal.isZeroEuro ? "à dépenser" : "estimé")
+                        Text(meal.isZeroEuro ? S.Meals.toSpend.s : S.Meals.estimated.s)
                             .font(.system(size: 10, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.inkSoft)
                     }
@@ -441,7 +441,7 @@ struct MealCard: View {
                     .background(Theme.clay.opacity(0.10), in: .rect(cornerRadius: 12))
                 }
 
-                if let note = meal.antiWasteNote, !note.isEmpty {
+                if let note = meal.displayNote, !note.isEmpty {
                     HStack(spacing: 6) {
                         Image(systemName: "leaf.fill").font(.system(size: 10))
                         Text(note)

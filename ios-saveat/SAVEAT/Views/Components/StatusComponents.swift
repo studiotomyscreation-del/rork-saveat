@@ -109,7 +109,7 @@ struct RescueRow: View {
             ProductThumb(product: item.product, fallbackEmoji: item.emoji, size: 48, radius: 14)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.name)
+                Text(item.displayName)
                     .font(.system(size: 15.5, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.ink)
                     .lineLimit(1)
@@ -151,7 +151,7 @@ struct SaveOrDiscardButtons: View {
             } label: {
                 HStack(spacing: 7) {
                     Image(systemName: "checkmark.circle.fill")
-                    Text("Sauvé")
+                    Text(S.Rescue.markSaved.s)
                 }
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white)
@@ -167,7 +167,7 @@ struct SaveOrDiscardButtons: View {
             } label: {
                 HStack(spacing: 7) {
                     Image(systemName: "trash")
-                    Text("Jeté")
+                    Text(S.Rescue.markDiscarded.s)
                 }
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
@@ -188,7 +188,7 @@ struct SaveatLocalCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Text("BIENTÔT")
+                Text(S.Common.comingSoon.s)
                     .font(.system(size: 10, weight: .bold, design: .rounded))
                     .tracking(1.6)
                     .foregroundStyle(Theme.sageDeep)
@@ -203,17 +203,17 @@ struct SaveatLocalCard: View {
                 Spacer(minLength: 0)
             }
 
-            Text("SAVEAT prépare une nouvelle façon d'acheter local. Dans les prochains mois, tu pourras découvrir directement autour de toi des agriculteurs, maraîchers et producteurs locaux, leurs produits et leurs offres grâce à une carte dédiée.")
+            Text(S.Local.body.s)
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.ink.opacity(0.85))
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text("Notre objectif : favoriser le lien direct entre producteurs et consommateurs, raccourcir les circuits et faciliter l'accès à des produits locaux à des prix accessibles.")
+            Text(S.Local.goal.s)
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text("Du producteur à ton assiette.")
+            Text(S.Local.tagline.s)
                 .font(.system(size: 12.5, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.sageDeep)
         }
@@ -231,17 +231,17 @@ struct SaveatLocalCard: View {
 struct WhyScanCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("SCANNE. SAVEAT S'EN SOUVIENT.")
+            Text(S.WhyScan.title.s)
                 .font(.system(size: 11.5, weight: .bold, design: .rounded))
                 .tracking(1.2)
                 .foregroundStyle(Theme.sageDeep)
 
-            Text("Une fois tes produits enregistrés, SAVEAT garde un œil sur ton stock. L'application t'aide à repérer ce que tu as déjà, surveille les dates et te rappelle ce qu'il faut consommer en priorité pour éviter de jeter ce que tu as acheté.")
+            Text(S.WhyScan.body.s)
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.ink.opacity(0.85))
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text("Consomme ce que tu as avant d'acheter davantage.")
+            Text(S.WhyScan.tagline.s)
                 .font(.system(size: 12.5, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.sageDeep)
         }

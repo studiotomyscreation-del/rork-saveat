@@ -27,10 +27,10 @@ nonisolated enum PremiumPlan: String, Sendable, Equatable {
 
     nonisolated var title: String {
         switch self {
-        case .monthly: "Premium mensuel"
-        case .yearly: "Premium annuel"
-        case .lifetime: "Premium à vie"
-        case .unknown: "Premium"
+        case .monthly: S.Subscription.planMonthly.s
+        case .yearly: S.Subscription.planYearly.s
+        case .lifetime: S.Subscription.planLifetime.s
+        case .unknown: S.Subscription.planGeneric.s
         }
     }
 }
@@ -71,36 +71,36 @@ nonisolated enum SubscriptionStatus: Sendable, Equatable {
         }
     }
 
-    /// Short French line shown in the profile.
+    /// Short status line shown in the profile.
     nonisolated var headline: String {
         switch self {
-        case .free: "Offre gratuite"
-        case .trial: "Essai gratuit en cours"
+        case .free: S.Subscription.freeHeadline.s
+        case .trial: S.Subscription.trialHeadline.s
         case .active(let plan, _): plan.title
-        case .cancelled(let plan, _): "\(plan.title) — non renouvelé"
-        case .billingIssue: "Problème de paiement"
-        case .lifetime: "Premium à vie"
-        case .expired: "Abonnement expiré"
+        case .cancelled(let plan, _): S.Subscription.cancelledHeadline.f(plan.title)
+        case .billingIssue: S.Subscription.billingHeadline.s
+        case .lifetime: S.Subscription.lifetimeHeadline.s
+        case .expired: S.Subscription.expiredHeadline.s
         }
     }
 
     nonisolated var detail: String {
-        let dateText = expiration.map { SubscriptionStatus.dateFormatter.string(from: $0) }
+        let dateText = expiration.map { SubscriptionStatus.dateText($0) }
         switch self {
         case .free:
-            return "Débloque l'IA illimitée, le mode 0 € et les stats d'économies."
+            return S.Subscription.freeDetail.s
         case .trial:
-            return dateText.map { "Ton essai se termine le \($0)." } ?? "Ton essai est actif."
+            return dateText.map { S.Subscription.trialDetail.f($0) } ?? S.Subscription.trialDetailNoDate.s
         case .active:
-            return dateText.map { "Renouvellement automatique le \($0)." } ?? "Abonnement actif."
+            return dateText.map { S.Subscription.activeDetail.f($0) } ?? S.Subscription.activeDetailNoDate.s
         case .cancelled:
-            return dateText.map { "Tu gardes Premium jusqu'au \($0)." } ?? "Premium actif jusqu'à la fin de la période."
+            return dateText.map { S.Subscription.cancelledDetail.f($0) } ?? S.Subscription.cancelledDetailNoDate.s
         case .billingIssue:
-            return "Mets à jour ton moyen de paiement pour garder Premium."
+            return S.Subscription.billingDetail.s
         case .lifetime:
-            return "Accès Premium définitif. Merci ! 💚"
+            return S.Subscription.lifetimeDetail.s
         case .expired:
-            return dateText.map { "Terminé le \($0). Réactive quand tu veux." } ?? "Réactive quand tu veux."
+            return dateText.map { S.Subscription.expiredDetail.f($0) } ?? S.Subscription.expiredDetailNoDate.s
         }
     }
 
@@ -109,16 +109,14 @@ nonisolated enum SubscriptionStatus: Sendable, Equatable {
         return false
     }
 
-    nonisolated static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "fr_FR")
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter
-    }()
+    /// Renewal dates follow the reader's locale, so a US subscriber reads
+    /// "September 12, 2026" where a French one reads "12 septembre 2026".
+    nonisolated static func dateText(_ date: Date) -> String {
+        Units.mediumDate(date)
+    }
 }
 
-/// Premium features that can be gated, with the French upsell copy attached.
+/// Premium features that can be gated, with their upsell copy attached.
 nonisolated enum PremiumFeature: String, Sendable, Identifiable {
     case unlimitedScans
     case unlimitedAI
@@ -130,11 +128,11 @@ nonisolated enum PremiumFeature: String, Sendable, Identifiable {
 
     nonisolated var title: String {
         switch self {
-        case .unlimitedScans: "Scans illimités"
-        case .unlimitedAI: "IA cuisine illimitée"
-        case .zeroEuroMode: "Mode 0 €"
-        case .endOfMonth: "Mode fin de mois"
-        case .savingsStats: "Statistiques d'économies"
+        case .unlimitedScans: S.Subscription.featureScans.s
+        case .unlimitedAI: S.Subscription.featureAI.s
+        case .zeroEuroMode: S.Subscription.featureZeroCost.s
+        case .endOfMonth: S.Subscription.featureBudget.s
+        case .savingsStats: S.Subscription.featureStats.s
         }
     }
 }
@@ -197,11 +195,11 @@ final class SubscriptionStore {
     /// What to tell the user when no package can be displayed.
     var unavailableReason: String {
         if let loadFailureMessage { return loadFailureMessage }
-        if !isConfigured { return "Les achats ne sont pas disponibles sur cette version." }
+        if !isConfigured { return S.Subscription.purchasesUnavailable.s }
         if currentOffering == nil {
-            return "Impossible de charger les abonnements pour le moment. Vérifie ta connexion et réessaie."
+            return S.Subscription.offeringsUnavailable.s
         }
-        return "Les abonnements ne sont pas encore disponibles sur ce compte. Réessaie dans quelques instants."
+        return S.Subscription.offeringsNotReady.s
     }
 
     /// Only use RevenueCat's hosted Paywall when one is actually configured for the offering.
@@ -366,12 +364,12 @@ final class SubscriptionStore {
         }
     }
 
-    /// Monthly-equivalent price line for an annual package, e.g. "≈ 1,67 €/mois".
+    /// Monthly-equivalent price line for an annual package, e.g. "≈ 1,67 €/mois"
+    /// in France and "≈ $1.67/month" in the US.
     ///
-    /// Always derived from the real App Store price of the annual product
-    /// (`storeProduct.price` ÷ 12), never from a hardcoded amount. Displayed in
-    /// euros: SAVEAT is a French-only app, and a sandbox tester on a US
-    /// storefront must not see a dollar price on a French paywall.
+    /// Derived from the real App Store price of the annual product
+    /// (`storeProduct.price` ÷ 12) and rendered in that product's own currency,
+    /// so it always matches what Apple will actually charge.
     func monthlyEquivalent(for package: Package) -> String? {
         guard package.packageType == .annual else { return nil }
         let product = package.storeProduct
@@ -383,37 +381,34 @@ final class SubscriptionStore {
                                                                    raiseOnUnderflow: false,
                                                                    raiseOnDivideByZero: false))
         guard monthly.doubleValue > 0 else { return nil }
-        return "≈ \(Self.euroPrice(monthly.decimalValue))/mois"
+        return S.Subscription.perMonth.f(Self.storePrice(monthly.decimalValue, like: product))
     }
 
-    /// Formats an amount in euros with French formatting ("9,99 €").
+    /// Formats an amount in the currency of the store product it came from.
     ///
-    /// The amount always comes from the App Store product; only the rendering is
-    /// fixed to EUR because the app ships in French. `RevenueCat`'s
-    /// `localizedPriceString` follows the sandbox tester's storefront and would
-    /// show dollars for a US test account.
-    private static let euroFormatter: NumberFormatter = {
+    /// SAVEAT never writes a currency into the app: the App Store decides it per
+    /// country, so France sees euros and the US sees dollars. A tester signed in
+    /// to a foreign storefront will legitimately see that storefront's currency —
+    /// that is Apple's behaviour, not a formatting bug.
+    private static func storePrice(_ amount: Decimal, like product: StoreProduct) -> String {
         let formatter = NumberFormatter()
-        formatter.locale = Locale(identifier: "fr_FR")
         formatter.numberStyle = .currency
-        formatter.currencyCode = "EUR"
-        return formatter
-    }()
-
-    /// Displayed price of a package, always rendered in euros.
-    func priceLabel(for package: Package) -> String {
-        Self.euroPrice(package.storeProduct.price)
+        formatter.locale = product.priceFormatter?.locale ?? Locale.current
+        if let code = product.currencyCode { formatter.currencyCode = code }
+        return formatter.string(from: amount as NSDecimalNumber)
+            ?? product.localizedPriceString
     }
 
-    static func euroPrice(_ amount: Decimal) -> String {
-        euroFormatter.string(from: amount as NSDecimalNumber) ?? "€"
+    /// Displayed price of a package, exactly as the App Store returns it.
+    func priceLabel(for package: Package) -> String {
+        package.storeProduct.localizedPriceString
     }
 
     // MARK: - Purchases
 
     func purchase(_ package: Package) async {
         guard isConfigured else {
-            errorMessage = "Les achats ne sont pas disponibles sur cette version."
+            errorMessage = S.Subscription.purchasesUnavailable.s
             return
         }
         guard !isPurchasing else { return }

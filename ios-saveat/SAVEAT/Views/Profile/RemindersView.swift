@@ -26,7 +26,7 @@ struct RemindersView: View {
         }
         .scrollIndicators(.hidden)
         .saveatBackground()
-        .navigationTitle("Rappels anti-gaspi")
+        .navigationTitle(S.Reminders.navTitle.s)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .task {
@@ -37,10 +37,10 @@ struct RemindersView: View {
 
     private var intro: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Je te préviens avant, pas trop tard.")
+            Text(S.Reminders.introTitle.s)
                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.ink)
-            Text("Quand plusieurs produits arrivent à leur date le même jour, tu reçois un seul rappel groupé.")
+            Text(S.Reminders.introBody.s)
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
@@ -61,7 +61,7 @@ struct RemindersView: View {
                 }
             )) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Activer les rappels")
+                    Text(S.Reminders.enable.s)
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.ink)
                     Text(statusText)
@@ -78,22 +78,22 @@ struct RemindersView: View {
     }
 
     private var statusText: String {
-        guard settings.isEnabled else { return "Aucun rappel ne sera envoyé." }
+        guard settings.isEnabled else { return S.Reminders.statusOff.s }
         switch authorization {
-        case .granted: return "SAVEAT peut t'envoyer des rappels."
-        case .denied: return "Notifications refusées dans les réglages iOS."
-        case .unknown: return "SAVEAT te demandera l'autorisation."
+        case .granted: return S.Reminders.statusGranted.s
+        case .denied: return S.Reminders.statusDenied.s
+        case .unknown: return S.Reminders.statusUnknown.s
         }
     }
 
     private var offsetsCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionLabel(text: "Quand veux-tu être prévenu ?")
+            SectionLabel(text: S.Reminders.whenSection.s)
 
             VStack(spacing: 0) {
                 offsetRow(
-                    title: "5 jours avant",
-                    detail: "🟡 À prévoir",
+                    title: S.Reminders.fiveDays.s,
+                    detail: S.Reminders.planTag.s,
                     isOn: Binding(
                         get: { settings.fiveDays },
                         set: { value in update { $0.fiveDays = value } }
@@ -101,8 +101,8 @@ struct RemindersView: View {
                 )
                 Divider().padding(.leading, 16)
                 offsetRow(
-                    title: "2 jours avant",
-                    detail: "🟠 À sauver",
+                    title: S.Reminders.twoDays.s,
+                    detail: S.Reminders.rescueTag.s,
                     isOn: Binding(
                         get: { settings.twoDays },
                         set: { value in update { $0.twoDays = value } }
@@ -110,8 +110,8 @@ struct RemindersView: View {
                 )
                 Divider().padding(.leading, 16)
                 offsetRow(
-                    title: "1 jour avant",
-                    detail: "🟠 À sauver",
+                    title: S.Reminders.oneDay.s,
+                    detail: S.Reminders.rescueTag.s,
                     isOn: Binding(
                         get: { settings.oneDay },
                         set: { value in update { $0.oneDay = value } }
@@ -119,8 +119,8 @@ struct RemindersView: View {
                 )
                 Divider().padding(.leading, 16)
                 offsetRow(
-                    title: "Le jour même",
-                    detail: "🔴 À vérifier",
+                    title: S.Reminders.sameDay.s,
+                    detail: S.Reminders.checkTag.s,
                     isOn: Binding(
                         get: { settings.sameDay },
                         set: { value in update { $0.sameDay = value } }
@@ -160,20 +160,20 @@ struct RemindersView: View {
             HStack(spacing: 8) {
                 Image(systemName: "bell.slash.fill")
                     .font(.system(size: 13, weight: .semibold))
-                Text("Notifications désactivées")
+                Text(S.Reminders.deniedTitle.s)
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                 Spacer(minLength: 0)
             }
             .foregroundStyle(Theme.terracotta)
 
-            Text("SAVEAT continue de fonctionner normalement : tes produits à sauver restent visibles sur l'accueil. Pour recevoir les rappels, autorise les notifications dans les réglages de ton iPhone.")
+            Text(S.Reminders.deniedBody.s)
                 .font(.system(size: 12.5, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)
 
             if let url = URL(string: UIApplication.openSettingsURLString) {
                 Link(destination: url) {
-                    Text("Ouvrir les réglages")
+                    Text(S.Reminders.openSettings.s)
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.sageDeep)
                         .frame(minHeight: 44)
@@ -186,7 +186,7 @@ struct RemindersView: View {
     }
 
     private var explanation: some View {
-        Text("Les rappels reposent uniquement sur les dates que tu as saisies. SAVEAT n'invente jamais de date et ne se prononce jamais sur la comestibilité d'un aliment.")
+        Text(S.Reminders.explanation.s)
             .font(.system(size: 12, weight: .medium, design: .rounded))
             .foregroundStyle(Theme.inkSoft)
             .fixedSize(horizontal: false, vertical: true)

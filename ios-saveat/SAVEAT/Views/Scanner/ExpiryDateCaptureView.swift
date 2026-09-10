@@ -23,14 +23,14 @@ struct ExpiryDateCaptureView: View {
             case .ready:
                 CameraPreview(session: camera.session).ignoresSafeArea()
             case .denied:
-                message(emoji: "🔒", title: "Accès caméra refusé",
-                        detail: "Autorise la caméra dans Réglages, ou saisis la date à la main.")
+                message(emoji: "🔒", title: S.Scan.cameraDeniedTitle.s,
+                        detail: S.Scan.captureDeniedDetail.s)
             case .noDevice:
-                message(emoji: "📷", title: "Aucune caméra détectée",
-                        detail: "Saisis la date manuellement dans la fiche du produit.")
+                message(emoji: "📷", title: S.Scan.noCameraTitle.s,
+                        detail: S.Scan.captureNoDeviceDetail.s)
             case .failed:
-                message(emoji: "⚠️", title: "Caméra indisponible",
-                        detail: "Réessaie plus tard ou saisis la date à la main.")
+                message(emoji: "⚠️", title: S.Scan.cameraFailedTitle.s,
+                        detail: S.Scan.captureFailedDetail.s)
             case .idle:
                 ProgressView().tint(.white)
             }
@@ -82,9 +82,9 @@ struct ExpiryDateCaptureView: View {
                     .frame(width: 38, height: 38)
                     .background(.white.opacity(0.18), in: .circle)
             }
-            .accessibilityLabel("Fermer")
+            .accessibilityLabel(S.Common.close.s)
             Spacer()
-            Text("Photographier la date")
+            Text(S.Scan.captureTitle.s)
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white)
             Spacer()
@@ -98,7 +98,7 @@ struct ExpiryDateCaptureView: View {
                 .stroke(.white.opacity(0.85), lineWidth: 2.5)
                 .frame(width: 250, height: 90)
 
-            Text(failed ? "Date non reconnue — réessaie ou saisis-la à la main" : "Cadre la date imprimée sur l'emballage")
+            Text(failed ? S.Scan.captureFailed.s : S.Scan.captureHint.s)
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .foregroundStyle(failed ? Theme.terracotta : .white.opacity(0.9))
                 .multilineTextAlignment(.center)
@@ -125,7 +125,7 @@ struct ExpiryDateCaptureView: View {
         .buttonStyle(SoftPressStyle())
         .disabled(camera.status != .ready)
         .opacity(camera.status == .ready ? 1 : 0.4)
-        .accessibilityLabel("Prendre la photo")
+        .accessibilityLabel(S.Scan.takePhoto.s)
     }
 
     private func confirmationOverlay(_ date: Date) -> some View {
@@ -133,7 +133,7 @@ struct ExpiryDateCaptureView: View {
             Color.black.opacity(0.55).ignoresSafeArea()
 
             VStack(spacing: 16) {
-                Text("Date détectée")
+                Text(S.Scan.dateDetected.s)
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .tracking(1)
                     .foregroundStyle(Theme.inkSoft)
@@ -142,19 +142,19 @@ struct ExpiryDateCaptureView: View {
                     .font(.system(size: 30, weight: .bold, design: .rounded).monospacedDigit())
                     .foregroundStyle(Theme.ink)
 
-                Text("Vérifie qu'elle correspond bien à l'emballage.")
+                Text(S.Scan.checkDate.s)
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
                     .multilineTextAlignment(.center)
 
-                Button("Confirmer") {
+                Button(S.Scan.confirm.s) {
                     onConfirm(date)
                     Haptics.success()
                     dismiss()
                 }
                 .buttonStyle(SaveatButtonStyle())
 
-                Button("Reprendre la photo") {
+                Button(S.Scan.retakePhoto.s) {
                     detected = nil
                     camera.reset()
                     Haptics.light()
@@ -206,17 +206,33 @@ struct ExpiryDateCaptureView: View {
         }
     }
 
+    /// Full date in the reader's own order, so a US user never misreads 09/12.
     static func longDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "fr_FR")
-        formatter.dateFormat = "dd/MM/yyyy"
-        return formatter.string(from: date)
+        Units.mediumDate(date)
     }
 }
 
 /// Extracts printed best-before dates from recognised text lines.
 nonisolated enum DateTextParser {
-    private static let formats = ["dd/MM/yyyy", "dd/MM/yy", "dd.MM.yyyy", "dd.MM.yy", "dd-MM-yyyy", "dd-MM-yy", "MM/yyyy", "MM/yy"]
+    /// Day-first formats, as printed on European packs.
+    private static let dayFirstFormats = [
+        "dd/MM/yyyy", "dd/MM/yy", "dd.MM.yyyy", "dd.MM.yy", "dd-MM-yyyy", "dd-MM-yy", "MM/yyyy", "MM/yy"
+    ]
+
+    /// Month-first formats, as printed on US packs.
+    private static let monthFirstFormats = [
+        "MM/dd/yyyy", "MM/dd/yy", "MM.dd.yyyy", "MM.dd.yy", "MM-dd-yyyy", "MM-dd-yy", "MM/yyyy", "MM/yy"
+    ]
+
+    /// Tries the reader's own convention first, then the other one.
+    ///
+    /// A US pack printing 09/12 means September 12; a French one means 9 December.
+    /// Guessing the wrong way round would silently create a three-month error.
+    private static var formats: [String] {
+        LanguageRuntime.current == .fr
+            ? dayFirstFormats + monthFirstFormats
+            : monthFirstFormats + dayFirstFormats
+    }
 
     nonisolated static func firstDate(in lines: [String]) -> Date? {
         for line in lines {
@@ -237,7 +253,7 @@ nonisolated enum DateTextParser {
             let candidate = String(cleaned[matchRange])
 
             let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "fr_FR")
+            formatter.locale = Locale(identifier: "en_US_POSIX")
             formatter.timeZone = .current
 
             for format in formats {

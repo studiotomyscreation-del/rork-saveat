@@ -17,6 +17,15 @@ nonisolated struct MealIngredient: Identifiable, Codable, Hashable, Sendable {
     var stockUsage: Double = 1
 
     nonisolated var isFree: Bool { inStock || isStaple }
+
+    /// Ingredient name in the reader's language.
+    ///
+    /// Curated recipes are stored in French and translated here; assistant
+    /// answers already come back in the right language and pass through.
+    nonisolated var displayName: String { FoodNames.display(name) }
+
+    /// Amount in the reader's measuring system, converted per ingredient.
+    nonisolated var displayQuantity: String { RecipeQuantity.display(quantityText) }
 }
 
 /// Where a meal suggestion comes from.
@@ -79,19 +88,42 @@ nonisolated struct Meal: Identifiable, Codable, Hashable, Sendable {
 
     nonisolated var isZeroEuro: Bool { missingIngredients.isEmpty }
 
-    nonisolated var availabilityText: String {
-        isZeroEuro
-            ? "Tu as tout ce qu'il faut"
-            : "\(availableIngredients.count)/\(ingredients.count) ingrédients chez toi"
+    // MARK: Localized display
+
+    /// Recipe title in the reader's language.
+    nonisolated var displayName: String { SeedCopy.display(name) }
+
+    nonisolated var displaySummary: String { SeedCopy.display(summary) }
+
+    nonisolated var displayDifficulty: String { SeedCopy.display(difficulty) }
+
+    nonisolated var displaySteps: [String] { SeedCopy.display(steps) }
+
+    nonisolated var displayTags: [String] { SeedCopy.display(tags) }
+
+    nonisolated var displayNote: String? { antiWasteNote.map(SeedCopy.display) }
+
+    nonisolated var servingsText: String {
+        servings > 1 ? S.Meals.servingsPlural.f(servings) : S.Meals.servings.f(servings)
     }
 
-    /// "Ce repas te permet d'utiliser 3 produits à sauver.", or nil when it uses none.
+    nonisolated var availabilityText: String {
+        isZeroEuro
+            ? S.Meals.haveEverything.s
+            : S.Meals.availability.f(availableIngredients.count, ingredients.count)
+    }
+
+    /// "This meal uses up 3 items you need to eat soon.", or nil when it uses none.
     nonisolated var rescueHighlight: String? {
         if rescueCount > 0 {
-            return "Ce repas te permet d'utiliser \(rescueCount) produit\(rescueCount > 1 ? "s" : "") à sauver."
+            return rescueCount > 1
+                ? S.Meals.rescueHighlightPlural.f(rescueCount)
+                : S.Meals.rescueHighlight.f(rescueCount)
         }
         if planCount > 0 {
-            return "Ce repas utilise \(planCount) produit\(planCount > 1 ? "s" : "") dont la date approche."
+            return planCount > 1
+                ? S.Meals.planHighlightPlural.f(planCount)
+                : S.Meals.planHighlight.f(planCount)
         }
         return nil
     }
@@ -159,7 +191,7 @@ extension MealAIPayload.MealDTO {
             summary: summary ?? "",
             prepMinutes: max(prepMinutes ?? 5, 0),
             cookMinutes: max(cookMinutes ?? 10, 0),
-            difficulty: difficulty ?? "Facile",
+            difficulty: difficulty ?? SeedCopy.display("Facile"),
             servings: max(servings ?? 2, 1),
             kcalPerServing: max(kcalPerServing ?? 0, 0),
             proteinsPerServing: max(proteinsPerServing ?? 0, 0),

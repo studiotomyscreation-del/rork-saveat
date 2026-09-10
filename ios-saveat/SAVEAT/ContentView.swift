@@ -4,6 +4,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var store = AppStore()
     @State private var subscriptions = SubscriptionStore()
+    @State private var languages = LanguageStore()
     @State private var isLaunching = true
 
     var body: some View {
@@ -16,8 +17,13 @@ struct ContentView: View {
                     .transition(.opacity)
             }
         }
+        // Rebuilding on language change is what makes the switch instant:
+        // every screen re-reads its copy, while the stores keep their data.
+        .id(languages.language)
         .environment(store)
         .environment(subscriptions)
+        .environment(languages)
+        .environment(\.locale, languages.locale)
         .animation(.easeInOut(duration: 0.35), value: store.profile.hasCompletedOnboarding)
         .tint(Theme.sageDeep)
         .preferredColorScheme(.light)

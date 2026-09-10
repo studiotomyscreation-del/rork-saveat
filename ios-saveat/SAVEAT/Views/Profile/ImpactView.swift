@@ -21,27 +21,27 @@ struct ImpactView: View {
         }
         .scrollIndicators(.hidden)
         .saveatBackground()
-        .navigationTitle("Mes économies")
+        .navigationTitle(S.Impact.navTitle.s)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
     }
 
     private var weekCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            SectionLabel(text: "Cette semaine")
+            SectionLabel(text: S.Impact.thisWeek.s)
 
             HStack(spacing: 18) {
                 ProgressRing(fraction: week.goalFraction, size: 118)
                 VStack(alignment: .leading, spacing: 12) {
-                    metric("🌱", "\(week.savedItems)", "produits sauvés", Theme.ink)
-                    metric("🍲", "\(week.mealsCooked)", "repas préparés", Theme.ink)
-                    metric("🐷", Format.euro(week.moneySaved), "économisés", Theme.terracotta)
+                    metric("🌱", "\(week.savedItems)", S.Impact.savedItems.s, Theme.ink)
+                    metric("🍲", "\(week.mealsCooked)", S.Impact.mealsCooked.s, Theme.ink)
+                    metric("🐷", Format.euro(week.moneySaved), S.Impact.moneySaved.s, Theme.terracotta)
                 }
             }
 
             HStack(spacing: 6) {
                 Image(systemName: "leaf.fill").font(.system(size: 11))
-                Text("≈ \(Format.kg(week.wasteAvoidedKg)) de gaspillage évité (estimation)")
+                Text(S.Impact.wasteAvoided.f(Format.kg(week.wasteAvoidedKg)))
                     .font(.system(size: 12, weight: .medium, design: .rounded))
             }
             .foregroundStyle(Theme.sageDeep)
@@ -67,7 +67,7 @@ struct ImpactView: View {
 
     private var lifetimeCard: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Depuis mon inscription")
+            Text(S.Impact.sinceJoining.s)
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .tracking(1)
                 .foregroundStyle(.white.opacity(0.85))
@@ -76,14 +76,14 @@ struct ImpactView: View {
                 .font(.system(size: 42, weight: .bold, design: .rounded).monospacedDigit())
                 .foregroundStyle(.white)
 
-            Text("économisés — estimation basée sur la valeur des aliments sauvés")
+            Text(S.Impact.lifetimeNote.s)
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(.white.opacity(0.9))
                 .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 8) {
-                SoftPill(text: "\(lifetime.savedItems) produits sauvés", tint: Theme.sageDeep, background: .white.opacity(0.95))
-                SoftPill(text: "\(lifetime.mealsCooked) repas", tint: Theme.sageDeep, background: .white.opacity(0.95))
+                SoftPill(text: S.Impact.itemsPill.f(lifetime.savedItems), tint: Theme.sageDeep, background: .white.opacity(0.95))
+                SoftPill(text: S.Impact.mealsPill.f(lifetime.mealsCooked), tint: Theme.sageDeep, background: .white.opacity(0.95))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -96,20 +96,20 @@ struct ImpactView: View {
     }
 
     private var shareCard: some View {
-        let text = "Cette semaine j'ai économisé \(Format.euro(week.moneySaved)) et sauvé \(week.savedItems) produits avec SAVEAT."
+        let text = S.Challenges.shareText.f(Format.euro(week.moneySaved), week.savedItems)
         return VStack(alignment: .leading, spacing: 14) {
-            SectionLabel(text: "Ma carte à partager")
+            SectionLabel(text: S.Impact.shareCard.s)
 
             VStack(alignment: .leading, spacing: 10) {
                 Text("SAVEAT")
                     .font(.system(size: 12, weight: .bold, design: .rounded))
                     .tracking(3)
                     .foregroundStyle(Theme.sageDeep)
-                Text("Cette semaine j'ai économisé \(Format.euro(week.moneySaved)) et sauvé \(week.savedItems) produits.")
+                Text(S.Challenges.cardText.f(Format.euro(week.moneySaved), week.savedItems))
                     .font(Theme.display(19))
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
-                Text("Mange ce que tu as. Achète ce qu'il te manque.")
+                Text(S.Impact.shareTagline.s)
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
             }
@@ -120,7 +120,7 @@ struct ImpactView: View {
             ShareLink(item: text) {
                 HStack(spacing: 8) {
                     Image(systemName: "square.and.arrow.up")
-                    Text("Partager mon résultat")
+                    Text(S.Impact.shareAction.s)
                 }
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white)
@@ -134,7 +134,7 @@ struct ImpactView: View {
 
     private var historySection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(text: "Derniers repas cuisinés")
+            SectionLabel(text: S.Impact.historySection.s)
             VStack(spacing: 0) {
                 let recent = Array(store.lifetimeImpact.mealsCooked > 0 ? recentMeals : [])
                 ForEach(recent) { meal in
@@ -143,7 +143,7 @@ struct ImpactView: View {
                                   tint: meal.wasZeroEuro ? Theme.sageMist : Theme.terracotta.opacity(0.14),
                                   size: 38)
                         VStack(alignment: .leading, spacing: 1) {
-                            Text(meal.recipeName)
+                            Text(SeedCopy.display(meal.recipeName))
                                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                                 .foregroundStyle(Theme.ink)
                                 .lineLimit(1)
@@ -173,7 +173,7 @@ struct ImpactView: View {
 
     private func relativeDate(_ date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
-        formatter.locale = Locale(identifier: "fr_FR")
+        formatter.locale = LanguageRuntime.current.locale
         formatter.unitsStyle = .full
         return formatter.localizedString(for: date, relativeTo: .now)
     }
@@ -181,7 +181,7 @@ struct ImpactView: View {
     private var disclaimer: some View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: "info.circle").font(.system(size: 12))
-            Text("Toutes les valeurs sont des estimations calculées à partir des prix moyens et du poids moyen des produits que tu sauves.")
+            Text(S.Impact.disclaimer.s)
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)

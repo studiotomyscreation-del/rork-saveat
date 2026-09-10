@@ -39,11 +39,11 @@ nonisolated enum NutritionVerdict: Sendable, Hashable {
 
     nonisolated var title: String {
         switch self {
-        case .veryGood: "Très bon"
-        case .good: "Bon"
-        case .average: "Moyen"
-        case .limit: "À limiter"
-        case .poor: "Faible qualité nutritionnelle"
+        case .veryGood: S.Nutrition.veryGood.s
+        case .good: S.Nutrition.good.s
+        case .average: S.Nutrition.average.s
+        case .limit: S.Nutrition.limit.s
+        case .poor: S.Nutrition.poor.s
         }
     }
 
@@ -75,93 +75,95 @@ nonisolated struct AdditivesInfo: Sendable, Hashable {
 
     nonisolated var count: Int { codes.count }
 
-    /// French summary line, or the explicit unavailable notice.
+    /// Summary line in the reader's language, or the explicit unavailable notice.
     nonisolated var summary: String {
         guard isKnown else { return NutritionAnalysis.unavailableText }
-        if codes.isEmpty { return "Aucun additif listé pour ce produit." }
-        return "\(codes.count) additif\(codes.count > 1 ? "s" : "") listé\(codes.count > 1 ? "s" : "") dans la base de données."
+        if codes.isEmpty { return S.Nutrition.noAdditivesListed.s }
+        return codes.count > 1
+            ? S.Nutrition.additivesListed.f(codes.count)
+            : S.Nutrition.additiveListed.f(codes.count)
     }
 
-    /// `E330 — acide citrique (correcteur d'acidité)` when the code is known, else the raw code.
+    /// `E330 — citric acid (acidity regulator)` when the code is known, else the raw code.
     nonisolated func describe(_ code: String) -> String {
         let normalised = code.uppercased()
         guard let name = AdditivesInfo.names[normalised] else { return normalised }
-        return "\(normalised) — \(name)"
+        return "\(normalised) — \(name.s)"
     }
 
-    /// Standard names of the additives most often met on French shelves.
+    /// Standard names of the additives most often met on French and US shelves.
     /// Only documented entries are listed; unknown codes are shown as-is.
-    private static let names: [String: String] = [
-        "E100": "curcumine (colorant)",
-        "E120": "cochenille (colorant)",
-        "E150A": "caramel ordinaire (colorant)",
-        "E150C": "caramel ammoniacal (colorant)",
-        "E150D": "caramel au sulfite d'ammonium (colorant)",
-        "E160A": "carotènes (colorant)",
-        "E160C": "extrait de paprika (colorant)",
-        "E162": "rouge de betterave (colorant)",
-        "E163": "anthocyanes (colorant)",
-        "E170": "carbonate de calcium",
-        "E200": "acide sorbique (conservateur)",
-        "E202": "sorbate de potassium (conservateur)",
-        "E211": "benzoate de sodium (conservateur)",
-        "E223": "métabisulfite de sodium (conservateur)",
-        "E250": "nitrite de sodium (conservateur)",
-        "E252": "nitrate de potassium (conservateur)",
-        "E260": "acide acétique (acidifiant)",
-        "E270": "acide lactique (acidifiant)",
-        "E296": "acide malique (acidifiant)",
-        "E300": "acide ascorbique — vitamine C (antioxydant)",
-        "E301": "ascorbate de sodium (antioxydant)",
-        "E306": "extrait riche en tocophérols (antioxydant)",
-        "E316": "érythorbate de sodium (antioxydant)",
-        "E322": "lécithines (émulsifiant)",
-        "E330": "acide citrique (correcteur d'acidité)",
-        "E331": "citrates de sodium (correcteur d'acidité)",
-        "E333": "citrates de calcium (correcteur d'acidité)",
-        "E338": "acide phosphorique (acidifiant)",
-        "E339": "phosphates de sodium",
-        "E340": "phosphates de potassium",
-        "E401": "alginate de sodium (épaississant)",
-        "E405": "alginate de propane-1,2-diol (épaississant)",
-        "E406": "agar-agar (gélifiant)",
-        "E407": "carraghénanes (épaississant)",
-        "E410": "farine de graines de caroube (épaississant)",
-        "E412": "gomme guar (épaississant)",
-        "E414": "gomme arabique (épaississant)",
-        "E415": "gomme xanthane (épaississant)",
-        "E418": "gomme gellane (épaississant)",
-        "E420": "sorbitol (édulcorant)",
-        "E422": "glycérol (humectant)",
-        "E440": "pectines (gélifiant)",
-        "E450": "diphosphates (stabilisant)",
-        "E451": "triphosphates (stabilisant)",
-        "E460": "cellulose (anti-agglomérant)",
-        "E464": "hydroxypropylméthylcellulose (épaississant)",
-        "E466": "carboxyméthylcellulose (épaississant)",
-        "E471": "mono- et diglycérides d'acides gras (émulsifiant)",
-        "E472E": "esters d'acides gras (émulsifiant)",
-        "E476": "polyricinoléate de polyglycérol (émulsifiant)",
-        "E481": "stéaroyl-2-lactylate de sodium (émulsifiant)",
-        "E500": "carbonates de sodium (poudre à lever)",
-        "E501": "carbonates de potassium (poudre à lever)",
-        "E503": "carbonates d'ammonium (poudre à lever)",
-        "E504": "carbonates de magnésium (anti-agglomérant)",
-        "E509": "chlorure de calcium (affermissant)",
-        "E551": "dioxyde de silicium (anti-agglomérant)",
-        "E621": "glutamate monosodique (exhausteur de goût)",
-        "E627": "guanylate disodique (exhausteur de goût)",
-        "E631": "inosinate disodique (exhausteur de goût)",
-        "E635": "ribonucléotides disodiques (exhausteur de goût)",
-        "E950": "acésulfame K (édulcorant)",
-        "E951": "aspartame (édulcorant)",
-        "E952": "cyclamates (édulcorant)",
-        "E954": "saccharines (édulcorant)",
-        "E955": "sucralose (édulcorant)",
-        "E960": "glycosides de stéviol (édulcorant)",
-        "E965": "maltitol (édulcorant)",
-        "E967": "xylitol (édulcorant)",
-        "E968": "érythritol (édulcorant)"
+    private static let names: [String: Loc] = [
+        "E100": Loc(fr: "curcumine (colorant)", en: "curcumin (color)"),
+        "E120": Loc(fr: "cochenille (colorant)", en: "cochineal / carmine (color)"),
+        "E150A": Loc(fr: "caramel ordinaire (colorant)", en: "plain caramel (color)"),
+        "E150C": Loc(fr: "caramel ammoniacal (colorant)", en: "ammonia caramel (color)"),
+        "E150D": Loc(fr: "caramel au sulfite d'ammonium (colorant)", en: "sulfite ammonia caramel (color)"),
+        "E160A": Loc(fr: "carotènes (colorant)", en: "carotenes (color)"),
+        "E160C": Loc(fr: "extrait de paprika (colorant)", en: "paprika extract (color)"),
+        "E162": Loc(fr: "rouge de betterave (colorant)", en: "beet red (color)"),
+        "E163": Loc(fr: "anthocyanes (colorant)", en: "anthocyanins (color)"),
+        "E170": Loc(fr: "carbonate de calcium", en: "calcium carbonate"),
+        "E200": Loc(fr: "acide sorbique (conservateur)", en: "sorbic acid (preservative)"),
+        "E202": Loc(fr: "sorbate de potassium (conservateur)", en: "potassium sorbate (preservative)"),
+        "E211": Loc(fr: "benzoate de sodium (conservateur)", en: "sodium benzoate (preservative)"),
+        "E223": Loc(fr: "métabisulfite de sodium (conservateur)", en: "sodium metabisulfite (preservative)"),
+        "E250": Loc(fr: "nitrite de sodium (conservateur)", en: "sodium nitrite (preservative)"),
+        "E252": Loc(fr: "nitrate de potassium (conservateur)", en: "potassium nitrate (preservative)"),
+        "E260": Loc(fr: "acide acétique (acidifiant)", en: "acetic acid (acidifier)"),
+        "E270": Loc(fr: "acide lactique (acidifiant)", en: "lactic acid (acidifier)"),
+        "E296": Loc(fr: "acide malique (acidifiant)", en: "malic acid (acidifier)"),
+        "E300": Loc(fr: "acide ascorbique — vitamine C (antioxydant)", en: "ascorbic acid — vitamin C (antioxidant)"),
+        "E301": Loc(fr: "ascorbate de sodium (antioxydant)", en: "sodium ascorbate (antioxidant)"),
+        "E306": Loc(fr: "extrait riche en tocophérols (antioxydant)", en: "tocopherol-rich extract (antioxidant)"),
+        "E316": Loc(fr: "érythorbate de sodium (antioxydant)", en: "sodium erythorbate (antioxidant)"),
+        "E322": Loc(fr: "lécithines (émulsifiant)", en: "lecithins (emulsifier)"),
+        "E330": Loc(fr: "acide citrique (correcteur d'acidité)", en: "citric acid (acidity regulator)"),
+        "E331": Loc(fr: "citrates de sodium (correcteur d'acidité)", en: "sodium citrates (acidity regulator)"),
+        "E333": Loc(fr: "citrates de calcium (correcteur d'acidité)", en: "calcium citrates (acidity regulator)"),
+        "E338": Loc(fr: "acide phosphorique (acidifiant)", en: "phosphoric acid (acidifier)"),
+        "E339": Loc(fr: "phosphates de sodium", en: "sodium phosphates"),
+        "E340": Loc(fr: "phosphates de potassium", en: "potassium phosphates"),
+        "E401": Loc(fr: "alginate de sodium (épaississant)", en: "sodium alginate (thickener)"),
+        "E405": Loc(fr: "alginate de propane-1,2-diol (épaississant)", en: "propylene glycol alginate (thickener)"),
+        "E406": Loc(fr: "agar-agar (gélifiant)", en: "agar (gelling agent)"),
+        "E407": Loc(fr: "carraghénanes (épaississant)", en: "carrageenan (thickener)"),
+        "E410": Loc(fr: "farine de graines de caroube (épaississant)", en: "locust bean gum (thickener)"),
+        "E412": Loc(fr: "gomme guar (épaississant)", en: "guar gum (thickener)"),
+        "E414": Loc(fr: "gomme arabique (épaississant)", en: "gum arabic (thickener)"),
+        "E415": Loc(fr: "gomme xanthane (épaississant)", en: "xanthan gum (thickener)"),
+        "E418": Loc(fr: "gomme gellane (épaississant)", en: "gellan gum (thickener)"),
+        "E420": Loc(fr: "sorbitol (édulcorant)", en: "sorbitol (sweetener)"),
+        "E422": Loc(fr: "glycérol (humectant)", en: "glycerol (humectant)"),
+        "E440": Loc(fr: "pectines (gélifiant)", en: "pectins (gelling agent)"),
+        "E450": Loc(fr: "diphosphates (stabilisant)", en: "diphosphates (stabilizer)"),
+        "E451": Loc(fr: "triphosphates (stabilisant)", en: "triphosphates (stabilizer)"),
+        "E460": Loc(fr: "cellulose (anti-agglomérant)", en: "cellulose (anti-caking agent)"),
+        "E464": Loc(fr: "hydroxypropylméthylcellulose (épaississant)", en: "hydroxypropyl methylcellulose (thickener)"),
+        "E466": Loc(fr: "carboxyméthylcellulose (épaississant)", en: "carboxymethyl cellulose (thickener)"),
+        "E471": Loc(fr: "mono- et diglycérides d'acides gras (émulsifiant)", en: "mono- and diglycerides of fatty acids (emulsifier)"),
+        "E472E": Loc(fr: "esters d'acides gras (émulsifiant)", en: "fatty acid esters (emulsifier)"),
+        "E476": Loc(fr: "polyricinoléate de polyglycérol (émulsifiant)", en: "polyglycerol polyricinoleate (emulsifier)"),
+        "E481": Loc(fr: "stéaroyl-2-lactylate de sodium (émulsifiant)", en: "sodium stearoyl lactylate (emulsifier)"),
+        "E500": Loc(fr: "carbonates de sodium (poudre à lever)", en: "sodium carbonates (leavening agent)"),
+        "E501": Loc(fr: "carbonates de potassium (poudre à lever)", en: "potassium carbonates (leavening agent)"),
+        "E503": Loc(fr: "carbonates d'ammonium (poudre à lever)", en: "ammonium carbonates (leavening agent)"),
+        "E504": Loc(fr: "carbonates de magnésium (anti-agglomérant)", en: "magnesium carbonates (anti-caking agent)"),
+        "E509": Loc(fr: "chlorure de calcium (affermissant)", en: "calcium chloride (firming agent)"),
+        "E551": Loc(fr: "dioxyde de silicium (anti-agglomérant)", en: "silicon dioxide (anti-caking agent)"),
+        "E621": Loc(fr: "glutamate monosodique (exhausteur de goût)", en: "monosodium glutamate — MSG (flavor enhancer)"),
+        "E627": Loc(fr: "guanylate disodique (exhausteur de goût)", en: "disodium guanylate (flavor enhancer)"),
+        "E631": Loc(fr: "inosinate disodique (exhausteur de goût)", en: "disodium inosinate (flavor enhancer)"),
+        "E635": Loc(fr: "ribonucléotides disodiques (exhausteur de goût)", en: "disodium ribonucleotides (flavor enhancer)"),
+        "E950": Loc(fr: "acésulfame K (édulcorant)", en: "acesulfame potassium (sweetener)"),
+        "E951": Loc(fr: "aspartame (édulcorant)", en: "aspartame (sweetener)"),
+        "E952": Loc(fr: "cyclamates (édulcorant)", en: "cyclamates (sweetener)"),
+        "E954": Loc(fr: "saccharines (édulcorant)", en: "saccharin (sweetener)"),
+        "E955": Loc(fr: "sucralose (édulcorant)", en: "sucralose (sweetener)"),
+        "E960": Loc(fr: "glycosides de stéviol (édulcorant)", en: "steviol glycosides (sweetener)"),
+        "E965": Loc(fr: "maltitol (édulcorant)", en: "maltitol (sweetener)"),
+        "E967": Loc(fr: "xylitol (édulcorant)", en: "xylitol (sweetener)"),
+        "E968": Loc(fr: "érythritol (édulcorant)", en: "erythritol (sweetener)")
     ]
 }
 
@@ -185,16 +187,18 @@ nonisolated struct NutritionAnalysis: Sendable, Hashable {
         nonisolated var caption: String {
             switch self {
             case .officialNutriScore(let grade):
-                "D'après le Nutri-Score officiel \(grade.letter) publié pour ce produit."
+                S.Nutrition.basisOfficial.f(grade.letter)
             case .estimatedFromNutrients(let count):
-                "Aucun Nutri-Score publié. Estimation SAVEAT à partir des \(count) valeur\(count > 1 ? "s" : "") nutritionnelle\(count > 1 ? "s" : "") disponible\(count > 1 ? "s" : "")."
+                count > 1
+                    ? S.Nutrition.basisEstimated.f(count)
+                    : S.Nutrition.basisEstimatedSingular.f(count)
             case .unavailable:
-                "Les données nutritionnelles de ce produit ne sont pas publiées."
+                S.Nutrition.basisUnavailable.s
             }
         }
     }
 
-    static let unavailableText = "Information non disponible"
+    static var unavailableText: String { S.Nutrition.unavailable.s }
 
     /// Official grade, `nil` when the product does not publish one.
     var grade: NutriScoreGrade?
@@ -228,114 +232,114 @@ nonisolated struct NutritionAnalysis: Sendable, Hashable {
 
         // Sugars — thresholds shared with SaveatScore.
         if let sugars = n.sugars {
-            let per100 = "\(Format.grams(sugars)) pour 100 g"
+            let per100 = S.Nutrition.per100g.f(Format.grams(sugars))
             switch sugars {
             case ..<5:
                 penalties.append(0)
-                positives.append(NutritionPoint(emoji: "🍬", title: "Peu de sucres", detail: per100))
+                positives.append(NutritionPoint(emoji: "🍬", title: S.Nutrition.lowSugar.s, detail: per100))
             case 5..<12:
                 penalties.append(1)
             case 12..<22:
                 penalties.append(2)
-                watchOuts.append(NutritionPoint(emoji: "🍬", title: "Sucres élevés", detail: per100))
+                watchOuts.append(NutritionPoint(emoji: "🍬", title: S.Nutrition.highSugar.s, detail: per100))
             default:
                 penalties.append(3)
-                watchOuts.append(NutritionPoint(emoji: "🍬", title: "Sucres très élevés", detail: per100))
+                watchOuts.append(NutritionPoint(emoji: "🍬", title: S.Nutrition.veryHighSugar.s, detail: per100))
             }
         } else {
-            missing.append("sucres")
+            missing.append(S.Nutrition.missingSugars.s)
         }
 
         // Salt.
         if let salt = n.salt {
-            let per100 = "\(Format.grams(salt)) pour 100 g"
+            let per100 = S.Nutrition.per100g.f(Format.grams(salt))
             switch salt {
             case ..<0.3:
                 penalties.append(0)
-                positives.append(NutritionPoint(emoji: "🧂", title: "Peu de sel", detail: per100))
+                positives.append(NutritionPoint(emoji: "🧂", title: S.Nutrition.lowSalt.s, detail: per100))
             case 0.3..<1:
                 penalties.append(1)
             case 1..<1.5:
                 penalties.append(2)
-                watchOuts.append(NutritionPoint(emoji: "🧂", title: "Sel élevé", detail: per100))
+                watchOuts.append(NutritionPoint(emoji: "🧂", title: S.Nutrition.highSalt.s, detail: per100))
             default:
                 penalties.append(3)
-                watchOuts.append(NutritionPoint(emoji: "🧂", title: "Sel très élevé", detail: per100))
+                watchOuts.append(NutritionPoint(emoji: "🧂", title: S.Nutrition.veryHighSalt.s, detail: per100))
             }
         } else {
-            missing.append("sel")
+            missing.append(S.Nutrition.missingSalt.s)
         }
 
         // Saturated fat.
         if let sat = n.saturatedFat {
-            let per100 = "\(Format.grams(sat)) pour 100 g"
+            let per100 = S.Nutrition.per100g.f(Format.grams(sat))
             switch sat {
             case ..<1.5:
                 penalties.append(0)
-                positives.append(NutritionPoint(emoji: "🧈", title: "Peu de graisses saturées", detail: per100))
+                positives.append(NutritionPoint(emoji: "🧈", title: S.Nutrition.lowSaturated.s, detail: per100))
             case 1.5..<5:
                 penalties.append(1)
             case 5..<10:
                 penalties.append(2)
-                watchOuts.append(NutritionPoint(emoji: "🧈", title: "Graisses saturées élevées", detail: per100))
+                watchOuts.append(NutritionPoint(emoji: "🧈", title: S.Nutrition.highSaturated.s, detail: per100))
             default:
                 penalties.append(3)
-                watchOuts.append(NutritionPoint(emoji: "🧈", title: "Graisses saturées très élevées", detail: per100))
+                watchOuts.append(NutritionPoint(emoji: "🧈", title: S.Nutrition.veryHighSaturated.s, detail: per100))
             }
         } else {
-            missing.append("graisses saturées")
+            missing.append(S.Nutrition.missingSaturated.s)
         }
 
         // Energy.
         if let kcal = n.energyKcal {
-            let per100 = "\(Int(kcal.rounded())) kcal pour 100 g"
+            let per100 = S.Nutrition.kcalPer100g.f(Int(kcal.rounded()))
             switch kcal {
             case ..<100:
                 penalties.append(0)
-                positives.append(NutritionPoint(emoji: "🔥", title: "Peu calorique", detail: per100))
+                positives.append(NutritionPoint(emoji: "🔥", title: S.Nutrition.lowCalorie.s, detail: per100))
             case 100..<250:
                 penalties.append(1)
             case 250..<400:
                 penalties.append(2)
-                watchOuts.append(NutritionPoint(emoji: "🔥", title: "Densité calorique élevée", detail: per100))
+                watchOuts.append(NutritionPoint(emoji: "🔥", title: S.Nutrition.calorieDense.s, detail: per100))
             default:
                 penalties.append(3)
-                watchOuts.append(NutritionPoint(emoji: "🔥", title: "Très calorique", detail: per100))
+                watchOuts.append(NutritionPoint(emoji: "🔥", title: S.Nutrition.veryCalorie.s, detail: per100))
             }
         } else {
-            missing.append("calories")
+            missing.append(S.Nutrition.missingCalories.s)
         }
 
         // Nutrients of interest — bonuses only, never used to soften a warning.
         if let fiber = n.fiber, fiber >= 3 {
             positives.append(NutritionPoint(
                 emoji: "🌾",
-                title: fiber >= 6 ? "Riche en fibres" : "Source de fibres",
-                detail: "\(Format.grams(fiber)) pour 100 g"
+                title: fiber >= 6 ? S.Nutrition.richFiber.s : S.Nutrition.sourceFiber.s,
+                detail: S.Nutrition.per100g.f(Format.grams(fiber))
             ))
         } else if n.fiber == nil {
-            missing.append("fibres")
+            missing.append(S.Nutrition.missingFiber.s)
         }
 
         if let proteins = n.proteins, proteins >= 8 {
             positives.append(NutritionPoint(
                 emoji: "💪",
-                title: "Teneur intéressante en protéines",
-                detail: "\(Format.grams(proteins)) pour 100 g"
+                title: S.Nutrition.goodProtein.s,
+                detail: S.Nutrition.per100g.f(Format.grams(proteins))
             ))
         } else if n.proteins == nil {
-            missing.append("protéines")
+            missing.append(S.Nutrition.missingProteins.s)
         }
 
         // Processing level (NOVA), when published.
         if let nova = product.nova {
             switch nova {
             case 1:
-                positives.append(NutritionPoint(emoji: "🌱", title: "Aliment brut ou peu transformé", detail: "Groupe NOVA 1"))
+                positives.append(NutritionPoint(emoji: "🌱", title: S.Nutrition.novaWhole.s, detail: S.Nutrition.novaGroup.f(1)))
             case 2:
-                positives.append(NutritionPoint(emoji: "🌱", title: "Ingrédient culinaire peu transformé", detail: "Groupe NOVA 2"))
+                positives.append(NutritionPoint(emoji: "🌱", title: S.Nutrition.novaCulinary.s, detail: S.Nutrition.novaGroup.f(2)))
             case 4:
-                watchOuts.append(NutritionPoint(emoji: "🏭", title: "Produit ultra-transformé", detail: "Groupe NOVA 4"))
+                watchOuts.append(NutritionPoint(emoji: "🏭", title: S.Nutrition.novaUltra.s, detail: S.Nutrition.novaGroup.f(4)))
             default:
                 break
             }
@@ -348,8 +352,8 @@ nonisolated struct NutritionAnalysis: Sendable, Hashable {
         if additives.isKnown, additives.count >= 4 {
             watchOuts.append(NutritionPoint(
                 emoji: "🧪",
-                title: "Nombreux additifs",
-                detail: "\(additives.count) additifs listés"
+                title: S.Nutrition.manyAdditives.s,
+                detail: S.Nutrition.additivesCount.f(additives.count)
             ))
         }
 
@@ -412,40 +416,42 @@ nonisolated struct NutritionAnalysis: Sendable, Hashable {
         missing: [String]
     ) -> String {
         guard let verdict else {
-            return "Ce produit ne publie pas assez de données nutritionnelles pour être analysé. SAVEAT préfère ne rien afficher plutôt que d'estimer une qualité qu'il ne peut pas vérifier."
+            return S.Nutrition.notEnoughData.s
         }
 
         var sentences: [String] = []
 
         if let grade {
-            sentences.append("Nutri-Score \(grade.letter) officiel : \(verdict.title.lowercased()) sur le plan nutritionnel.")
+            sentences.append(S.Nutrition.officialSentence.f(grade.letter, verdict.title.lowercased()))
         } else {
-            sentences.append("Sans Nutri-Score publié, les valeurs disponibles situent ce produit à un niveau \(verdict.title.lowercased()).")
+            sentences.append(S.Nutrition.estimatedSentence.f(verdict.title.lowercased()))
         }
 
+        let joiner = S.Nutrition.andJoiner.s
+
         if !positives.isEmpty {
-            let list = positives.prefix(2).map { $0.title.lowercased() }.joined(separator: " et ")
-            sentences.append("Ce qui joue en sa faveur : \(list).")
+            let list = positives.prefix(2).map { $0.title.lowercased() }.joined(separator: joiner)
+            sentences.append(S.Nutrition.inItsFavor.f(list))
         }
 
         if !watchOuts.isEmpty {
-            let list = watchOuts.prefix(2).map { $0.title.lowercased() }.joined(separator: " et ")
-            sentences.append("À surveiller : \(list).")
+            let list = watchOuts.prefix(2).map { $0.title.lowercased() }.joined(separator: joiner)
+            sentences.append(S.Nutrition.watchOut.f(list))
         } else if additives.isKnown, additives.codes.isEmpty {
-            sentences.append("Rien de particulier à signaler dans les valeurs publiées.")
+            sentences.append(S.Nutrition.nothingNotable.s)
         }
 
         if !missing.isEmpty {
-            sentences.append("Non publié pour ce produit : \(missing.joined(separator: ", ")).")
+            sentences.append(S.Nutrition.notPublished.f(missing.joined(separator: ", ")))
         }
 
         switch verdict {
         case .veryGood, .good:
-            sentences.append("Une bonne base à garder au frais et à cuisiner avant sa date.")
+            sentences.append(S.Nutrition.closingGood.s)
         case .average:
-            sentences.append("Correct au quotidien, surtout accompagné de produits frais de ton stock.")
+            sentences.append(S.Nutrition.closingAverage.s)
         case .limit, .poor:
-            sentences.append("À garder pour les petits plaisirs, en petite quantité — et à finir avant de le jeter.")
+            sentences.append(S.Nutrition.closingLimit.s)
         }
 
         return sentences.joined(separator: " ")

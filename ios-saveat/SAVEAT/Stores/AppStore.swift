@@ -228,7 +228,7 @@ final class AppStore {
         wasteLog.append(WasteEvent(itemName: item.name, emoji: item.emoji, outcome: .saved))
         bumpChallenge(matching: "Sauver 5 produits", by: 1)
 
-        banner = BannerMessage(text: "\(item.name) sauvé 💚", tone: .success)
+        banner = BannerMessage(text: S.Banner.saved.f(item.displayName), tone: .success)
     }
 
     /// Records a product that had to be thrown away.
@@ -237,7 +237,7 @@ final class AppStore {
     func markDiscarded(_ item: FoodItem) {
         inventory.removeAll { $0.id == item.id }
         wasteLog.append(WasteEvent(itemName: item.name, emoji: item.emoji, outcome: .discarded))
-        banner = BannerMessage(text: "\(item.name) retiré de ton stock", tone: .info)
+        banner = BannerMessage(text: S.Banner.discarded.f(item.displayName), tone: .info)
     }
 
     private func wasteEvents(_ outcome: WasteOutcome, since date: Date) -> Int {
@@ -306,7 +306,9 @@ final class AppStore {
         }
 
         banner = BannerMessage(
-            text: "\(items.count) produit\(items.count > 1 ? "s" : "") ajouté\(items.count > 1 ? "s" : "") à ton stock",
+            text: items.count > 1
+                ? S.Banner.itemsAdded.f(items.count)
+                : S.Banner.itemAdded.f(items.count),
             tone: .success
         )
     }
@@ -358,8 +360,10 @@ final class AppStore {
 
         banner = BannerMessage(
             text: meal.isZeroEuro
-                ? "Repas à 0 € validé — stock mis à jour ✨"
-                : "Stock mis à jour — \(rescuedCount) produit\(rescuedCount > 1 ? "s" : "") sauvé\(rescuedCount > 1 ? "s" : "")",
+                ? S.Banner.zeroCostCooked.f(Units.zeroCostLabel)
+                : (rescuedCount > 1
+                    ? S.Banner.stockUpdatedPlural.f(rescuedCount)
+                    : S.Banner.stockUpdated.f(rescuedCount)),
             tone: .success
         )
     }
@@ -391,7 +395,7 @@ final class AppStore {
             added += 1
         }
         banner = BannerMessage(
-            text: added > 0 ? "Ajouté à ta liste de courses 🛒" : "Déjà dans ta liste",
+            text: added > 0 ? S.Banner.addedToList.s : S.Banner.alreadyInList.s,
             tone: .info
         )
     }
@@ -486,20 +490,29 @@ nonisolated struct BannerMessage: Identifiable, Equatable, Sendable {
     var tone: Tone
 }
 
-/// Shared euro / number formatting in French.
+/// Shared money / number formatting, following the reader's language.
+///
+/// These are SAVEAT's own estimates. Subscription prices never come through
+/// here — they always come from the App Store for the user's own country.
 nonisolated enum Format {
+    /// An estimated value, in euros for French readers and dollars for US ones.
     nonisolated static func euro(_ value: Double, decimals: Int = 2) -> String {
+        let language = LanguageRuntime.current
         let formatter = NumberFormatter()
-        formatter.locale = Locale(identifier: "fr_FR")
+        formatter.locale = language.locale
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = decimals
         formatter.maximumFractionDigits = decimals
         let number = formatter.string(from: NSNumber(value: value)) ?? "0"
-        return "\(number) €"
+        return language == .fr ? "\(number)\u{00a0}€" : "$\(number)"
     }
 
+    /// Food weight avoided, in kilos for France and pounds for the US.
     nonisolated static func kg(_ value: Double) -> String {
-        String(format: "%.1f kg", value).replacingOccurrences(of: ".", with: ",")
+        guard LanguageRuntime.current.usesMetric else {
+            return String(format: "%.1f lb", value * 2.20462)
+        }
+        return String(format: "%.1f kg", value).replacingOccurrences(of: ".", with: ",")
     }
 
     nonisolated static func grams(_ value: Double) -> String {
@@ -507,7 +520,10 @@ nonisolated enum Format {
         if rounded == rounded.rounded() {
             return "\(Int(rounded)) g"
         }
-        return String(format: "%.1f g", rounded).replacingOccurrences(of: ".", with: ",")
+        let text = String(format: "%.1f g", rounded)
+        return LanguageRuntime.current == .fr
+            ? text.replacingOccurrences(of: ".", with: ",")
+            : text
     }
 
     /// Stock quantities: whole numbers stay whole, halves read as ½.
@@ -520,6 +536,9 @@ nonisolated enum Format {
         let whole = floor(rounded)
         let fraction = rounded - whole
         if abs(fraction - 0.5) < 0.01 { return "\(Int(whole)) ½" }
-        return String(format: "%.1f", rounded).replacingOccurrences(of: ".", with: ",")
+        let text = String(format: "%.1f", rounded)
+        return LanguageRuntime.current == .fr
+            ? text.replacingOccurrences(of: ".", with: ",")
+            : text
     }
 }

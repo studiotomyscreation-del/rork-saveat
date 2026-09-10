@@ -11,8 +11,8 @@ struct ShoppingListView: View {
         var id: String { rawValue }
         var title: String {
             switch self {
-            case .stock: "Ce qu'il me reste"
-            case .missing: "Ce qu'il me manque"
+            case .stock: S.Shopping.stockTab.s
+            case .missing: S.Shopping.missingTab.s
             }
         }
     }
@@ -46,8 +46,8 @@ struct ShoppingListView: View {
                     if store.shoppingList.isEmpty {
                         SoftEmptyState(
                             emoji: "🛒",
-                            title: "Ta liste est vide",
-                            message: "Bonne nouvelle : tu as déjà de quoi cuisiner. Ajoute le manquant depuis un repas."
+                            title: S.Shopping.emptyTitle.s,
+                            message: S.Shopping.emptyMessage.s
                         )
                         .saveatCard()
                     } else {
@@ -55,7 +55,7 @@ struct ShoppingListView: View {
                             categorySection(group.category, items: group.items)
                         }
                         if store.shoppingList.contains(where: \.isChecked) {
-                            Button("Retirer les articles cochés") {
+                            Button(S.Shopping.clearChecked.s) {
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                                     store.clearCheckedShoppingItems()
                                 }
@@ -69,7 +69,7 @@ struct ShoppingListView: View {
                     if !suggestions.isEmpty { suggestionSection }
                 }
 
-                Text("Prix estimés à partir de moyennes françaises. Ta liste ne contient jamais ce que tu as déjà chez toi.")
+                Text(S.Shopping.priceNote.s)
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
@@ -80,7 +80,7 @@ struct ShoppingListView: View {
         }
         .scrollIndicators(.hidden)
         .saveatBackground()
-        .navigationTitle("Courses intelligentes")
+        .navigationTitle(S.Shopping.navTitle.s)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
     }
@@ -119,10 +119,10 @@ struct ShoppingListView: View {
     private var stockSummary: some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(store.totalProducts) produits")
+                Text(S.Shopping.itemsCount.f(store.totalProducts))
                     .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.ink)
-                Text("valeur estimée \(Format.euro(store.stockValue, decimals: 0))")
+                Text(S.Shopping.estimatedValue.f(Format.euro(store.stockValue, decimals: 0)))
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
             }
@@ -140,9 +140,9 @@ struct ShoppingListView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 6) {
                             Text(location.emoji)
-                            SectionLabel(text: "\(location.title) — \(items.count)")
+                            SectionLabel(text: S.Shopping.locationCount.f(location.title, items.count))
                         }
-                        Text(items.map { "\($0.name) (\($0.quantityText))" }.joined(separator: " • "))
+                        Text(items.map { "\($0.displayName) (\($0.quantityText))" }.joined(separator: " • "))
                             .font(.system(size: 13, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.inkSoft)
                             .fixedSize(horizontal: false, vertical: true)
@@ -155,7 +155,7 @@ struct ShoppingListView: View {
 
             HStack(alignment: .top, spacing: 8) {
                 Text("⚠️").font(.system(size: 13))
-                Text("Au magasin, si tu scannes un produit déjà présent ici, SAVEAT te prévient : « Tu as déjà ce produit chez toi. »")
+                Text(S.Shopping.duplicateWarning.s)
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.terracotta)
                     .fixedSize(horizontal: false, vertical: true)
@@ -171,7 +171,7 @@ struct ShoppingListView: View {
     private var totalCard: some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("Total estimé")
+                Text(S.Shopping.estimatedTotal.s)
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
                 Text(Format.euro(total))
@@ -181,7 +181,7 @@ struct ShoppingListView: View {
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 3) {
-                Text("Budget hebdo")
+                Text(S.Shopping.weeklyBudget.s)
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
                 Text(Format.euro(store.profile.weeklyBudget, decimals: 0))
@@ -213,12 +213,12 @@ struct ShoppingListView: View {
                                 .foregroundStyle(item.isChecked ? Theme.sage : Theme.inkSoft.opacity(0.35))
 
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(item.name)
+                                Text(FoodNames.display(item.name))
                                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                                     .foregroundStyle(item.isChecked ? Theme.inkSoft : Theme.ink)
                                     .strikethrough(item.isChecked, color: Theme.inkSoft)
                                 if let reason = item.reason {
-                                    Text("pour \(reason)")
+                                    Text(S.Shopping.reasonPrefix.f(SeedCopy.display(reason)))
                                         .font(.system(size: 11, weight: .medium, design: .rounded))
                                         .foregroundStyle(Theme.inkSoft)
                                         .lineLimit(1)
@@ -247,7 +247,7 @@ struct ShoppingListView: View {
 
     private var suggestionSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(text: "Complète peu, cuisine plus")
+            SectionLabel(text: S.Shopping.suggestionSection.s)
             ForEach(suggestions) { meal in
                 NavigationLink(value: Route.meal(meal)) {
                     MealCard(meal: meal, isCompact: true)

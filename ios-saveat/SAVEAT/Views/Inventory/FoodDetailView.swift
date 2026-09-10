@@ -50,25 +50,25 @@ struct FoodDetailView: View {
         }
         .scrollIndicators(.hidden)
         .saveatBackground()
-        .navigationTitle(live.name)
+        .navigationTitle(live.displayName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
-        .confirmationDialog("Retirer ce produit de ton stock ?", isPresented: $showsDeleteConfirm, titleVisibility: .visible) {
-            Button("Retirer", role: .destructive) {
+        .confirmationDialog(S.FoodDetail.removeConfirmTitle.s, isPresented: $showsDeleteConfirm, titleVisibility: .visible) {
+            Button(S.FoodDetail.remove.s, role: .destructive) {
                 store.remove(item)
                 Haptics.success()
                 dismiss()
             }
-            Button("Annuler", role: .cancel) {}
+            Button(S.Common.cancel.s, role: .cancel) {}
         }
-        .confirmationDialog("Jeter ce produit ?", isPresented: $showsDiscardConfirm, titleVisibility: .visible) {
-            Button("Jeté", role: .destructive) {
+        .confirmationDialog(S.FoodDetail.discardConfirmTitle.s, isPresented: $showsDiscardConfirm, titleVisibility: .visible) {
+            Button(S.Rescue.markDiscarded.s, role: .destructive) {
                 store.markDiscarded(live)
                 dismiss()
             }
-            Button("Annuler", role: .cancel) {}
+            Button(S.Common.cancel.s, role: .cancel) {}
         } message: {
-            Text("Il sera retiré de ton stock et ne comptera pas comme produit sauvé.")
+            Text(S.FoodDetail.discardConfirmMessage.s)
         }
     }
 
@@ -95,7 +95,7 @@ struct FoodDetailView: View {
                 onDiscarded: { showsDiscardConfirm = true }
             )
 
-            Text("« Sauvé » met ton stock à jour et arrête les rappels de ce produit.")
+            Text(S.FoodDetail.savedNote.s)
                 .font(.system(size: 11.5, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
@@ -110,7 +110,7 @@ struct FoodDetailView: View {
             ProductThumb(product: draft.product, fallbackEmoji: draft.emoji, size: 76, radius: 20)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(draft.name)
+                Text(draft.displayName)
                     .font(Theme.title(19))
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
@@ -142,10 +142,10 @@ struct FoodDetailView: View {
             HStack(spacing: 14) {
                 ScoreChip(value: product.score.value, tone: product.score.tone)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Score SAVEAT — \(product.score.label)")
+                    Text(S.FoodDetail.scoreRow.f(product.score.label))
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.ink)
-                    Text("Nutrition, additifs, transformation")
+                    Text(S.FoodDetail.scoreSubtitle.s)
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                 }
@@ -164,7 +164,7 @@ struct FoodDetailView: View {
     private var quantityCard: some View {
         VStack(spacing: 14) {
             HStack {
-                Text("Quantité restante")
+                Text(S.FoodDetail.remainingQuantity.s)
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                 Spacer()
                 StockStepper(value: $draft.quantity, range: 0...99)
@@ -173,7 +173,7 @@ struct FoodDetailView: View {
             Divider()
 
             HStack {
-                Text("Rangement")
+                Text(S.AddFood.storage.s)
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                 Spacer()
                 Picker("", selection: $draft.location) {
@@ -186,7 +186,7 @@ struct FoodDetailView: View {
             Divider()
 
             Toggle(isOn: $draft.isOpened) {
-                Text("Produit entamé")
+                Text(S.FoodDetail.opened.s)
                     .font(.system(size: 15, weight: .medium, design: .rounded))
             }
             .tint(Theme.sage)
@@ -205,10 +205,10 @@ struct FoodDetailView: View {
 
     private var dateCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionLabel(text: "Date de consommation")
+            SectionLabel(text: S.AddFood.dateSection.s)
 
             Toggle(isOn: $hasDate) {
-                Text(hasDate ? "Date renseignée" : "Sans date")
+                Text(hasDate ? S.AddFood.hasDate.s : S.Common.noDate.s)
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.ink)
             }
@@ -218,11 +218,10 @@ struct FoodDetailView: View {
                 DatePicker("", selection: $date, displayedComponents: .date)
                     .datePickerStyle(.compact)
                     .labelsHidden()
-                    .environment(\.locale, Locale(identifier: "fr_FR"))
 
                 Divider()
 
-                Text("Type de date")
+                Text(S.AddFood.dateType.s)
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.ink)
                 DateKindPicker(kind: $dateKind)
@@ -230,7 +229,7 @@ struct FoodDetailView: View {
 
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "info.circle").font(.system(size: 12))
-                Text("Les dates proviennent de l'emballage ou de toi. SAVEAT ne peut pas déterminer si un aliment est encore bon à partir d'une photo.")
+                Text(S.FoodDetail.dateNote.s)
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
@@ -255,7 +254,7 @@ struct FoodDetailView: View {
 
     private var mealsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(text: "Cuisiner avec ce produit")
+            SectionLabel(text: S.FoodDetail.cookWithThis.s)
             ForEach(meals) { meal in
                 NavigationLink(value: Route.meal(meal)) {
                     MealCard(meal: meal, isCompact: true)
@@ -272,7 +271,7 @@ struct FoodDetailView: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "trash")
-                Text("Retirer de mon stock")
+                Text(S.FoodDetail.removeFromStock.s)
             }
             .font(.system(size: 15, weight: .semibold, design: .rounded))
             .foregroundStyle(Theme.clay)

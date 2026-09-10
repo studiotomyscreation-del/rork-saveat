@@ -16,37 +16,40 @@ nonisolated enum DateKind: String, Codable, CaseIterable, Identifiable, Sendable
     nonisolated var id: String { rawValue }
 
     /// Short badge label, e.g. shown next to a date.
+    ///
+    /// US packs print "Use By" and "Best By" rather than DLC / DDM, so the badge
+    /// follows the reader instead of the French regulatory wording.
     nonisolated var badge: String {
         switch self {
-        case .dlc: "DLC"
-        case .ddm: "DDM"
-        case .unknown: "Date"
+        case .dlc: S.DateType.useByBadge.s
+        case .ddm: S.DateType.bestByBadge.s
+        case .unknown: S.DateType.unknownBadge.s
         }
     }
 
     /// Full label used in pickers and on the product sheet.
     nonisolated var title: String {
         switch self {
-        case .dlc: "DLC — À consommer jusqu'au"
-        case .ddm: "DDM — À consommer de préférence avant"
-        case .unknown: "Non renseigné"
+        case .dlc: S.DateType.useByTitle.s
+        case .ddm: S.DateType.bestByTitle.s
+        case .unknown: S.DateType.unknownTitle.s
         }
     }
 
     /// Compact picker label.
     nonisolated var pickerTitle: String {
         switch self {
-        case .dlc: "DLC"
-        case .ddm: "DDM"
-        case .unknown: "Non renseigné"
+        case .dlc: S.DateType.useByPicker.s
+        case .ddm: S.DateType.bestByPicker.s
+        case .unknown: S.DateType.unknownPicker.s
         }
     }
 
     nonisolated var helpText: String {
         switch self {
-        case .dlc: "À consommer jusqu'au — date de sécurité."
-        case .ddm: "À consommer de préférence avant — date de qualité."
-        case .unknown: "Regarde l'emballage pour connaître le type de date."
+        case .dlc: S.DateType.useByHelp.s
+        case .ddm: S.DateType.bestByHelp.s
+        case .unknown: S.DateType.unknownHelp.s
         }
     }
 
@@ -56,12 +59,9 @@ nonisolated enum DateKind: String, Codable, CaseIterable, Identifiable, Sendable
     /// for such a claim and always sends the user back to the packaging.
     nonisolated var passedNotice: String {
         switch self {
-        case .dlc:
-            "Date limite de consommation dépassée. SAVEAT ne recommande pas la consommation après une DLC dépassée. Vérifie les indications figurant sur l'emballage et les recommandations officielles."
-        case .ddm:
-            "Date de durabilité minimale dépassée. Cela ne signifie pas automatiquement que le produit est impropre à la consommation. Vérifie son emballage, ses conditions de conservation et son état avant toute utilisation."
-        case .unknown:
-            "La date est atteinte. Le type de date n'est pas renseigné : vérifie l'emballage pour savoir s'il s'agit d'une DLC (date limite de consommation) ou d'une DDM (date de durabilité minimale)."
+        case .dlc: S.DateType.useByPassed.s
+        case .ddm: S.DateType.bestByPassed.s
+        case .unknown: S.DateType.unknownPassed.s
         }
     }
 }
@@ -79,20 +79,20 @@ nonisolated enum ConsumptionStatus: String, Codable, CaseIterable, Identifiable,
 
     nonisolated var title: String {
         switch self {
-        case .keep: "À conserver"
-        case .plan: "À prévoir"
-        case .rescue: "À sauver"
-        case .reached: "Date atteinte / dépassée"
+        case .keep: S.Status.keepTitle.s
+        case .plan: S.Status.planTitle.s
+        case .rescue: S.Status.rescueTitle.s
+        case .reached: S.Status.reachedTitle.s
         }
     }
 
     /// Shorter variant for pills and rows.
     nonisolated var shortTitle: String {
         switch self {
-        case .keep: "À conserver"
-        case .plan: "À prévoir"
-        case .rescue: "À sauver"
-        case .reached: "Date atteinte"
+        case .keep: S.Status.keepShort.s
+        case .plan: S.Status.planShort.s
+        case .rescue: S.Status.rescueShort.s
+        case .reached: S.Status.reachedShort.s
         }
     }
 
@@ -107,10 +107,10 @@ nonisolated enum ConsumptionStatus: String, Codable, CaseIterable, Identifiable,
 
     nonisolated var detail: String {
         switch self {
-        case .keep: "Rien d'urgent."
-        case .plan: "La date approche — pense à l'intégrer à tes prochains repas."
-        case .rescue: "À consommer rapidement pour éviter de le gaspiller."
-        case .reached: "La date est atteinte ou dépassée."
+        case .keep: S.Status.keepDetail.s
+        case .plan: S.Status.planDetail.s
+        case .rescue: S.Status.rescueDetail.s
+        case .reached: S.Status.reachedDetail.s
         }
     }
 

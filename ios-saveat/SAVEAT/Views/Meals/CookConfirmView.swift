@@ -21,8 +21,8 @@ struct CookConfirmView: View {
                     if deductions.isEmpty {
                         SoftEmptyState(
                             emoji: "🍽️",
-                            title: "Rien à déduire",
-                            message: "Ce repas n'utilise aucun produit identifié dans ton stock."
+                            title: S.Meals.nothingToDeduct.s,
+                            message: S.Meals.nothingToDeductMessage.s
                         )
                         .saveatCard()
                     } else {
@@ -30,7 +30,7 @@ struct CookConfirmView: View {
                         summary
                     }
 
-                    Text("Ajuste librement les quantités : ton stock doit refléter ce que tu as vraiment consommé.")
+                    Text(S.Meals.adjustNote.s)
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                         .fixedSize(horizontal: false, vertical: true)
@@ -40,11 +40,11 @@ struct CookConfirmView: View {
             }
             .scrollIndicators(.hidden)
             .saveatBackground()
-            .navigationTitle("Repas terminé ?")
+            .navigationTitle(S.Meals.cookNavTitle.s)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Pas encore") { dismiss() }
+                    Button(S.Meals.notYet.s) { dismiss() }
                 }
             }
             .safeAreaInset(edge: .bottom) { confirmBar }
@@ -60,11 +60,11 @@ struct CookConfirmView: View {
         HStack(spacing: 14) {
             Text(meal.emoji).font(.system(size: 32))
             VStack(alignment: .leading, spacing: 3) {
-                Text(meal.name)
+                Text(meal.displayName)
                     .font(Theme.title(17))
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
-                Text("Je mets ton stock à jour avec ce que tu as utilisé.")
+                Text(S.Meals.cookIntro.s)
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
@@ -83,11 +83,14 @@ struct CookConfirmView: View {
                         FoodBadge(emoji: deduction.emoji, size: 40)
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(deduction.name)
+                            Text(FoodNames.display(deduction.name))
                                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                                 .foregroundStyle(Theme.ink)
                                 .lineLimit(1)
-                            Text("Avant : \(Format.quantity(deduction.before)) \(deduction.unit)")
+                            Text(S.Meals.before.f(
+                                Format.quantity(deduction.before),
+                                FoodUnits.display(deduction.unit, quantity: deduction.before)
+                            ))
                                 .font(.system(size: 12, weight: .medium, design: .rounded))
                                 .foregroundStyle(Theme.inkSoft)
                         }
@@ -101,7 +104,10 @@ struct CookConfirmView: View {
                         Image(systemName: "arrow.right")
                             .font(.system(size: 10, weight: .bold))
                             .foregroundStyle(Theme.sageDeep)
-                        Text("Nouveau stock : \(Format.quantity(deduction.after)) \(deduction.unit)")
+                        Text(S.Meals.after.f(
+                            Format.quantity(deduction.after),
+                            FoodUnits.display(deduction.unit, quantity: deduction.after)
+                        ))
                             .font(.system(size: 12, weight: .semibold, design: .rounded))
                             .foregroundStyle(deduction.after <= 0 ? Theme.clay : Theme.sageDeep)
                         Spacer()
@@ -120,10 +126,14 @@ struct CookConfirmView: View {
     private var summary: some View {
         HStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(affected.count) produit\(affected.count > 1 ? "s" : "") mis à jour")
+                Text(affected.count > 1
+                    ? S.Meals.itemsUpdatedPlural.f(affected.count)
+                    : S.Meals.itemsUpdated.f(affected.count))
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.ink)
-                Text(meal.isZeroEuro ? "Repas à 0 € — aucun achat" : "Complément estimé : \(Format.euro(meal.extraCost))")
+                Text(meal.isZeroEuro
+                    ? S.Meals.zeroCostSummary.f(Units.zeroCostLabel)
+                    : S.Meals.extraSummary.f(Format.euro(meal.extraCost)))
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.inkSoft)
             }
@@ -136,14 +146,14 @@ struct CookConfirmView: View {
 
     private var confirmBar: some View {
         VStack(spacing: 6) {
-            Button("Oui, mettre mon stock à jour") {
+            Button(S.Meals.confirmCook.s) {
                 store.cook(meal, deductions: deductions)
                 Haptics.success()
                 dismiss()
             }
             .buttonStyle(SaveatButtonStyle())
 
-            Text("Tes économies sont mises à jour automatiquement.")
+            Text(S.Meals.savingsNote.s)
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
         }

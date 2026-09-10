@@ -27,8 +27,8 @@ struct GroceryReviewView: View {
                 Spacer()
                 SoftEmptyState(
                     emoji: "🛒",
-                    title: "Rien de scanné",
-                    message: "Reviens au scanner pour enregistrer tes courses."
+                    title: S.Scan.nothingScannedTitle.s,
+                    message: S.Scan.nothingScannedMessage.s
                 )
                 Spacer()
             } else {
@@ -38,7 +38,7 @@ struct GroceryReviewView: View {
                         ForEach(grouped, id: \.location) { group in
                             locationSection(group.location, items: group.items)
                         }
-                        Text("Les dates viennent de l'emballage. SAVEAT ne détermine jamais si un aliment est encore consommable.")
+                        Text(S.Scan.reviewDateNote.s)
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.inkSoft)
                             .fixedSize(horizontal: false, vertical: true)
@@ -73,15 +73,15 @@ struct GroceryReviewView: View {
                     .background(Theme.surface, in: .circle)
             }
             .buttonStyle(SoftPressStyle())
-            .accessibilityLabel("Reprendre le scan")
+            .accessibilityLabel(S.Scan.resumeScan.s)
 
-            Text("Mes courses")
+            Text(S.Scan.reviewTitle.s)
                 .font(Theme.title(19))
                 .foregroundStyle(Theme.ink)
 
             Spacer()
 
-            Button("Annuler", action: onCancel)
+            Button(S.Common.cancel.s, action: onCancel)
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
         }
@@ -93,10 +93,10 @@ struct GroceryReviewView: View {
     private var summaryCard: some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(entries.count) produits")
+                Text(S.Scan.itemsCount.f(entries.count))
                     .font(.system(size: 22, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.ink)
-                Text("Courses enregistrées : \(Format.euro(total))")
+                Text(S.Scan.runLogged.f(Format.euro(total)))
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.sageDeep)
             }
@@ -106,7 +106,7 @@ struct GroceryReviewView: View {
                     Text("\(withoutDate)")
                         .font(.system(size: 20, weight: .bold, design: .rounded).monospacedDigit())
                         .foregroundStyle(Theme.terracotta)
-                    Text("sans date")
+                    Text(S.Scan.withoutDate.s)
                         .font(.system(size: 11, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                 }
@@ -139,7 +139,7 @@ struct GroceryReviewView: View {
                                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                                     .foregroundStyle(Theme.ink)
                                     .lineLimit(1)
-                                Text("\(Format.quantity(entry.quantity)) × \(entry.product.unit)")
+                                Text("\(Format.quantity(entry.quantity)) × \(FoodUnits.display(entry.product.unit, quantity: entry.quantity))")
                                     .font(.system(size: 12, weight: .medium, design: .rounded))
                                     .foregroundStyle(Theme.inkSoft)
                             }
@@ -160,7 +160,7 @@ struct GroceryReviewView: View {
                                     }
                                 }
                             } else {
-                                Text("Ajouter la date")
+                                Text(S.Scan.addDate.s)
                                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                                     .foregroundStyle(Theme.terracotta)
                                     .padding(.horizontal, 10).padding(.vertical, 6)
@@ -183,12 +183,12 @@ struct GroceryReviewView: View {
 
     private var footer: some View {
         VStack(spacing: 8) {
-            Button("Ajouter à mon stock", action: onConfirm)
+            Button(S.Scan.addToStock.s, action: onConfirm)
                 .buttonStyle(SaveatButtonStyle())
                 .disabled(entries.isEmpty)
                 .opacity(entries.isEmpty ? 0.5 : 1)
 
-            Text("Ton stock sera à jour et l'IA pourra cuisiner avec.")
+            Text(S.Scan.addToStockNote.s)
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
         }
@@ -198,10 +198,11 @@ struct GroceryReviewView: View {
         .background(Theme.cream)
     }
 
+    /// Compact date in the reader's own order: 12/09/26 in France, 9/12/26 in the US.
     static func dateText(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "fr_FR")
-        formatter.dateFormat = "dd/MM/yy"
+        formatter.locale = LanguageRuntime.current.locale
+        formatter.setLocalizedDateFormatFromTemplate("ddMMyy")
         return formatter.string(from: date)
     }
 }
@@ -254,7 +255,7 @@ struct ScanEntryEditor: View {
                     NavigationLink(value: draft.product) {
                         HStack(spacing: 8) {
                             Image(systemName: "chart.bar.doc.horizontal")
-                            Text("Voir l'analyse nutritionnelle")
+                            Text(S.Scan.seeNutrition.s)
                             Spacer(minLength: 0)
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 12, weight: .bold))
@@ -270,13 +271,13 @@ struct ScanEntryEditor: View {
 
                     VStack(spacing: 14) {
                         HStack {
-                            Text("Quantité").font(.system(size: 15, weight: .medium, design: .rounded))
+                            Text(S.AddFood.quantity.s).font(.system(size: 15, weight: .medium, design: .rounded))
                             Spacer()
                             StockStepper(value: $draft.quantity, step: 1, range: 1...50)
                         }
                         Divider()
                         HStack {
-                            Text("Rangement").font(.system(size: 15, weight: .medium, design: .rounded))
+                            Text(S.AddFood.storage.s).font(.system(size: 15, weight: .medium, design: .rounded))
                             Spacer()
                             Picker("", selection: $draft.location) {
                                 ForEach(StorageLocation.allCases) { Text("\($0.emoji) \($0.title)").tag($0) }
@@ -288,10 +289,10 @@ struct ScanEntryEditor: View {
                     .saveatCard()
 
                     VStack(alignment: .leading, spacing: 12) {
-                        SectionLabel(text: "Date de consommation")
+                        SectionLabel(text: S.AddFood.dateSection.s)
 
                         Toggle(isOn: $hasDate) {
-                            Text(hasDate ? "Date renseignée" : "Sans date")
+                            Text(hasDate ? S.AddFood.hasDate.s : S.Common.noDate.s)
                                 .font(.system(size: 15, weight: .medium, design: .rounded))
                                 .foregroundStyle(Theme.ink)
                         }
@@ -301,11 +302,10 @@ struct ScanEntryEditor: View {
                             DatePicker("", selection: $date, displayedComponents: .date)
                                 .datePickerStyle(.compact)
                                 .labelsHidden()
-                                .environment(\.locale, Locale(identifier: "fr_FR"))
 
                             Divider()
 
-                            Text("Type de date")
+                            Text(S.AddFood.dateType.s)
                                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                                 .foregroundStyle(Theme.ink)
                             DateKindPicker(kind: $dateKind)
@@ -317,7 +317,7 @@ struct ScanEntryEditor: View {
                         } label: {
                             HStack(spacing: 8) {
                                 Image(systemName: "camera.viewfinder")
-                                Text("Photographier la date")
+                                Text(S.Scan.photographDate.s)
                             }
                             .font(.system(size: 15, weight: .semibold, design: .rounded))
                             .foregroundStyle(Theme.sageDeep)
@@ -327,7 +327,7 @@ struct ScanEntryEditor: View {
                         }
                         .buttonStyle(SoftPressStyle())
 
-                        Text("La date est lue sur l'emballage puis confirmée par toi. SAVEAT ne juge jamais la fraîcheur à partir d'une photo et n'invente jamais de date.")
+                        Text(S.Scan.editorDateNote.s)
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.inkSoft)
                             .fixedSize(horizontal: false, vertical: true)
@@ -342,14 +342,14 @@ struct ScanEntryEditor: View {
             .navigationDestination(for: ScannedProduct.self) { product in
                 ProductDetailView(product: product)
             }
-            .navigationTitle("Détail du produit")
+            .navigationTitle(S.Scan.editorTitle.s)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Annuler") { dismiss() }
+                    Button(S.Common.cancel.s) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Enregistrer") {
+                    Button(S.Common.save.s) {
                         var updated = draft
                         updated.bestBefore = hasDate ? date : nil
                         updated.dateKind = hasDate ? dateKind : .unknown

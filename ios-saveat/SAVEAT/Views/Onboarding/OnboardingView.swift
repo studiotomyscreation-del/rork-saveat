@@ -45,7 +45,7 @@ struct OnboardingView: View {
                     .foregroundStyle(Theme.sageDeep)
                 Spacer()
                 if step > 0 {
-                    Button("Retour") { withAnimation { step -= 1 } }
+                    Button(S.Onboarding.back.s) { withAnimation { step -= 1 } }
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                 }
@@ -67,7 +67,7 @@ struct OnboardingView: View {
 
     private var footer: some View {
         VStack(spacing: 10) {
-            Button(step == stepCount - 1 ? "C'est parti" : "Continuer") {
+            Button(step == stepCount - 1 ? S.Onboarding.start.s : S.Onboarding.cont.s) {
                 Haptics.soft()
                 if step == stepCount - 1 {
                     finish()
@@ -77,7 +77,7 @@ struct OnboardingView: View {
             }
             .buttonStyle(SaveatButtonStyle())
 
-            Text("Tu pourras tout modifier plus tard dans ton profil.")
+            Text(S.Onboarding.editLater.s)
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
         }
@@ -128,17 +128,19 @@ struct OnboardingView: View {
     }
 
     private var householdStep: some View {
-        stepShell(title: "Vous êtes combien à la maison ?",
-                  subtitle: "On adapte les quantités et les portions à ton foyer.") {
+        stepShell(title: S.Onboarding.householdTitle.s,
+                  subtitle: S.Onboarding.householdSubtitle.s) {
             VStack(spacing: 14) {
-                counterCard(emoji: "🧑", label: "Adultes", value: $adults, range: 1...10)
-                counterCard(emoji: "🧒", label: "Enfants", value: $children, range: 0...10)
+                counterCard(emoji: "🧑", label: S.Settings.adults.s, value: $adults, range: 1...10)
+                counterCard(emoji: "🧒", label: S.Settings.children.s, value: $children, range: 0...10)
             }
 
             HStack(spacing: 10) {
                 Image(systemName: "fork.knife")
                     .foregroundStyle(Theme.sageDeep)
-                Text("\(adults + children) couvert\(adults + children > 1 ? "s" : "") par repas")
+                Text(adults + children > 1
+                    ? S.Onboarding.seatsPlural.f(adults + children)
+                    : S.Onboarding.seats.f(adults + children))
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.ink)
                 Spacer()
@@ -161,8 +163,8 @@ struct OnboardingView: View {
     }
 
     private var goalStep: some View {
-        stepShell(title: "Ton objectif principal ?",
-                  subtitle: "SAVEAT met en avant ce qui compte le plus pour toi.") {
+        stepShell(title: S.Onboarding.goalTitle.s,
+                  subtitle: S.Onboarding.goalSubtitle.s) {
             VStack(spacing: 12) {
                 ForEach(HouseholdGoal.allCases) { option in
                     selectableRow(
@@ -178,8 +180,8 @@ struct OnboardingView: View {
     }
 
     private var dietStep: some View {
-        stepShell(title: "Comment manges-tu ?",
-                  subtitle: "On écarte automatiquement les recettes qui ne te conviennent pas.") {
+        stepShell(title: S.Onboarding.dietTitle.s,
+                  subtitle: S.Onboarding.dietSubtitle.s) {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(spacing: 10) {
                     ForEach(DietPreference.allCases) { option in
@@ -193,7 +195,7 @@ struct OnboardingView: View {
                     }
                 }
 
-                SectionLabel(text: "Allergies")
+                SectionLabel(text: S.Settings.allergies.s)
                 chipCloud(items: Allergen.allCases.map(\.title)) { title in
                     guard let allergen = Allergen.allCases.first(where: { $0.title == title }) else { return }
                     if allergens.contains(allergen) { allergens.remove(allergen) } else { allergens.insert(allergen) }
@@ -207,25 +209,32 @@ struct OnboardingView: View {
     }
 
     private var dislikesStep: some View {
-        stepShell(title: "Ce que tu ne manges pas",
-                  subtitle: "Touche simplement les aliments à éviter. Aucun texte à saisir.") {
-            chipCloud(items: DislikeCatalog.all) { title in
-                if dislikes.contains(title) { dislikes.remove(title) } else { dislikes.insert(title) }
+        stepShell(title: S.Onboarding.dislikesTitle.s,
+                  subtitle: S.Onboarding.dislikesSubtitle.s) {
+            // Chips show the translated label but keep storing the French key,
+            // so an exclusion set on one language still applies on the other.
+            chipCloud(
+                items: DislikeCatalog.all,
+                label: DislikeCatalog.display
+            ) { key in
+                if dislikes.contains(key) { dislikes.remove(key) } else { dislikes.insert(key) }
                 Haptics.light()
             } isSelected: { dislikes.contains($0) }
         }
     }
 
     private var budgetStep: some View {
-        stepShell(title: "Ton budget courses par semaine ?",
-                  subtitle: "Une estimation suffit — elle nous sert à calculer tes économies.") {
+        stepShell(title: S.Onboarding.budgetTitle.s,
+                  subtitle: S.Onboarding.budgetSubtitle.s) {
             VStack(spacing: 20) {
                 VStack(spacing: 6) {
                     Text(Format.euro(budget, decimals: 0))
                         .font(.system(size: 44, weight: .bold, design: .rounded).monospacedDigit())
                         .foregroundStyle(Theme.sageDeep)
                         .contentTransition(.numericText())
-                    Text("par semaine pour \(adults + children) personne\(adults + children > 1 ? "s" : "")")
+                    Text(adults + children > 1
+                        ? S.Onboarding.perWeekForPlural.f(adults + children)
+                        : S.Onboarding.perWeekFor.f(adults + children))
                         .font(Theme.body(14))
                         .foregroundStyle(Theme.inkSoft)
                 }
@@ -238,9 +247,9 @@ struct OnboardingView: View {
                     .onChange(of: budget) { _, _ in Haptics.light() }
 
                 HStack {
-                    Text("20 €").font(Theme.body(12)).foregroundStyle(Theme.inkSoft)
+                    Text(Format.euro(20, decimals: 0)).font(Theme.body(12)).foregroundStyle(Theme.inkSoft)
                     Spacer()
-                    Text("250 €").font(Theme.body(12)).foregroundStyle(Theme.inkSoft)
+                    Text(Format.euro(250, decimals: 0)).font(Theme.body(12)).foregroundStyle(Theme.inkSoft)
                 }
             }
         }
@@ -277,6 +286,7 @@ struct OnboardingView: View {
 
     private func chipCloud(
         items: [String],
+        label: @escaping (String) -> String = { $0 },
         onTap: @escaping (String) -> Void,
         isSelected: @escaping (String) -> Bool
     ) -> some View {
@@ -285,7 +295,7 @@ struct OnboardingView: View {
                 Button {
                     withAnimation(.spring(response: 0.28, dampingFraction: 0.8)) { onTap(item) }
                 } label: {
-                    Text(item)
+                    Text(label(item))
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .foregroundStyle(isSelected(item) ? .white : Theme.ink)
                         .frame(maxWidth: .infinity)

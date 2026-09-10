@@ -26,7 +26,7 @@ struct MealDetailView: View {
         }
         .scrollIndicators(.hidden)
         .saveatBackground()
-        .navigationTitle(meal.name)
+        .navigationTitle(meal.displayName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .safeAreaInset(edge: .bottom) { cookBar }
@@ -62,12 +62,12 @@ struct MealDetailView: View {
             HStack(spacing: 14) {
                 Text(meal.emoji).font(.system(size: 40))
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(meal.name)
+                    Text(meal.displayName)
                         .font(Theme.title(20))
                         .foregroundStyle(Theme.ink)
                         .fixedSize(horizontal: false, vertical: true)
                     if !meal.summary.isEmpty {
-                        Text(meal.summary)
+                        Text(meal.displaySummary)
                             .font(.system(size: 13, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.inkSoft)
                             .fixedSize(horizontal: false, vertical: true)
@@ -84,10 +84,13 @@ struct MealDetailView: View {
 
     private var facts: some View {
         HStack(spacing: 10) {
-            fact(value: "\(meal.prepMinutes) min", label: "préparation")
-            fact(value: "\(meal.cookMinutes) min", label: "cuisson")
-            fact(value: meal.difficulty, label: "difficulté")
-            fact(value: "\(meal.servings)", label: meal.servings > 1 ? "personnes" : "personne")
+            fact(value: "\(meal.prepMinutes) min", label: S.Meals.prepLabel.s)
+            fact(value: "\(meal.cookMinutes) min", label: S.Meals.cookLabel.s)
+            fact(value: meal.displayDifficulty, label: S.Meals.difficultyLabel.s)
+            fact(
+                value: "\(meal.servings)",
+                label: meal.servings > 1 ? S.Meals.servingsLabelPlural.s : S.Meals.servingsLabel.s
+            )
         }
         .padding(.horizontal, Theme.hMargin)
         .padding(.top, 14)
@@ -117,27 +120,27 @@ struct MealDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(resolved.isZeroEuro ? "Tu as tout ce qu'il faut" : resolved.availabilityText)
+                    Text(resolved.isZeroEuro ? S.Meals.haveEverything.s : resolved.availabilityText)
                         .font(.system(size: 17, weight: .bold, design: .rounded))
                         .foregroundStyle(resolved.isZeroEuro ? Theme.sageDeep : Theme.ink)
                     Text(resolved.isZeroEuro
-                         ? "Aucun achat nécessaire."
-                         : "Coût supplémentaire estimé pour compléter.")
+                         ? S.Meals.noPurchase.s
+                         : S.Meals.extraCostNote.s)
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                 }
                 Spacer()
                 VStack(spacing: 0) {
-                    Text(resolved.isZeroEuro ? "0 €" : Format.euro(resolved.extraCost))
+                    Text(resolved.isZeroEuro ? Units.zeroCostLabel : Format.euro(resolved.extraCost))
                         .font(.system(size: 26, weight: .bold, design: .rounded).monospacedDigit())
                         .foregroundStyle(resolved.isZeroEuro ? Theme.sageDeep : Theme.terracotta)
-                    Text("à dépenser")
+                    Text(S.Meals.toSpend.s)
                         .font(.system(size: 11, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                 }
             }
 
-            if let note = resolved.antiWasteNote, !note.isEmpty {
+            if let note = resolved.displayNote, !note.isEmpty {
                 HStack(spacing: 6) {
                     Image(systemName: "leaf.fill").font(.system(size: 11))
                     Text(note)
@@ -155,7 +158,7 @@ struct MealDetailView: View {
 
     private var ingredientsCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(text: "Ingrédients")
+            SectionLabel(text: S.Meals.ingredients.s)
 
             VStack(spacing: 0) {
                 ForEach(Array(resolved.ingredients.enumerated()), id: \.element.id) { index, ingredient in
@@ -165,7 +168,7 @@ struct MealDetailView: View {
                             .foregroundStyle(ingredient.isFree ? Theme.sage : Theme.terracotta)
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(ingredient.name)
+                            Text(ingredient.displayName)
                                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                                 .foregroundStyle(Theme.ink)
                             Text(subtitle(for: ingredient))
@@ -196,21 +199,23 @@ struct MealDetailView: View {
     }
 
     private func subtitle(for ingredient: MealIngredient) -> String {
-        let quantity = ingredient.quantityText.isEmpty ? "" : "\(ingredient.quantityText) • "
-        if ingredient.isStaple { return "\(quantity)basique du placard" }
-        if ingredient.inStock { return "\(quantity)dans ton stock" }
-        return "\(quantity)à acheter"
+        let quantity = ingredient.quantityText.isEmpty ? "" : "\(ingredient.displayQuantity) • "
+        if ingredient.isStaple { return "\(quantity)\(S.Meals.staple.s)" }
+        if ingredient.inStock { return "\(quantity)\(S.Meals.inStock.s)" }
+        return "\(quantity)\(S.Meals.toBuy.s)"
     }
 
     // MARK: Missing
 
     private var missingCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Il te manque \(resolved.missingIngredients.count) ingrédient\(resolved.missingIngredients.count > 1 ? "s" : "")")
+            Text(resolved.missingIngredients.count > 1
+                ? S.Meals.missingCountPlural.f(resolved.missingIngredients.count)
+                : S.Meals.missingCount.f(resolved.missingIngredients.count))
                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.ink)
 
-            Text(resolved.missingIngredients.map(\.name).joined(separator: " • "))
+            Text(resolved.missingIngredients.map(\.displayName).joined(separator: " • "))
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
@@ -221,7 +226,7 @@ struct MealDetailView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "cart.badge.plus")
-                    Text("Ajouter à ma liste de courses")
+                    Text(S.Meals.addToList.s)
                 }
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.terracotta)
@@ -239,10 +244,10 @@ struct MealDetailView: View {
 
     private var stepsCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionLabel(text: "Préparation")
+            SectionLabel(text: S.Meals.stepsSection.s)
 
             VStack(alignment: .leading, spacing: 14) {
-                ForEach(Array(resolved.steps.enumerated()), id: \.offset) { index, step in
+                ForEach(Array(resolved.displaySteps.enumerated()), id: \.offset) { index, step in
                     HStack(alignment: .top, spacing: 12) {
                         Text("\(index + 1)")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
@@ -265,13 +270,13 @@ struct MealDetailView: View {
 
     private var nutritionCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(text: "Repères nutritionnels")
+            SectionLabel(text: S.Meals.nutritionSection.s)
             HStack(spacing: 10) {
-                nutrient("\(resolved.kcalPerServing)", "kcal / personne")
-                nutrient("\(resolved.proteinsPerServing) g", "protéines")
-                nutrient(Format.euro(resolved.extraCostPerServing), "coût / personne")
+                nutrient("\(resolved.kcalPerServing)", S.Meals.kcalPerServing.s)
+                nutrient(Units.weight(grams: Double(resolved.proteinsPerServing)), S.Meals.proteins.s)
+                nutrient(Format.euro(resolved.extraCostPerServing), S.Meals.costPerServing.s)
             }
-            Text("Valeurs approximatives, calculées à partir de moyennes.")
+            Text(S.Meals.nutritionNote.s)
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
         }
@@ -305,7 +310,7 @@ struct MealDetailView: View {
                 Haptics.soft()
                 showsCookSheet = true
             } label: {
-                Text("Cuisiner")
+                Text(S.Meals.cook.s)
             }
             .buttonStyle(SaveatButtonStyle())
             .padding(.horizontal, Theme.hMargin)
