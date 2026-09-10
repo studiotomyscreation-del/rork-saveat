@@ -270,7 +270,7 @@ nonisolated struct MealAIService: Sendable {
         )
         static let foundZeroCost = Loc(
             fr: "J'ai trouvé %d repas à 0 € avec ton stock.",
-            en: "Found %d $0 meals from what you have."
+            en: "Found %d meals you can make without buying anything."
         )
         static let found = Loc(
             fr: "J'ai trouvé %d repas avec ce que tu as.",

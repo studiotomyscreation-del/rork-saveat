@@ -113,7 +113,10 @@ nonisolated enum Units {
         LanguageRuntime.current == .fr ? "€" : "$"
     }
 
-    /// "Repas à 0 €" / "$0 meal", used in badges where space is tight.
+    /// Cost badge for a meal that needs no extra shopping: "0 €" / "$0".
+    ///
+    /// Only ever used where a price is expected. English copy never turns this
+    /// into a "$0 meals" phrase, which could read as SAVEAT handing out free food.
     nonisolated static var zeroCostLabel: String {
         LanguageRuntime.current == .fr ? "0 €" : "$0"
     }

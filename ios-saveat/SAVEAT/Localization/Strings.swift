@@ -145,7 +145,7 @@ nonisolated enum S {
     nonisolated enum Goal {
         static let save = Loc(fr: "Économiser", en: "Save money")
         static let reduceWaste = Loc(fr: "Moins gaspiller", en: "Waste less")
-        static let eatBalanced = Loc(fr: "Manger équilibré", en: "Eat balanced")
+        static let eatBalanced = Loc(fr: "Manger équilibré", en: "Eat well")
         static let eatLight = Loc(fr: "Manger plus léger", en: "Eat lighter")
         static let moreProtein = Loc(fr: "Plus de protéines", en: "More protein")
     }
@@ -205,7 +205,7 @@ nonisolated enum S {
         static let itemsAdded = Loc(fr: "%d produits ajoutés à ton stock", en: "%d items added to your food")
         static let zeroCostCooked = Loc(
             fr: "Repas à %@ validé — stock mis à jour ✨",
-            en: "%@ meal logged — your food is up to date ✨"
+            en: "Meal logged — your food is up to date ✨"
         )
         static let stockUpdated = Loc(
             fr: "Stock mis à jour — %d produit sauvé",
@@ -306,7 +306,7 @@ nonisolated enum S {
 
         static let freeDetail = Loc(
             fr: "Débloque l'IA illimitée, le mode 0 € et les stats d'économies.",
-            en: "Unlock unlimited AI, $0 meals and your savings tracker."
+            en: "Unlock unlimited AI, cooking with what you have and your savings tracker."
         )
         static let trialDetail = Loc(
             fr: "Ton essai se termine le %@.",
@@ -343,9 +343,9 @@ nonisolated enum S {
             en: "Come back whenever you like."
         )
 
-        static let featureScans = Loc(fr: "Scans illimités", en: "Unlimited scanning")
+        static let featureScans = Loc(fr: "Scans illimités", en: "Unlimited scans")
         static let featureAI = Loc(fr: "IA cuisine illimitée", en: "Unlimited AI recipes")
-        static let featureZeroCost = Loc(fr: "Mode 0 €", en: "$0 Meals")
+        static let featureZeroCost = Loc(fr: "Mode 0 €", en: "Cook with what you have")
         static let featureBudget = Loc(fr: "Mode fin de mois", en: "Tight-budget planner")
         static let featureStats = Loc(
             fr: "Statistiques d'économies",
@@ -390,7 +390,7 @@ nonisolated enum S {
         )
         static let upsellZeroCost = Loc(
             fr: "Le mode 0 € trouve des repas complets sans rien acheter.",
-            en: "$0 Meals finds full dinners without buying a thing."
+            en: "Find full dinners using only what's already in your kitchen."
         )
         static let upsellEndOfMonth = Loc(
             fr: "Le mode fin de mois étire ton budget jusqu'au dernier jour.",
@@ -411,7 +411,7 @@ nonisolated enum S {
             fr: "Des recettes générées à partir de ton stock réel.",
             en: "Recipes built from the food you actually have."
         )
-        static let perkZeroTitle = Loc(fr: "Mode 0 €", en: "$0 Meals")
+        static let perkZeroTitle = Loc(fr: "Mode 0 €", en: "Cook with what you have")
         static let perkZeroBody = Loc(
             fr: "Des repas complets sans dépenser un centime.",
             en: "Complete meals without spending a cent."
@@ -502,7 +502,7 @@ nonisolated enum S {
 
     nonisolated enum Tabs {
         static let home = Loc(fr: "Accueil", en: "Home")
-        static let stock = Loc(fr: "Stock", en: "Stock")
+        static let stock = Loc(fr: "Stock", en: "My Food")
         static let meals = Loc(fr: "Repas", en: "Meals")
         static let scanner = Loc(fr: "Scanner", en: "Scan")
         static let profile = Loc(fr: "Profil", en: "Profile")
@@ -580,11 +580,11 @@ nonisolated enum S {
         static let streakDays = Loc(fr: "%d j", en: "%dd")
         static let savedThisWeek = Loc(
             fr: "produit sauvé cette semaine",
-            en: "product rescued this week"
+            en: "item rescued this week"
         )
         static let savedThisWeekPlural = Loc(
             fr: "produits sauvés cette semaine",
-            en: "products rescued this week"
+            en: "items rescued this week"
         )
         static let remaining = Loc(
             fr: "Encore %d produit pour atteindre ton objectif.",
@@ -619,11 +619,11 @@ nonisolated enum S {
         static let achievementCard = Loc(fr: "Ta carte de réussite", en: "Your win card")
         static let shareText = Loc(
             fr: "Cette semaine j'ai économisé %@ et sauvé %d produits avec SAVEAT.",
-            en: "This week I saved %@ and rescued %d products with SAVEAT."
+            en: "This week I saved %@ and rescued %d items with SAVEAT."
         )
         static let cardText = Loc(
             fr: "Cette semaine j'ai économisé %@ et sauvé %d produits.",
-            en: "This week I saved %@ and rescued %d products."
+            en: "This week I saved %@ and rescued %d items."
         )
         static let share = Loc(fr: "Partager", en: "Share")
     }
@@ -756,21 +756,22 @@ nonisolated enum S {
         static let premiumBadge = Loc(fr: "SAVEAT PREMIUM", en: "SAVEAT PRO")
         static let upsellTitle = Loc(
             fr: "Fais économiser encore plus à ton frigo.",
-            en: "Make your groceries go further."
+            en: "Get more from what you already have."
         )
         static let upsellFeatures = Loc(
             fr: "Scans illimités • IA cuisine illimitée • mode 0 € • fin de mois",
-            en: "Unlimited scans • Unlimited AI recipes • $0 mode • End-of-month mode"
+            en: "Unlimited scans • unlimited AI recipes • cook with what you have • budget planner"
         )
         static let seeOffers = Loc(fr: "Voir les offres", en: "See plans")
         static let manageSubscription = Loc(
             fr: "Gérer mon abonnement",
             en: "Manage my subscription"
         )
-        static let sinceJoining = Loc(fr: "Depuis mon inscription", en: "Since joining")
+        static let sinceJoining = Loc(fr: "Depuis mon inscription", en: "Since you started")
+        // The amount is already displayed prominently above, so English never repeats it.
         static let savedSummary = Loc(
             fr: "économisés • %d produits sauvés — estimations",
-            en: "saved • %d products rescued — estimated"
+            en: "%d items rescued • estimated savings"
         )
         static let challenges = Loc(fr: "Défis Zéro Gaspi", en: "Zero Waste Challenges")
         static let challengesSubtitle = Loc(
@@ -976,7 +977,7 @@ nonisolated enum S {
     // MARK: - Tight budget planner
 
     nonisolated enum EndOfMonth {
-        static let navTitle = Loc(fr: "Fin de mois", en: "End of Month")
+        static let navTitle = Loc(fr: "Fin de mois", en: "Tight Budget")
         static let introTitle = Loc(
             fr: "Il te reste peu, on fait durer.",
             en: "End of the month?"
@@ -1022,7 +1023,7 @@ nonisolated enum S {
         static let dinner = Loc(fr: "Dîner", en: "Dinner")
         static let stockOnly = Loc(
             fr: "%@ — uniquement ton stock",
-            en: "%@ — all from your own food"
+            en: "All from your own food"
         )
         static let extraCost = Loc(fr: "~%@ de complément", en: "~%@ to top up")
         static let disclaimer = Loc(
@@ -1072,7 +1073,7 @@ nonisolated enum S {
         static let title = Loc(fr: "Qu'est-ce qu'on mange ?", en: "What's for dinner?")
         static let subtitle = Loc(
             fr: "Je cuisine avec tes %d produits",
-            en: "Cooking with the %d items you have"
+            en: "Cooking with what you already have"
         )
         static let servingsLabel = Loc(fr: "Personnes", en: "Servings")
         static let zeroCostPrompt = Loc(
@@ -1082,16 +1083,16 @@ nonisolated enum S {
         static let servingsPrompt = Loc(fr: "Pour %d personnes", en: "For %d servings")
         static let quotaLeft = Loc(
             fr: "%d suggestion IA restante aujourd'hui",
-            en: "%d AI suggestion left today"
+            en: "%d AI recipe suggestion left today"
         )
         static let quotaLeftPlural = Loc(
             fr: "%d suggestions IA restantes aujourd'hui",
-            en: "%d AI suggestions left today"
+            en: "%d AI recipe suggestions left today"
         )
         static let premium = Loc(fr: "Premium", en: "Go Pro")
         static let quotaSpent = Loc(
             fr: "Tes %d suggestions IA du jour sont utilisées. Les idées ci-dessous restent basées sur ton stock.",
-            en: "You've used your %d AI suggestions for today. The ideas below still come from your own food."
+            en: "You've used your %d AI recipe suggestions for today. The ideas below still come from your own food."
         )
         static let rescueCount = Loc(fr: "%d produits à sauver", en: "%d items to use soon")
         static let rescuePrompt = Loc(
@@ -1102,10 +1103,10 @@ nonisolated enum S {
             fr: "Je peux préparer ton dîner avec ces aliments avant qu'ils ne soient gaspillés.",
             en: "I can build tonight's dinner around these before they go to waste."
         )
-        static let thinking = Loc(fr: "Je regarde ton stock…", en: "Checking what you have…")
+        static let thinking = Loc(fr: "Je regarde ton stock…", en: "Checking your ingredients…")
         static let mealsFound = Loc(fr: "%d repas trouvés", en: "%d meals found")
         static let offlineMode = Loc(fr: "mode hors ligne", en: "offline mode")
-        static let quickAskSection = Loc(fr: "Dis-moi ce que tu veux", en: "Tell me what you're after")
+        static let quickAskSection = Loc(fr: "Dis-moi ce que tu veux", en: "What are you in the mood for?")
         static let composerPlaceholder = Loc(fr: "Écris ta demande…", en: "Type your request…")
         static let send = Loc(fr: "Envoyer", en: "Send")
         static let userLabel = Loc(fr: "Utilisateur", en: "User")
@@ -1115,7 +1116,7 @@ nonisolated enum S {
         )
         static let zeroCostAnswer = Loc(
             fr: "J'ai trouvé %d repas à %@ avec ton stock. Aucun achat nécessaire.",
-            en: "Found %d %@ meals from what you have. Nothing to buy."
+            en: "Found %d meals from what you already have. Nothing to buy."
         )
         static let defaultAnswer = Loc(
             fr: "J'ai trouvé %d repas avec ce que tu as.",
@@ -1136,11 +1137,11 @@ nonisolated enum S {
         ]
     }
 
-    // MARK: - $0 meals
+    // MARK: - Cook with what you have
 
     nonisolated enum ZeroCost {
-        static let navTitle = Loc(fr: "Repas à 0 €", en: "$0 Meals")
-        static let heroTitle = Loc(fr: "Repas à 0 €", en: "$0 Meals")
+        static let navTitle = Loc(fr: "Repas à 0 €", en: "Cook What You Have")
+        static let heroTitle = Loc(fr: "Repas à 0 €", en: "Cook What You Have")
         static let heroSubtitle = Loc(
             fr: "On cuisine uniquement avec ce que tu as déjà.",
             en: "We cook with what you already have — nothing else."
@@ -1164,7 +1165,7 @@ nonisolated enum S {
         )
         static let promise = Loc(
             fr: "En mode Repas à 0 €, SAVEAT ne te proposera jamais d'acheter quoi que ce soit. Les basiques du placard (sel, poivre, huile) sont considérés comme déjà présents.",
-            en: "In $0 Meals, SAVEAT will never ask you to buy anything. Pantry basics (salt, pepper, oil) are assumed to be on hand."
+            en: "In this mode, SAVEAT will never ask you to buy anything. Pantry basics (salt, pepper, oil) are assumed to be on hand."
         )
     }
 
@@ -1177,19 +1178,19 @@ nonisolated enum S {
 
         static let navTitle = Loc(fr: "Mes économies", en: "My Savings")
         static let thisWeek = Loc(fr: "Cette semaine", en: "This week")
-        static let savedItems = Loc(fr: "produits sauvés", en: "products rescued")
+        static let savedItems = Loc(fr: "produits sauvés", en: "items rescued")
         static let mealsCooked = Loc(fr: "repas préparés", en: "meals cooked")
         static let moneySaved = Loc(fr: "économisés", en: "saved")
         static let wasteAvoided = Loc(
             fr: "≈ %@ de gaspillage évité (estimation)",
             en: "About %@ of food waste avoided (estimate)"
         )
-        static let sinceJoining = Loc(fr: "Depuis mon inscription", en: "Since joining")
+        static let sinceJoining = Loc(fr: "Depuis mon inscription", en: "Since you started")
         static let lifetimeNote = Loc(
             fr: "économisés — estimation basée sur la valeur des aliments sauvés",
             en: "saved — estimated from the value of the food you used in time"
         )
-        static let itemsPill = Loc(fr: "%d produits sauvés", en: "%d products rescued")
+        static let itemsPill = Loc(fr: "%d produits sauvés", en: "%d items rescued")
         static let mealsPill = Loc(fr: "%d repas", en: "%d meals")
         static let shareCard = Loc(fr: "Ma carte à partager", en: "My share card")
         static let shareTagline = Loc(
@@ -1525,11 +1526,11 @@ nonisolated enum S {
             fr: "Ajouter un produit manuellement",
             en: "Add an item manually"
         )
-        static let emptyTitle = Loc(fr: "%@ : rien pour l'instant", en: "%@: nothing here yet")
+        static let emptyTitle = Loc(fr: "%@ : rien pour l'instant", en: "Your %@ is empty")
         static let noResults = Loc(fr: "Aucun résultat", en: "No results")
         static let emptyMessage = Loc(
             fr: "Scanne tes courses en rentrant : chaque code-barres remplit ton stock automatiquement.",
-            en: "Scan your groceries when you get home — every barcode fills this in for you."
+            en: "Scan your groceries and SAVEAT will organize them for you."
         )
         static let noResultsMessage = Loc(
             fr: "Essaie un autre nom de produit.",
@@ -1680,7 +1681,7 @@ nonisolated enum S {
         static let itemsUpdatedPlural = Loc(fr: "%d produits mis à jour", en: "%d items updated")
         static let zeroCostSummary = Loc(
             fr: "Repas à %@ — aucun achat",
-            en: "%@ meal — nothing bought"
+            en: "Made with what you had — nothing bought"
         )
         static let extraSummary = Loc(fr: "Complément estimé : %@", en: "Estimated extra: %@")
         static let confirmCook = Loc(
@@ -1736,16 +1737,16 @@ nonisolated enum S {
             fr: "Enregistre rapidement tes achats",
             en: "Log what you just bought in seconds"
         )
-        static let zeroEuroTitle = Loc(fr: "Repas à 0 €", en: "$0 Meals")
+        static let zeroEuroTitle = Loc(fr: "Repas à 0 €", en: "Cook What You Have")
         static let zeroEuroSubtitle = Loc(
             fr: "Cuisine uniquement avec ton stock",
             en: "Cook without buying anything"
         )
         static let rescueTitle = Loc(fr: "À sauver", en: "Use Soon")
-        static let endOfMonthTitle = Loc(fr: "Fin de mois", en: "End of Month")
+        static let endOfMonthTitle = Loc(fr: "Fin de mois", en: "Tight Budget")
         static let endOfMonthSubtitle = Loc(
             fr: "Optimise ton budget alimentaire",
-            en: "Make the most of your grocery budget"
+            en: "Stretch your grocery budget"
         )
 
         static let nothingUrgent = Loc(
@@ -1767,7 +1768,7 @@ nonisolated enum S {
         static let weekSection = Loc(fr: "Cette semaine", en: "This Week")
         static let details = Loc(fr: "Détails", en: "Details")
         static let savedMoney = Loc(fr: "économisés", en: "saved")
-        static let savedItemsLabel = Loc(fr: "produits sauvés", en: "products rescued")
+        static let savedItemsLabel = Loc(fr: "produits sauvés", en: "items rescued")
         static let mealsCookedLabel = Loc(fr: "repas préparés", en: "meals cooked")
         static let estimateNote = Loc(
             fr: "Estimations calculées à partir des prix moyens des produits que tu sauves.",

@@ -350,7 +350,7 @@ nonisolated enum SeedCopy {
         "Anti-gaspi": Loc(fr: "Anti-gaspi", en: "Zero waste"),
         "Végétarien": Loc(fr: "Végétarien", en: "Vegetarian"),
         "Four": Loc(fr: "Four", en: "Oven"),
-        "Repas à 0 €": Loc(fr: "Repas à 0 €", en: "$0 meal"),
+        "Repas à 0 €": Loc(fr: "Repas à 0 €", en: "No extra spend"),
         "Économique": Loc(fr: "Économique", en: "Budget"),
         "Placard": Loc(fr: "Placard", en: "Pantry"),
         "Léger": Loc(fr: "Léger", en: "Light"),
@@ -369,7 +369,7 @@ nonisolated enum SeedCopy {
         ),
         "Réussir un repas à 0 €": Loc(
             fr: "Réussir un repas à 0 €",
-            en: "Make a $0 meal"
+            en: "Cook a meal without buying anything"
         ),
         "Aucun achat nécessaire": Loc(
             fr: "Aucun achat nécessaire",
