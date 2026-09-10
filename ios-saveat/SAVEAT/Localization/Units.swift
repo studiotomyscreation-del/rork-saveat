@@ -113,6 +113,7 @@ nonisolated enum Units {
         switch LanguageRuntime.current {
         case .fr, .es: "EUR"
         case .en: "USD"
+        case .enGB: "GBP"
         case .ptBR: "BRL"
         case .zhCN: "CNY"
         case .hi: "INR"
@@ -124,6 +125,7 @@ nonisolated enum Units {
         switch LanguageRuntime.current {
         case .fr, .es: "€"
         case .en: "$"
+        case .enGB: "£"
         case .ptBR: "R$"
         case .zhCN: "¥"
         case .hi: "₹"
@@ -138,6 +140,7 @@ nonisolated enum Units {
         switch LanguageRuntime.current {
         case .fr, .es: "0 €"
         case .en: "$0"
+        case .enGB: "£0"
         case .ptBR: "R$ 0"
         case .zhCN: "¥0"
         case .hi: "₹0"

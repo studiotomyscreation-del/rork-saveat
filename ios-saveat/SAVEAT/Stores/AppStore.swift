@@ -508,18 +508,22 @@ nonisolated enum Format {
         switch language {
         case .fr, .es: return "\(number)\u{00a0}€"
         case .en: return "$\(number)"
+        case .enGB: return "£\(number)"
         case .ptBR: return "R$\u{00a0}\(number)"
         case .zhCN: return "¥\(number)"
         case .hi: return "₹\(number)"
         }
     }
 
-    /// Food weight avoided, in kilos for France and pounds for the US.
+    /// Food weight avoided, in kilos for metric readers and pounds for the US.
     nonisolated static func kg(_ value: Double) -> String {
         guard LanguageRuntime.current.usesMetric else {
             return String(format: "%.1f lb", value * 2.20462)
         }
-        return String(format: "%.1f kg", value).replacingOccurrences(of: ".", with: ",")
+        let text = String(format: "%.1f kg", value)
+        return LanguageRuntime.current.usesCommaDecimal
+            ? text.replacingOccurrences(of: ".", with: ",")
+            : text
     }
 
     nonisolated static func grams(_ value: Double) -> String {

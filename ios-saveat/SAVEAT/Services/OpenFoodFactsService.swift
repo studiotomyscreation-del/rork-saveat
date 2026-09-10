@@ -133,7 +133,7 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
         let localName: String?
         switch language {
         case .fr: localName = productNameFR
-        case .en: localName = productNameEN
+        case .en, .enGB: localName = productNameEN
         case .es: localName = productNameES
         case .ptBR: localName = productNamePT
         case .zhCN: localName = productNameZH
@@ -147,7 +147,7 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
         let localIngredients: String?
         switch language {
         case .fr: localIngredients = ingredientsTextFR
-        case .en: localIngredients = ingredientsTextEN
+        case .en, .enGB: localIngredients = ingredientsTextEN
         case .es: localIngredients = ingredientsTextES
         case .ptBR: localIngredients = ingredientsTextPT
         case .zhCN, .hi: localIngredients = nil

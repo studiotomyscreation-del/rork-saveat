@@ -41,8 +41,20 @@ nonisolated enum FoodNames {
         "Eau": Loc(fr: "Eau", en: "Water")
     ]
 
+    /// A few US wording choices re-pointed to the UK shelf name, so an
+    /// English (UK) reader sees courgette and tinned tuna, not American terms.
+    private static let ukTerms: [String: String] = [
+        "Zucchini": "Courgette",
+        "Shredded cheese": "Grated cheese",
+        "2% milk": "Semi-skimmed milk",
+        "Ground beef patties": "Minced beef patties",
+        "Canned tuna": "Tinned tuna"
+    ]
+
     nonisolated static func display(_ name: String) -> String {
-        table[name]?.s ?? name
+        let english = table[name]?.s ?? name
+        guard LanguageRuntime.current == .enGB else { return english }
+        return ukTerms[english] ?? english
     }
 }
 

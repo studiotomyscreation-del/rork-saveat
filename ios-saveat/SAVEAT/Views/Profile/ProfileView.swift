@@ -304,6 +304,7 @@ struct ProfileView: View {
         case .fr, .es: "💶"
         case .zhCN: "💴"
         case .en, .ptBR, .hi: "💵"
+        case .enGB: "💷"
         }
     }
 
