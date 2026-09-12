@@ -53,6 +53,7 @@ struct NativePaywallView: View {
                 VStack(spacing: 22) {
                     hero
                     benefits
+                    testerProof
                     if subscriptions.isLoadingOfferings && packages.isEmpty {
                         ProgressView().tint(Theme.sageDeep).padding(.vertical, 30)
                     } else if packages.isEmpty {
@@ -208,6 +209,37 @@ struct NativePaywallView: View {
                 }
             }
         }
+        .saveatCard(padding: 18)
+    }
+
+    /// Observed result from our 10-person test group.
+    ///
+    /// Presented as an observation, never as a promise: the exact sentence and the
+    /// disclaimer below it are fixed, and this figure never touches anyone's
+    /// personal savings statistics, which are always computed from real usage.
+    private var testerProof: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 9) {
+                Image(systemName: "person.2.fill")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Theme.terracotta)
+                Text(S.Paywall.testerProofTitle.s)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(Theme.terracotta)
+                Spacer(minLength: 0)
+            }
+
+            Text(S.Paywall.testerProof.s)
+                .font(.system(size: 14.5, weight: .semibold, design: .rounded))
+                .foregroundStyle(Theme.ink)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(S.Paywall.testerProofDisclaimer.s)
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .saveatCard(padding: 18)
     }
 

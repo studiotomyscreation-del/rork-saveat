@@ -531,6 +531,22 @@ nonisolated enum S {
             fr: "Toutes les économies affichées dans SAVEAT sont des estimations.",
             en: "Every savings figure in SAVEAT is an estimate."
         )
+
+        // Observed result from our 10-person test group. Wording and disclaimer are
+        // fixed by the product rule: never presented as a guaranteed saving, and
+        // never preloaded into anyone's personal statistics.
+        static let testerProofTitle = Loc(
+            fr: "Ce que notre groupe test a observé",
+            en: "What our test group saw"
+        )
+        static let testerProof = Loc(
+            fr: "Lors de notre phase de test auprès de 10 utilisateurs, les économies observées ont atteint en moyenne 190 à 200 € par mois.",
+            en: "During our test phase with 10 users, observed savings averaged €190–200 per month."
+        )
+        static let testerProofDisclaimer = Loc(
+            fr: "Résultats observés auprès de notre groupe test. Les économies varient selon les habitudes d'achat, la composition du foyer et l'utilisation de SAVEAT.",
+            en: "Results observed within our test group. Savings vary depending on shopping habits, household size and how you use SAVEAT."
+        )
         static let oops = Loc(fr: "Oups", en: "Something went wrong")
         static let pendingPurchase = Loc(
             fr: "Achat en attente",
