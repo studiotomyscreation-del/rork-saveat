@@ -54,6 +54,23 @@ nonisolated struct Challenge: Identifiable, Codable, Hashable, Sendable {
         guard target > 0 else { return 0 }
         return min(Double(progress) / Double(target), 1)
     }
+
+    /// The challenges a brand-new account starts with — all at zero progress.
+    ///
+    /// Titles stay in French because they are the stable keys used to credit
+    /// progress; `SeedCopy` translates them at display time.
+    nonisolated static var freshSet: [Challenge] {
+        [
+            Challenge(title: "Cuisiner 3 repas avec ton stock",
+                      detail: "Défi Zéro Gaspi — 7 jours", emoji: "🍽️", progress: 0, target: 3),
+            Challenge(title: "Réussir un repas à 0 €",
+                      detail: "Aucun achat nécessaire", emoji: "🥘", progress: 0, target: 1),
+            Challenge(title: "Sauver 5 produits",
+                      detail: "Avant leur date limite", emoji: "🥕", progress: 0, target: 5),
+            Challenge(title: "Une semaine sans doublon",
+                      detail: "Ne racheter que ce qu'il manque", emoji: "🛒", progress: 0, target: 7)
+        ]
+    }
 }
 
 /// Placeholder model for the future neighbourhood food-sharing module.

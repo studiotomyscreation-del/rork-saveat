@@ -130,6 +130,10 @@ nonisolated enum MealEngine {
 
         let meat = ["poulet", "jambon", "steak", "boeuf", "porc", "dinde", "lardon", "saucisse", "viande", "bacon"]
         let animal = meat + ["oeuf", "lait", "fromage", "yaourt", "beurre", "creme", "miel", "poisson", "thon"]
+        let pork = ["porc", "jambon", "lardon", "bacon", "saucisson", "chorizo", "ham", "pork", "bacon bits"]
+        let shellfish = ["crevette", "moule", "huitre", "homard", "crabe", "langoustine", "calamar",
+                         "shrimp", "mussel", "oyster", "lobster", "crab", "squid", "clam", "scallop"]
+        let dairy = ["lait", "fromage", "yaourt", "beurre", "creme", "milk", "cheese", "yogurt", "butter", "cream"]
 
         switch profile.diet {
         case .vegetarian:
@@ -138,7 +142,13 @@ nonisolated enum MealEngine {
             if mentions(meat) { return false }
         case .vegan:
             if mentions(animal) { return false }
-        case .omnivore, .flexitarian, .halal:
+        case .halal:
+            if mentions(pork) { return false }
+        case .kosher:
+            // No pork, no shellfish, and never meat and dairy in one dish.
+            if mentions(pork) || mentions(shellfish) { return false }
+            if mentions(meat) && mentions(dairy) { return false }
+        case .omnivore, .flexitarian:
             break
         }
 

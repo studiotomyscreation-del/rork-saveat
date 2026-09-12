@@ -30,6 +30,10 @@ nonisolated enum HouseholdGoal: String, Codable, CaseIterable, Identifiable, Sen
     }
 }
 
+/// The household's main way of eating.
+///
+/// Stored as a language-independent id (`vegetarian`, `kosher`, …) so switching
+/// the app's language never loses a saved preference — only the label changes.
 nonisolated enum DietPreference: String, Codable, CaseIterable, Identifiable, Sendable {
     case omnivore
     case flexitarian
@@ -37,6 +41,7 @@ nonisolated enum DietPreference: String, Codable, CaseIterable, Identifiable, Se
     case vegan
     case pescatarian
     case halal
+    case kosher
 
     nonisolated var id: String { rawValue }
 
@@ -48,6 +53,49 @@ nonisolated enum DietPreference: String, Codable, CaseIterable, Identifiable, Se
         case .vegan: S.Diet.vegan.s
         case .pescatarian: S.Diet.pescatarian.s
         case .halal: S.Diet.halal.s
+        case .kosher: S.Diet.kosher.s
+        }
+    }
+
+    /// Plain-language rule sent to the recipe assistant, in the reader's language.
+    nonisolated var promptRule: String? {
+        switch self {
+        case .omnivore, .flexitarian: nil
+        case .vegetarian: S.DietRule.vegetarian.s
+        case .vegan: S.DietRule.vegan.s
+        case .pescatarian: S.DietRule.pescatarian.s
+        case .halal: S.DietRule.halal.s
+        case .kosher: S.DietRule.kosher.s
+        }
+    }
+}
+
+/// Extra eating preferences that stack on top of the main diet.
+///
+/// Kept separate from `DietPreference` because these combine freely: someone can
+/// be vegetarian AND eat low-GI. Ids stay language-independent.
+nonisolated enum DietTag: String, Codable, CaseIterable, Identifiable, Sendable {
+    case lowGI = "low_gi"
+
+    nonisolated var id: String { rawValue }
+
+    nonisolated var title: String {
+        switch self {
+        case .lowGI: S.Diet.lowGI.s
+        }
+    }
+
+    /// One-line explanation shown under the toggle.
+    nonisolated var detail: String {
+        switch self {
+        case .lowGI: S.Diet.lowGIDetail.s
+        }
+    }
+
+    /// Rule sent to the recipe assistant, in the reader's language.
+    nonisolated var promptRule: String {
+        switch self {
+        case .lowGI: S.DietRule.lowGI.s
         }
     }
 }
@@ -79,6 +127,9 @@ nonisolated struct UserProfile: Codable, Sendable {
     var weeklyBudget: Double = 80
     var hasCompletedOnboarding: Bool = false
     var joinedAt: Date = .now
+    /// Extra preferences such as low-GI. Optional so profiles saved before this
+    /// feature keep decoding untouched — read and write it through `dietTags`.
+    var tags: Set<DietTag>?
     /// Anti-waste reminders. Optional so profiles saved before this feature keep
     /// decoding — read and write it through `reminderSettings`.
     var reminders: ReminderSettings?
@@ -88,6 +139,14 @@ nonisolated struct UserProfile: Codable, Sendable {
         get { reminders ?? ReminderSettings() }
         set { reminders = newValue }
     }
+
+    /// Extra eating preferences, empty for profiles saved before they existed.
+    nonisolated var dietTags: Set<DietTag> {
+        get { tags ?? [] }
+        set { tags = newValue }
+    }
+
+    nonisolated func hasTag(_ tag: DietTag) -> Bool { dietTags.contains(tag) }
 
     nonisolated var householdSize: Int { max(adults + children, 1) }
 

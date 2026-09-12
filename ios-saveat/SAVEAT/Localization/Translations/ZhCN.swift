@@ -811,6 +811,25 @@ nonisolated enum StringsZhCN {
         "What this household has right now:": "这个家庭现在有：",
         " and ": "和",
         "Pantry": "储藏室",
+
+        // MARK: - Diets, preferences and first run
+        "Kosher": "犹太教饮食",
+        "Low GI": "低 GI",
+        "Low glycaemic index": "低升糖指数",
+        "SAVEAT keeps everything you already have. Only the recipes suggested adapt.": "SAVEAT 会保留你现有的所有食材，只有推荐的菜谱会随之调整。",
+        "Start by scanning your groceries": "先扫描你的采购吧",
+        "SAVEAT organises your food, keeps an eye on the dates and helps you use things up before they're lost.": "SAVEAT 帮你整理食材、盯紧保质期，并在食物变坏前帮你用完。",
+        "Scan my first items": "扫描我的第一件食材",
+        "Add it by hand": "手动添加",
+        "That barcode isn't in the database yet. You can add the item yourself.": "该条码还不在数据库中，你可以自己添加这件食材。",
+        "Diet rule that must be respected: %@": "必须遵守的饮食规则：%@",
+        "Cook only from the food listed above. Never treat an item as removed: if something fits the diet less well, pair it sensibly or simply leave it out of this recipe.": "只能使用上述列出的食材烹饪。绝不要把某件食材当作已删除：如果它与饮食要求契合度较低，请合理搭配，或者干脆不用在这道菜里。",
+        "Vegetarian: no meat and no fish.": "素食：不含肉类和鱼类。",
+        "Vegan: no animal products at all (no meat, fish, eggs, dairy or honey).": "纯素食：不含任何动物性食品（无肉、鱼、蛋、乳制品或蜂蜜）。",
+        "Pescatarian: fish is fine, no other meat.": "鱼素食：可以吃鱼，不吃其他肉类。",
+        "Halal: no pork or pork derivatives, no alcohol.": "清真饮食：不含猪肉及猪肉制品，不含酒精。",
+        "Kosher: no pork or pork derivatives, no shellfish, and never mix meat and dairy in the same recipe.": "犹太教饮食：不含猪肉及猪肉制品，不含贝类海鲜，且同一道菜中绝不混用肉类和乳制品。",
+        "Low glycaemic index: favour vegetables, pulses, wholegrains and protein. Avoid added sugar, white flour, white bread, white rice and mashed potato. If a high-GI item is already in stock, pair it with fibre or protein rather than leaving it out.": "低升糖指数：优先选用蔬菜、豆类、全谷物和蛋白质。避开添加糖、白面粉、白面包、白米饭和土豆泥。如果库存中已有高 GI 食材，请将其与膏食纤维或蛋白质搭配，而不是将它排除。",
         "\"Used it\" updates your food list and stops the reminders for this item.": "\"吃掉了\"会更新你的食材清单，并停止这件商品的提醒。"
     ]
 }

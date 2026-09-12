@@ -47,6 +47,9 @@ struct GroceryScanView: View {
     @State private var showsManualEntry = false
     @State private var editingEntry: ScanEntry?
     @State private var showsPaywall = false
+    /// Set when a barcode returns nothing — common for products from another
+    /// country — so the user is offered a manual add instead of a dead end.
+    @State private var showsManualAdd = false
 
     private struct DuplicateCandidate: Identifiable {
         var id: String { product.barcode }
@@ -77,6 +80,9 @@ struct GroceryScanView: View {
         }
         .onDisappear { camera.stop() }
         .sheet(isPresented: $showsPaywall) { PaywallSheet(feature: .unlimitedScans) }
+        .sheet(isPresented: $showsManualAdd) {
+            AddFoodSheet(defaultLocation: .fridge)
+        }
         .sheet(item: $editingEntry) { entry in
             ScanEntryEditor(entry: entry) { updated in
                 if let index = entries.firstIndex(where: { $0.id == updated.id }) {
@@ -229,11 +235,29 @@ struct GroceryScanView: View {
                 .padding(.horizontal, 16).padding(.vertical, 11)
                 .background(.black.opacity(0.4), in: .capsule)
             case .failed(let message):
-                Text(message)
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 16).padding(.vertical, 11)
-                    .background(Theme.clay.opacity(0.9), in: .capsule)
+                // A barcode from another market is often simply absent from the
+                // database. Never a dead end: offer the manual add right here.
+                VStack(spacing: 9) {
+                    Text(message)
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.center)
+                    Button {
+                        Haptics.light()
+                        lookup = .idle
+                        showsManualAdd = true
+                    } label: {
+                        Text(S.Lookup.addManuallyAction.s)
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundStyle(Theme.ink)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 9)
+                            .background(.white, in: .capsule)
+                    }
+                    .buttonStyle(SoftPressStyle())
+                }
+                .padding(.horizontal, 18).padding(.vertical, 13)
+                .background(Theme.clay.opacity(0.95), in: .rect(cornerRadius: 22))
             case .idle:
                 if let entry = lastAdded {
                     HStack(spacing: 10) {
@@ -520,7 +544,8 @@ struct GroceryScanView: View {
             case .failure(let error):
                 Haptics.warning()
                 lookup = .failed(error.localizedDescription)
-                try? await Task.sleep(for: .seconds(2.5))
+                // Held a little longer so the manual-add offer can be tapped.
+                try? await Task.sleep(for: .seconds(6))
                 if case .failed = lookup { lookup = .idle }
             }
         }

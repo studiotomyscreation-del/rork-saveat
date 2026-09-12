@@ -810,6 +810,25 @@ nonisolated enum StringsHi {
         "What this household has right now:": "इस घर के पास अभी क्या है:",
         " and ": " और ",
         "Pantry": "पैंट्री",
+
+        // MARK: - Diets, preferences and first run
+        "Kosher": "कोशर",
+        "Low GI": "कम GI",
+        "Low glycaemic index": "कम ग्लाईसेमिक इंडेक्स",
+        "SAVEAT keeps everything you already have. Only the recipes suggested adapt.": "SAVEAT आपका पूरा स्टॉक वैसा ही रखता है। सिर्फ सुझाई गई रेसिपी बदलती हैं।",
+        "Start by scanning your groceries": "अपनी खरीदारी स्कैन करके शुरू करें",
+        "SAVEAT organises your food, keeps an eye on the dates and helps you use things up before they're lost.": "SAVEAT आपका सामान व्यवस्थित करता है, तारीखों पर नज़र रखता है और खराब होने से पहले इस्तेमाल करने में मदद करता है।",
+        "Scan my first items": "मेरी पहली चीज़ें स्कैन करें",
+        "Add it by hand": "खुद जोड़ें",
+        "That barcode isn't in the database yet. You can add the item yourself.": "यह बारकोड अभी डेटाबेस में नहीं है। आप यह चीज़ खुद जोड़ सकते हैं।",
+        "Diet rule that must be respected: %@": "यह आहार नियम ज़रूर मानना है: %@",
+        "Cook only from the food listed above. Never treat an item as removed: if something fits the diet less well, pair it sensibly or simply leave it out of this recipe.": "केवल ऊपर दी गई सामग्री से ही पकाएँ। किसी चीज़ को हटाया गया न मानें: अगर वह आहार के अनुरूप कम बैठती है, तो उसे समझदारी से मिलाएँ या इस रेसिपी में शामिल न करें।",
+        "Vegetarian: no meat and no fish.": "शाकाहारी: न मांस न मछली।",
+        "Vegan: no animal products at all (no meat, fish, eggs, dairy or honey).": "वीगन: कोई भी पशु उत्पाद नहीं (न मांस, न मछली, न अंडा, न डेयरी, न शहद)।",
+        "Pescatarian: fish is fine, no other meat.": "पेस्केटेरियन: मछली ठीक है, दूसरा कोई मांस नहीं।",
+        "Halal: no pork or pork derivatives, no alcohol.": "हलाल: सूअर का मांस या उससे बनी चीज़ें नहीं, शराब नहीं।",
+        "Kosher: no pork or pork derivatives, no shellfish, and never mix meat and dairy in the same recipe.": "कोशर: सूअर का मांस या उससे बनी चीज़ें नहीं, शेलफ़िश नहीं, और एक ही रेसिपी में मांस और डेयरी कभी न मिलाएँ।",
+        "Low glycaemic index: favour vegetables, pulses, wholegrains and protein. Avoid added sugar, white flour, white bread, white rice and mashed potato. If a high-GI item is already in stock, pair it with fibre or protein rather than leaving it out.": "कम ग्लाईसेमिक इंडेक्स: सब्जियों, दालों, साबुत अनाज और प्रोटीन को प्राथमिकता दें। चीनी, मैदा, सफेद ब्रेड, सफेद चावल और आलू का भर्ता से बचें। अगर कोई उच्च GI चीज़ पहले से स्टॉक में है, तो उसे हटाने के बजाय फाइबर या प्रोटीन के साथ मिलाएँ।",
         "\"Used it\" updates your food list and stops the reminders for this item.": "\"इस्तेमाल किया\" आपकी सूची अपडेट करता है और इस चीज़ के रिमाइंडर रोकता है।"
     ]
 }

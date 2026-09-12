@@ -182,11 +182,24 @@ nonisolated enum WasteOutcome: String, Codable, Sendable {
 
 /// One product leaving the stock, used for the anti-waste counters.
 ///
-/// Deliberately stores no price: SAVEAT never claims a saving it cannot prove.
+/// The value is an ESTIMATE and only present when the product actually carried a
+/// known price. It stays optional so events saved before this field keep
+/// decoding — a missing value simply contributes nothing to the money figure,
+/// because SAVEAT never claims a saving it cannot back up.
 nonisolated struct WasteEvent: Identifiable, Codable, Hashable, Sendable {
     var id: UUID = UUID()
     var itemName: String
     var emoji: String
     var outcome: WasteOutcome
     var date: Date = .now
+    /// Estimated value of what was saved, when known.
+    var estimatedValue: Double?
+    /// True when this save came from cooking a meal, whose value is already
+    /// counted in the cooking history — prevents counting the same save twice.
+    var fromMeal: Bool?
+
+    /// Money this event contributes on its own, avoiding any double count.
+    nonisolated var standaloneValue: Double {
+        (fromMeal == true) ? 0 : (estimatedValue ?? 0)
+    }
 }

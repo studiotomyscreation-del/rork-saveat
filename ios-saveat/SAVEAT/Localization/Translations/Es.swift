@@ -808,6 +808,25 @@ nonisolated enum StringsEs {
         "What this household has right now:": "Lo que tiene este hogar ahora mismo:",
         " and ": " y ",
         "Pantry": "Despensa",
+
+        // MARK: - Diets, preferences and first run
+        "Kosher": "Kosher",
+        "Low GI": "IG bajo",
+        "Low glycaemic index": "Índice glucémico bajo",
+        "SAVEAT keeps everything you already have. Only the recipes suggested adapt.": "SAVEAT conserva todo lo que ya tienes. Solo se adaptan las recetas propuestas.",
+        "Start by scanning your groceries": "Empieza escaneando tu compra",
+        "SAVEAT organises your food, keeps an eye on the dates and helps you use things up before they're lost.": "SAVEAT organiza tus alimentos, vigila las fechas y te ayuda a aprovecharlos antes de perderlos.",
+        "Scan my first items": "Escanear mis primeros productos",
+        "Add it by hand": "Añadirlo a mano",
+        "That barcode isn't in the database yet. You can add the item yourself.": "Ese código de barras aún no está en la base de datos. Puedes añadir el producto tú mismo.",
+        "Diet rule that must be respected: %@": "Regla de dieta que debe respetarse: %@",
+        "Cook only from the food listed above. Never treat an item as removed: if something fits the diet less well, pair it sensibly or simply leave it out of this recipe.": "Cocina únicamente con los alimentos indicados arriba. Nunca consideres eliminado un producto: si encaja peor con la dieta, combínalo con sensatez o simplemente déjalo fuera de esta receta.",
+        "Vegetarian: no meat and no fish.": "Dieta vegetariana: sin carne ni pescado.",
+        "Vegan: no animal products at all (no meat, fish, eggs, dairy or honey).": "Dieta vegana: ningún producto de origen animal (ni carne, ni pescado, ni huevo, ni lácteos, ni miel).",
+        "Pescatarian: fish is fine, no other meat.": "Dieta pescetariana: el pescado está permitido, ninguna otra carne.",
+        "Halal: no pork or pork derivatives, no alcohol.": "Dieta halal: sin cerdo ni derivados del cerdo, sin alcohol.",
+        "Kosher: no pork or pork derivatives, no shellfish, and never mix meat and dairy in the same recipe.": "Dieta kosher: sin cerdo ni derivados del cerdo, sin mariscos, y nunca mezcles carne y lácteos en la misma receta.",
+        "Low glycaemic index: favour vegetables, pulses, wholegrains and protein. Avoid added sugar, white flour, white bread, white rice and mashed potato. If a high-GI item is already in stock, pair it with fibre or protein rather than leaving it out.": "Índice glucémico bajo: prioriza verduras, legumbres, cereales integrales y proteínas. Evita el azúcar añadido, la harina blanca, el pan blanco, el arroz blanco y el puré de patata. Si ya hay un producto de IG alto en la despensa, combínalo con fibra o proteína en vez de descartarlo.",
         "\"Used it\" updates your food list and stops the reminders for this item.": "\"Lo usé\" actualiza tu lista de comida y deja los recordatorios para este producto."
     ]
 }

@@ -469,6 +469,14 @@ nonisolated struct MealAIService: Sendable {
         static let household = Loc(fr: "Foyer : %@.", en: "Household: %@.")
         static let goal = Loc(fr: "Objectif : %@.", en: "Goal: %@.")
         static let diet = Loc(fr: "Régime : %@.", en: "Diet: %@.")
+        static let dietRule = Loc(
+            fr: "Règle de régime à respecter absolument : %@",
+            en: "Diet rule that must be respected: %@"
+        )
+        static let stockIsTruth = Loc(
+            fr: "Cuisine uniquement à partir du stock ci-dessus. Ne supprime jamais un produit du stock : s'il est moins adapté au régime, associe-le intelligemment ou laisse-le de côté pour cette recette.",
+            en: "Cook only from the food listed above. Never treat an item as removed: if something fits the diet less well, pair it sensibly or simply leave it out of this recipe."
+        )
         static let servings = Loc(fr: "Portions demandées : %d.", en: "Servings requested: %d.")
         static let allergies = Loc(
             fr: "Allergies à exclure absolument : %@.",
@@ -529,6 +537,15 @@ nonisolated struct MealAIService: Sendable {
             Prompt.diet.f(profile.diet.title),
             Prompt.servings.f(request.servings)
         ]
+        // Spell the diet out as an explicit rule: a label alone ("Kosher") is not
+        // enough for the model to apply it reliably.
+        if let rule = profile.diet.promptRule {
+            constraints.append(Prompt.dietRule.f(rule))
+        }
+        for tag in profile.dietTags.sorted(by: { $0.rawValue < $1.rawValue }) {
+            constraints.append(Prompt.dietRule.f(tag.promptRule))
+        }
+        constraints.append(Prompt.stockIsTruth.s)
         if !profile.allergens.isEmpty {
             constraints.append(Prompt.allergies.f(profile.allergens.map(\.title).joined(separator: ", ")))
         }

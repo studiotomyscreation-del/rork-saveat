@@ -159,6 +159,46 @@ nonisolated enum S {
         static let vegan = Loc(fr: "Végétalien", en: "Vegan")
         static let pescatarian = Loc(fr: "Pescétarien", en: "Pescatarian")
         static let halal = Loc(fr: "Halal", en: "Halal")
+        static let kosher = Loc(fr: "Kasher", en: "Kosher")
+        static let lowGI = Loc(fr: "IG bas", en: "Low GI")
+        static let lowGIDetail = Loc(
+            fr: "Indice glycémique bas",
+            en: "Low glycaemic index"
+        )
+        static let preferencesTitle = Loc(fr: "Préférences", en: "Preferences")
+        static let keepsStockNotice = Loc(
+            fr: "SAVEAT garde tout ton stock. Seules les recettes proposées s'adaptent.",
+            en: "SAVEAT keeps everything you already have. Only the recipes suggested adapt."
+        )
+    }
+
+    // MARK: - Diet rules sent to the recipe assistant
+
+    nonisolated enum DietRule {
+        static let vegetarian = Loc(
+            fr: "Régime végétarien : aucune viande ni poisson.",
+            en: "Vegetarian: no meat and no fish."
+        )
+        static let vegan = Loc(
+            fr: "Régime végétalien : aucun produit d'origine animale (ni viande, ni poisson, ni œuf, ni produit laitier, ni miel).",
+            en: "Vegan: no animal products at all (no meat, fish, eggs, dairy or honey)."
+        )
+        static let pescatarian = Loc(
+            fr: "Régime pescétarien : poisson autorisé, aucune autre viande.",
+            en: "Pescatarian: fish is fine, no other meat."
+        )
+        static let halal = Loc(
+            fr: "Régime halal : aucun porc ni dérivé de porc, aucun alcool.",
+            en: "Halal: no pork or pork derivatives, no alcohol."
+        )
+        static let kosher = Loc(
+            fr: "Régime kasher : aucun porc ni dérivé de porc, aucun fruit de mer ni crustacé, et ne jamais mélanger viande et produits laitiers dans une même recette.",
+            en: "Kosher: no pork or pork derivatives, no shellfish, and never mix meat and dairy in the same recipe."
+        )
+        static let lowGI = Loc(
+            fr: "Indice glycémique bas : privilégie les légumes, légumineuses, céréales complètes et protéines. Évite le sucre ajouté, la farine blanche, le pain blanc, le riz blanc et la pomme de terre en purée. Si un produit à IG élevé est déjà dans le stock, associe-le à des fibres ou des protéines plutôt que de l'exclure.",
+            en: "Low glycaemic index: favour vegetables, pulses, wholegrains and protein. Avoid added sugar, white flour, white bread, white rice and mashed potato. If a high-GI item is already in stock, pair it with fibre or protein rather than leaving it out."
+        )
     }
 
     // MARK: - Allergens
@@ -854,6 +894,16 @@ nonisolated enum S {
             en: "Can't reach the database right now."
         )
         static let fallbackName = Loc(fr: "Produit %@", en: "Item %@")
+        /// Offered right after a failed lookup — a barcode from another country is
+        /// often simply absent from the database, which must never block the user.
+        static let addManuallyAction = Loc(
+            fr: "L'ajouter à la main",
+            en: "Add it by hand"
+        )
+        static let notFoundHelp = Loc(
+            fr: "Ce code-barres n'est pas encore dans la base. Tu peux ajouter le produit toi-même.",
+            en: "That barcode isn't in the database yet. You can add the item yourself."
+        )
     }
 
     // MARK: - Grocery scanning
@@ -1531,6 +1581,19 @@ nonisolated enum S {
         static let emptyMessage = Loc(
             fr: "Scanne tes courses en rentrant : chaque code-barres remplit ton stock automatiquement.",
             en: "Scan your groceries and SAVEAT will organize them for you."
+        )
+        /// Shown to a brand-new account, before anything has ever been added.
+        static let firstRunTitle = Loc(
+            fr: "Commence par scanner tes courses",
+            en: "Start by scanning your groceries"
+        )
+        static let firstRunMessage = Loc(
+            fr: "SAVEAT organise ton stock, surveille tes dates et t'aide à utiliser tes produits avant qu'ils ne soient perdus.",
+            en: "SAVEAT organises your food, keeps an eye on the dates and helps you use things up before they're lost."
+        )
+        static let firstRunPrimary = Loc(
+            fr: "Scanner mes premiers produits",
+            en: "Scan my first items"
         )
         static let noResultsMessage = Loc(
             fr: "Essaie un autre nom de produit.",

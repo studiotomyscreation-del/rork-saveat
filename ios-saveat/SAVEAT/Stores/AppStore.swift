@@ -70,13 +70,25 @@ final class AppStore {
             return decoded
         }
 
+        // A brand-new account starts genuinely at zero: no stock, no meals, no
+        // savings. Demo content belongs to whoever generated it, never to a new
+        // user. Anyone who already has data on disk keeps it exactly as it is —
+        // a missing key simply means "nothing yet", never "load the demo".
         profile = load(Keys.profile, fallback: UserProfile())
-        inventory = load(Keys.inventory, fallback: MockData.inventory)
+        inventory = load(Keys.inventory, fallback: [])
         shoppingList = load(Keys.shopping, fallback: [])
-        challenges = load(Keys.challenges, fallback: MockData.challenges)
-        cookedLog = load(Keys.cooked, fallback: CookedMeal.seed)
+        challenges = load(Keys.challenges, fallback: Challenge.freshSet)
+        cookedLog = load(Keys.cooked, fallback: [])
         groceryRuns = load(Keys.groceryRuns, fallback: [])
         wasteLog = load(Keys.waste, fallback: [])
+    }
+
+    /// True while the account has never recorded anything at all.
+    ///
+    /// Drives the first-run empty state, which invites a first scan instead of
+    /// showing zeros as if something had gone wrong.
+    var hasNoHistory: Bool {
+        inventory.isEmpty && cookedLog.isEmpty && wasteLog.isEmpty && groceryRuns.isEmpty
     }
 
     /// Re-plans every anti-waste reminder from the current stock and preferences.
@@ -225,7 +237,17 @@ final class AppStore {
             inventory[index].isOpened = true
         }
 
-        wasteLog.append(WasteEvent(itemName: item.name, emoji: item.emoji, outcome: .saved))
+        // A real save: the product was used instead of being lost. Its value is
+        // an estimate and only counts when the product actually carried a price.
+        let share = item.quantity > 0 ? min(used / item.quantity, 1) : 1
+        let value = item.estimatedValue > 0 ? item.estimatedValue * share : nil
+        wasteLog.append(WasteEvent(
+            itemName: item.name,
+            emoji: item.emoji,
+            outcome: .saved,
+            estimatedValue: value,
+            fromMeal: false
+        ))
         bumpChallenge(matching: "Sauver 5 produits", by: 1)
 
         banner = BannerMessage(text: S.Banner.saved.f(item.displayName), tone: .success)
@@ -330,7 +352,15 @@ final class AppStore {
                 rescuedCount += 1
                 let share = item.quantity > 0 ? min(deduction.used / item.quantity, 1) : 1
                 rescuedValue += item.estimatedValue * share
-                rescued.append(WasteEvent(itemName: item.name, emoji: item.emoji, outcome: .saved))
+                // Value is carried by the cooked meal below, so this event adds
+                // nothing on its own and the same save is never counted twice.
+                rescued.append(WasteEvent(
+                    itemName: item.name,
+                    emoji: item.emoji,
+                    outcome: .saved,
+                    estimatedValue: item.estimatedValue > 0 ? item.estimatedValue * share : nil,
+                    fromMeal: true
+                ))
             }
 
             if remaining <= 0.001 {
@@ -416,28 +446,40 @@ final class AppStore {
 
     // MARK: - Impact (all values explicitly presented as estimates)
 
-    var weeklyImpact: ImpactSummary {
-        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .now
-        let recent = cookedLog.filter { $0.date >= weekAgo }
-        let savedItems = recent.reduce(0) { $0 + $1.savedItems }
+    /// Impact over a period, built only from what the user actually did.
+    ///
+    /// Two things count, and nothing else: meals cooked from the stock, and
+    /// products marked as used in time. Adding a product to the stock never
+    /// counts — owning food is not saving money. Money only accumulates where a
+    /// price was known, and is always presented as an estimate.
+    private func impact(since date: Date?, weeklyGoal: Int) -> ImpactSummary {
+        let meals = date.map { start in cookedLog.filter { $0.date >= start } } ?? cookedLog
+        let saves = wasteLog.filter { event in
+            event.outcome == .saved && (date.map { event.date >= $0 } ?? true)
+        }
+
+        // Saves recorded while cooking are already represented by their meal, so
+        // only stand-alone saves add their own value on top.
+        let money = meals.reduce(0) { $0 + $1.moneySaved }
+            + saves.reduce(0) { $0 + $1.standaloneValue }
+        let savedItems = saves.count
+
         return ImpactSummary(
             savedItems: savedItems,
-            mealsCooked: recent.count,
-            moneySaved: recent.reduce(0) { $0 + $1.moneySaved },
+            mealsCooked: meals.count,
+            moneySaved: money,
             wasteAvoidedKg: Double(savedItems) * 0.28,
-            weeklyGoal: max(profile.householdSize * 6, 10)
+            weeklyGoal: weeklyGoal
         )
     }
 
+    var weeklyImpact: ImpactSummary {
+        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .now
+        return impact(since: weekAgo, weeklyGoal: max(profile.householdSize * 6, 10))
+    }
+
     var lifetimeImpact: ImpactSummary {
-        let savedItems = cookedLog.reduce(0) { $0 + $1.savedItems }
-        return ImpactSummary(
-            savedItems: savedItems,
-            mealsCooked: cookedLog.count,
-            moneySaved: cookedLog.reduce(0) { $0 + $1.moneySaved },
-            wasteAvoidedKg: Double(savedItems) * 0.28,
-            weeklyGoal: 0
-        )
+        impact(since: nil, weeklyGoal: 0)
     }
 
     func resetOnboarding() {
@@ -454,24 +496,6 @@ nonisolated struct CookedMeal: Identifiable, Codable, Hashable, Sendable {
     var moneySaved: Double
     var wasZeroEuro: Bool
 
-    /// Seed history so the savings dashboard is never empty on first launch.
-    nonisolated static var seed: [CookedMeal] {
-        func day(_ value: Int) -> Date {
-            Calendar.current.date(byAdding: .day, value: value, to: .now) ?? .now
-        }
-        return [
-            CookedMeal(recipeName: "Soupe de légumes du frigo", date: day(-1), savedItems: 3, moneySaved: 4.20, wasZeroEuro: true),
-            CookedMeal(recipeName: "Omelette jambon & fromage", date: day(-2), savedItems: 2, moneySaved: 3.10, wasZeroEuro: true),
-            CookedMeal(recipeName: "Riz sauté jambon & courgettes", date: day(-3), savedItems: 2, moneySaved: 5.60, wasZeroEuro: false),
-            CookedMeal(recipeName: "Pain perdu du placard", date: day(-4), savedItems: 2, moneySaved: 2.40, wasZeroEuro: true),
-            CookedMeal(recipeName: "Gratin de courgettes", date: day(-5), savedItems: 3, moneySaved: 6.30, wasZeroEuro: false),
-            CookedMeal(recipeName: "Pâtes sauce tomate & thon", date: day(-6), savedItems: 2, moneySaved: 3.00, wasZeroEuro: true),
-            CookedMeal(recipeName: "Salade de lentilles", date: day(-12), savedItems: 4, moneySaved: 7.80, wasZeroEuro: true),
-            CookedMeal(recipeName: "Quiche du frigo", date: day(-19), savedItems: 5, moneySaved: 9.40, wasZeroEuro: false),
-            CookedMeal(recipeName: "Curry de légumes", date: day(-26), savedItems: 4, moneySaved: 6.10, wasZeroEuro: true),
-            CookedMeal(recipeName: "Gratin de pâtes", date: day(-33), savedItems: 3, moneySaved: 5.20, wasZeroEuro: false)
-        ]
-    }
 }
 
 /// One finished grocery scanning session.

@@ -481,6 +481,8 @@ struct SettingsView: View {
                 .foregroundStyle(Theme.ink)
                 .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
 
+                dietTagsCard
+
                 VStack(alignment: .leading, spacing: 12) {
                     SectionLabel(text: S.Settings.weeklyBudget.s)
                     Text(Format.euro(store.profile.weeklyBudget, decimals: 0))
@@ -567,6 +569,49 @@ struct SettingsView: View {
         .navigationTitle(S.Settings.navTitle.s)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+    }
+
+    /// Extra eating preferences that stack on top of the main diet.
+    ///
+    /// Nothing is ever removed from the stock because of these — they only steer
+    /// what the assistant suggests, which the notice states plainly.
+    private var dietTagsCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionLabel(text: S.Diet.preferencesTitle.s)
+
+            VStack(spacing: 0) {
+                ForEach(Array(DietTag.allCases.enumerated()), id: \.element.id) { index, tag in
+                    Toggle(isOn: Binding(
+                        get: { store.profile.hasTag(tag) },
+                        set: { isOn in
+                            var tags = store.profile.dietTags
+                            if isOn { tags.insert(tag) } else { tags.remove(tag) }
+                            store.profile.dietTags = tags
+                            Haptics.light()
+                        }
+                    )) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(tag.title)
+                                .font(.system(size: 15, weight: .medium, design: .rounded))
+                                .foregroundStyle(Theme.ink)
+                            Text(tag.detail)
+                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .foregroundStyle(Theme.inkSoft)
+                        }
+                    }
+                    .tint(Theme.sage)
+                    .padding(.vertical, 4)
+
+                    if index < DietTag.allCases.count - 1 { Divider() }
+                }
+            }
+
+            Text(S.Diet.keepsStockNotice.s)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .saveatCard()
     }
 
     /// Language switcher.

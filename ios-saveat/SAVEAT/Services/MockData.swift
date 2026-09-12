@@ -1,12 +1,18 @@
 import Foundation
 
-/// Realistic seed content so every screen is testable immediately.
+/// Bundled recipe book plus illustrative content.
+///
+/// IMPORTANT: `inventory` and `challenges` here are illustrations only. They are
+/// never loaded into a real account — a new user starts genuinely empty (see
+/// `AppStore.init`). Only `curatedMeals` ships as real product content: it is the
+/// offline recipe book the assistant falls back to, and it adds nothing to the
+/// user's stock or statistics.
 nonisolated enum MockData {
     nonisolated static func date(inDays days: Int) -> Date {
         Calendar.current.date(byAdding: .day, value: days, to: .now) ?? .now
     }
 
-    // MARK: Stock
+    // MARK: Stock (illustration only — never loaded into a real account)
 
     nonisolated static var inventory: [FoodItem] {
         [
@@ -266,7 +272,7 @@ nonisolated enum MockData {
         ]
     }
 
-    // MARK: Challenges
+    // MARK: Challenges (illustration only — real accounts use Challenge.freshSet)
 
     nonisolated static var challenges: [Challenge] {
         [

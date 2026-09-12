@@ -9,6 +9,7 @@ struct OnboardingView: View {
     @State private var children: Int = 0
     @State private var goal: HouseholdGoal = .reduceWaste
     @State private var diet: DietPreference = .omnivore
+    @State private var dietTags: Set<DietTag> = []
     @State private var allergens: Set<Allergen> = []
     @State private var dislikes: Set<String> = []
     @State private var budget: Double = 80
@@ -91,6 +92,7 @@ struct OnboardingView: View {
         profile.children = children
         profile.goal = goal
         profile.diet = diet
+        profile.dietTags = dietTags
         profile.allergens = allergens
         profile.dislikes = dislikes
         profile.weeklyBudget = budget
@@ -193,6 +195,16 @@ struct OnboardingView: View {
                             diet = option
                         }
                     }
+                }
+
+                SectionLabel(text: S.Diet.preferencesTitle.s)
+                chipCloud(items: DietTag.allCases.map(\.title)) { title in
+                    guard let tag = DietTag.allCases.first(where: { $0.title == title }) else { return }
+                    if dietTags.contains(tag) { dietTags.remove(tag) } else { dietTags.insert(tag) }
+                    Haptics.light()
+                } isSelected: { title in
+                    guard let tag = DietTag.allCases.first(where: { $0.title == title }) else { return false }
+                    return dietTags.contains(tag)
                 }
 
                 SectionLabel(text: S.Settings.allergies.s)

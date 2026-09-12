@@ -190,16 +190,45 @@ struct InventoryView: View {
         .buttonStyle(SoftPressStyle())
     }
 
+    /// Empty state. A brand-new account gets the first-run invitation rather than
+    /// a bare "this shelf is empty", which would read like something went wrong.
     private var emptyState: some View {
-        SoftEmptyState(
-            emoji: "🧺",
-            title: search.isEmpty ? S.Inventory.emptyTitle.f(location.title) : S.Inventory.noResults.s,
-            message: search.isEmpty
-                ? S.Inventory.emptyMessage.s
-                : S.Inventory.noResultsMessage.s,
-            actionTitle: search.isEmpty ? S.Home.scanTitle.s : nil,
-            action: search.isEmpty ? onScan : nil
-        )
+        let isFirstRun = search.isEmpty && store.hasNoHistory
+
+        return VStack(spacing: 12) {
+            SoftEmptyState(
+                emoji: isFirstRun ? "🛒" : "🧺",
+                title: {
+                    if !search.isEmpty { return S.Inventory.noResults.s }
+                    return isFirstRun
+                        ? S.Inventory.firstRunTitle.s
+                        : S.Inventory.emptyTitle.f(location.title)
+                }(),
+                message: {
+                    if !search.isEmpty { return S.Inventory.noResultsMessage.s }
+                    return isFirstRun
+                        ? S.Inventory.firstRunMessage.s
+                        : S.Inventory.emptyMessage.s
+                }(),
+                actionTitle: search.isEmpty
+                    ? (isFirstRun ? S.Inventory.firstRunPrimary.s : S.Home.scanTitle.s)
+                    : nil,
+                action: search.isEmpty ? onScan : nil
+            )
+
+            if isFirstRun {
+                Button {
+                    Haptics.light()
+                    isAddingItem = true
+                } label: {
+                    Text(S.Inventory.addManually.s)
+                        .font(.system(size: 14.5, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Theme.sageDeep)
+                }
+                .buttonStyle(SoftPressStyle())
+                .padding(.bottom, 18)
+            }
+        }
         .saveatCard()
     }
 }
