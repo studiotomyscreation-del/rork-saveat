@@ -1976,4 +1976,53 @@ nonisolated enum S {
         )
         static let completeCTA = Loc(fr: "Découvrir mon SAVEAT", en: "Discover My SAVEAT")
     }
+
+    // MARK: - SAVEAT Local map (Map/)
+
+    nonisolated enum Map {
+        static let title = Loc(fr: "SAVEAT Local", en: "SAVEAT Local")
+        static let noResults = Loc(
+            fr: "Aucun lieu dans ce rayon.",
+            en: "No place in this radius."
+        )
+
+        static let locationPromptTitle = Loc(fr: "Active ta position", en: "Turn On Your Location")
+        static let locationPromptBody = Loc(
+            fr: "Pour voir les lieux anti-gaspi les plus proches de toi.",
+            en: "To see the anti-waste places closest to you."
+        )
+        static let locationPromptButton = Loc(fr: "Autoriser la localisation", en: "Allow Location")
+        static let locationDeniedNotice = Loc(
+            fr: "Localisation refusée. Tu peux quand même parcourir la carte de France.",
+            en: "Location access denied. You can still browse the map of France."
+        )
+        static let recenterAccessibility = Loc(fr: "Recentrer sur ma position", en: "Recenter on my location")
+
+        static let filtersButton = Loc(fr: "Filtres", en: "Filters")
+        static let categoriesSectionLabel = Loc(fr: "Catégories", en: "Categories")
+        static let radiusSectionLabel = Loc(fr: "Rayon de recherche", en: "Search Radius")
+        static let testBadge = Loc(fr: "Exemple", en: "Example")
+
+        static let categoryBasket = Loc(fr: "Paniers anti-gaspi", en: "Anti-Waste Baskets")
+        static let categoryAntiWasteStore = Loc(fr: "Magasins anti-gaspi", en: "Anti-Waste Stores")
+        static let categoryCommunityFridge = Loc(fr: "Frigos solidaires", en: "Community Fridges")
+        static let categoryAssociation = Loc(fr: "Associations", en: "Associations")
+        static let categoryPartner = Loc(fr: "Partenaires", en: "Partners")
+        static let categoryDeal = Loc(fr: "Bons plans", en: "Deals")
+        static let categoryRestaurant = Loc(fr: "Restaurants anti-gaspi", en: "Anti-Waste Restaurants")
+        static let categoryLocalProducer = Loc(fr: "Producteurs locaux", en: "Local Producers")
+
+        static let placeDetailItinerary = Loc(fr: "Itinéraire", en: "Directions")
+        static let placeDetailFavorite = Loc(fr: "Favori", en: "Favorite")
+        static let placeDetailFavorited = Loc(fr: "Dans mes favoris", en: "In Favorites")
+        static let placeDetailShare = Loc(fr: "Partager", en: "Share")
+        static let placeDetailWebsite = Loc(fr: "Site web", en: "Website")
+        static let placeDetailOffer = Loc(fr: "Offre", en: "Deal")
+        static let placeDetailHours = Loc(fr: "Horaires", en: "Hours")
+        static let placeDetailAddress = Loc(fr: "Adresse", en: "Address")
+        static let shareMessage = Loc(
+            fr: "Découvre %@ sur SAVEAT : %@",
+            en: "Check out %@ on SAVEAT: %@"
+        )
+    }
 }

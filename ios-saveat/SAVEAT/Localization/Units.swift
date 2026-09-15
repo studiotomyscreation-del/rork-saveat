@@ -132,6 +132,26 @@ nonisolated enum Units {
         return trimmed(pounds, decimals: 1) + " lb"
     }
 
+    // MARK: - Distance
+
+    private static let kilometersPerMile: Double = 1.60934
+
+    /// A distance in kilometres, rendered in the reader's system — used by
+    /// the SAVEAT Local map, never for food quantities.
+    nonisolated static func distance(kilometers value: Double) -> String {
+        guard !LanguageRuntime.current.usesMetric else {
+            if value < 1 {
+                return "\(Int((value * 1000).rounded())) m"
+            }
+            return trimmed(value, decimals: value < 10 ? 1 : 0) + " km"
+        }
+        let miles = value / kilometersPerMile
+        if miles < 0.1 {
+            return trimmed(miles * 5280, decimals: 0) + " ft"
+        }
+        return trimmed(miles, decimals: miles < 10 ? 1 : 0) + " mi"
+    }
+
     // MARK: - Dates
 
     /// Short date such as "12 sept." or "Sep 12", following the reader's locale.
