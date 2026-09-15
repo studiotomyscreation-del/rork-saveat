@@ -2068,4 +2068,98 @@ nonisolated enum S {
         static let mapCTA = Loc(fr: "Accès carte", en: "Open Map")
         static let notWiredYet = Loc(fr: "Sera relié en Phase 5", en: "Wired up in Phase 5")
     }
+
+    // MARK: - Nutrition Advice Engine (Models/NutritionAdviceEngine) — Phase 9
+
+    nonisolated enum Advice {
+        static let cardTitle = Loc(fr: "Conseil nutritionnel SAVEAT", en: "SAVEAT Nutrition Advice")
+        static let disclaimer = Loc(
+            fr: "Conseils généraux d'information nutritionnelle et de bien-être. Ne remplace pas l'avis d'un professionnel de santé.",
+            en: "General nutrition and wellness information. Not a substitute for advice from a health professional."
+        )
+
+        static let sugarTitle = Loc(fr: "Riche en sucres", en: "Rich in Sugar")
+        static let sugarSummary = Loc(
+            fr: "Ce produit est relativement riche en sucres.",
+            en: "This product is relatively high in sugar."
+        )
+        static let sugarWhy = Loc(
+            fr: "Le sucre apporte de l'énergie rapidement disponible — à consommer avec discernement dans l'ensemble de tes repas.",
+            en: "Sugar provides quick energy — worth watching across your meals as a whole."
+        )
+        static let sugarPairWith = Loc(
+            fr: "Associe-le à une source de fibres, de protéines ou de bonnes matières grasses pour un repas plus équilibré.",
+            en: "Pair it with a source of fiber, protein or quality fat for a more balanced meal."
+        )
+
+        static let saltTitle = Loc(fr: "Riche en sel", en: "Rich in Salt")
+        static let saltSummary = Loc(
+            fr: "Ce produit est relativement riche en sel.",
+            en: "This product is relatively high in salt."
+        )
+        static let saltWhy = Loc(
+            fr: "Le sel est surveillé notamment pour la santé cardiovasculaire sur le long terme.",
+            en: "Salt intake is worth watching, especially for long-term cardiovascular health."
+        )
+        static let saltPairWith = Loc(
+            fr: "Équilibre le reste du repas avec des aliments naturellement peu salés — légumes frais, féculents nature.",
+            en: "Balance the rest of the meal with naturally low-salt foods — fresh vegetables, plain starches."
+        )
+
+        static let fiberTitle = Loc(fr: "Peu de fibres", en: "Low in Fiber")
+        static let fiberSummary = Loc(
+            fr: "Ce produit apporte peu de fibres.",
+            en: "This product provides little fiber."
+        )
+        static let fiberWhy = Loc(
+            fr: "Les fibres soutiennent la digestion et la sensation de satiété.",
+            en: "Fiber supports digestion and helps you feel full."
+        )
+        static let fiberPairWith = Loc(
+            fr: "Complète ton repas avec des légumes, des légumineuses ou des céréales complètes.",
+            en: "Round out your meal with vegetables, legumes or whole grains."
+        )
+
+        static let proteinTitle = Loc(fr: "Bonne source de protéines", en: "Good Source of Protein")
+        static let proteinSummary = Loc(
+            fr: "Ce produit apporte une quantité intéressante de protéines.",
+            en: "This product provides a good amount of protein."
+        )
+        static let proteinWhy = Loc(
+            fr: "Les protéines participent au maintien de la masse musculaire et à la satiété.",
+            en: "Protein helps maintain muscle mass and supports satiety."
+        )
+        static let proteinPairWith = Loc(
+            fr: "Associe-le à des légumes et à une source de glucides adaptée pour un repas complet.",
+            en: "Pair it with vegetables and a suitable source of carbohydrates for a complete meal."
+        )
+
+        static let processedTitle = Loc(fr: "Produit très transformé", en: "Highly Processed Product")
+        static let processedSummary = Loc(
+            fr: "Ce produit est assez transformé (groupe NOVA 4).",
+            en: "This product is fairly processed (NOVA group 4)."
+        )
+        static let processedWhy = Loc(
+            fr: "Un degré de transformation élevé va souvent avec des ingrédients ajoutés (sucres, graisses, additifs) plutôt qu'avec des aliments bruts.",
+            en: "Highly processed foods often come with added ingredients (sugars, fats, additives) rather than whole-food ones."
+        )
+        static let processedAlternative = Loc(
+            fr: "Pour une consommation régulière, cherche une alternative avec une liste d'ingrédients plus courte.",
+            en: "For regular consumption, look for an alternative with a shorter ingredient list."
+        )
+        static let occasional = Loc(
+            fr: "À réserver aux occasions plutôt qu'au quotidien.",
+            en: "Best kept for occasional treats rather than every day."
+        )
+
+        static let balancedTitle = Loc(fr: "Profil équilibré", en: "Balanced Profile")
+        static let balancedSummary = Loc(
+            fr: "Ce produit ne présente pas de déséquilibre marqué sur les critères publiés.",
+            en: "This product shows no major imbalance on the criteria it publishes."
+        )
+        static let balancedWhy = Loc(
+            fr: "Sucres, sel, graisses saturées et fibres sont dans des niveaux raisonnables.",
+            en: "Sugar, salt, saturated fat and fiber are all at reasonable levels."
+        )
+    }
 }
