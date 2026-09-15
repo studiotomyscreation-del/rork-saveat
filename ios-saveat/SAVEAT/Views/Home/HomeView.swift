@@ -21,6 +21,7 @@ struct HomeView: View {
                 weekCard
                 WhyScanCard()
                 SaveatLocalCard()
+                mapTestAccess
                 promise
             }
             .padding(.horizontal, Theme.hMargin)
@@ -395,6 +396,42 @@ struct HomeView: View {
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
         }
+    }
+
+    // MARK: Map test access
+
+    /// TEMPORARY — manual entry point to try the new SAVEAT Local map before
+    /// Navigation V2 gives it a real tab (Phase 5). Remove together with
+    /// `Route.mapTest`.
+    private var mapTestAccess: some View {
+        Button {
+            Haptics.light()
+            path.append(Route.mapTest)
+        } label: {
+            HStack(spacing: 12) {
+                Text("🧪").font(.system(size: 20))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Carte anti-gaspi (test)")
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Theme.ink)
+                    Text("Accès temporaire — sera remplacé par un onglet")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundStyle(Theme.inkSoft)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Theme.inkSoft.opacity(0.5))
+            }
+            .padding(14)
+            .background(Theme.surface, in: .rect(cornerRadius: Theme.tileRadius))
+            .overlay {
+                RoundedRectangle(cornerRadius: Theme.tileRadius)
+                    .stroke(style: StrokeStyle(lineWidth: 1.2, dash: [5, 4]))
+                    .foregroundStyle(Theme.inkSoft.opacity(0.35))
+            }
+        }
+        .buttonStyle(SoftPressStyle())
     }
 
     // MARK: Promise
