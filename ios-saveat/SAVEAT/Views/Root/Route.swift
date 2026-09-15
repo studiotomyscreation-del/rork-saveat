@@ -13,10 +13,6 @@ nonisolated enum Route: Hashable, Sendable {
     case impact
     case settings
     case reminders
-    /// TEMPORARY — manual test access to the new SAVEAT Local map (`Map/`)
-    /// before it gets a real tab in Navigation V2 (Phase 5). Remove this case
-    /// and its Home entry point once that phase wires the map in properly.
-    case mapTest
 }
 
 /// Shared destination table so every tab resolves routes identically.
@@ -46,8 +42,6 @@ struct RouteDestinations: ViewModifier {
                 SettingsView()
             case .reminders:
                 RemindersView()
-            case .mapTest:
-                AntiWasteMapView()
             }
         }
     }

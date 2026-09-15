@@ -1,7 +1,7 @@
 import SwiftUI
 
 nonisolated enum AppTab: String, CaseIterable, Identifiable, Sendable {
-    case home, stock, meals, scanner, profile
+    case home, stock, meals, scanner, map, profile
 
     nonisolated var id: String { rawValue }
 
@@ -11,6 +11,7 @@ nonisolated enum AppTab: String, CaseIterable, Identifiable, Sendable {
         case .stock: S.Tabs.stock.s
         case .meals: S.Tabs.meals.s
         case .scanner: S.Tabs.scanner.s
+        case .map: S.Tabs.map.s
         case .profile: S.Tabs.profile.s
         }
     }
@@ -21,6 +22,7 @@ nonisolated enum AppTab: String, CaseIterable, Identifiable, Sendable {
         case .stock: "shippingbox.fill"
         case .meals: "sparkles"
         case .scanner: "barcode.viewfinder"
+        case .map: "map.fill"
         case .profile: "person.fill"
         }
     }
@@ -35,6 +37,7 @@ struct RootView: View {
     @State private var homePath = NavigationPath()
     @State private var stockPath = NavigationPath()
     @State private var mealsPath = NavigationPath()
+    @State private var mapPath = NavigationPath()
     @State private var profilePath = NavigationPath()
     @State private var isScannerPresented = false
     @State private var mealPrompt: MealPrompt?
@@ -44,6 +47,7 @@ struct RootView: View {
         case .home: homePath.count
         case .stock: stockPath.count
         case .meals: mealsPath.count
+        case .map: mapPath.count
         case .profile: profilePath.count
         case .scanner: 0
         }
@@ -59,8 +63,14 @@ struct RootView: View {
                 switch selection {
                 case .home:
                     NavigationStack(path: $homePath) {
-                        HomeView(path: $homePath, onScan: openScanner, onAskAI: openAssistant)
-                            .saveatRoutes()
+                        NewHomeView(
+                            path: $homePath,
+                            onScan: openScanner,
+                            onOpenRecipes: { openAssistant(MealPrompt(text: nil, zeroEuroOnly: false)) },
+                            onOpenStock: { switchTab(.stock) },
+                            onOpenMap: { switchTab(.map) }
+                        )
+                        .saveatRoutes()
                     }
                 case .stock:
                     NavigationStack(path: $stockPath) {
@@ -70,6 +80,11 @@ struct RootView: View {
                 case .meals:
                     NavigationStack(path: $mealsPath) {
                         MealAssistantView(path: $mealsPath, prompt: $mealPrompt)
+                            .saveatRoutes()
+                    }
+                case .map:
+                    NavigationStack(path: $mapPath) {
+                        AntiWasteMapView()
                             .saveatRoutes()
                     }
                 case .profile:
@@ -120,8 +135,14 @@ struct RootView: View {
     /// Jumps to the assistant tab with an optional pre-filled request.
     private func openAssistant(_ prompt: MealPrompt) {
         mealPrompt = prompt
+        switchTab(.meals)
+    }
+
+    /// Switches tabs from a screen that isn't the tab bar itself — Home's
+    /// "Accès stock" / "Accès carte" quick links use this.
+    private func switchTab(_ tab: AppTab) {
         withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
-            selection = .meals
+            selection = tab
         }
         Haptics.soft()
     }
@@ -193,6 +214,7 @@ struct RootView: View {
         case .home: homePath = NavigationPath()
         case .stock: stockPath = NavigationPath()
         case .meals: mealsPath = NavigationPath()
+        case .map: mapPath = NavigationPath()
         case .profile: profilePath = NavigationPath()
         case .scanner: break
         }

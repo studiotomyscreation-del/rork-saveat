@@ -559,8 +559,11 @@ nonisolated enum S {
     nonisolated enum Tabs {
         static let home = Loc(fr: "Accueil", en: "Home")
         static let stock = Loc(fr: "Stock", en: "My Food")
-        static let meals = Loc(fr: "Repas", en: "Meals")
+        /// Renamed from "Repas" to match the Navigation V2 tab list (§13) —
+        /// the screen itself (`MealAssistantView`) is unchanged.
+        static let meals = Loc(fr: "Recettes", en: "Recipes")
         static let scanner = Loc(fr: "Scanner", en: "Scan")
+        static let map = Loc(fr: "Carte", en: "Map")
         static let profile = Loc(fr: "Profil", en: "Profile")
     }
 

@@ -8,9 +8,6 @@ struct HomeView: View {
     let onScan: () -> Void
     let onAskAI: (MealPrompt) -> Void
 
-    @State private var showsNewHomeTest = false
-    @State private var showsMapFromNewHomeTest = false
-
     private var impact: ImpactSummary { store.weeklyImpact }
 
     var body: some View {
@@ -24,8 +21,6 @@ struct HomeView: View {
                 weekCard
                 WhyScanCard()
                 SaveatLocalCard()
-                mapTestAccess
-                newHomeTestAccess
                 promise
             }
             .padding(.horizontal, Theme.hMargin)
@@ -34,31 +29,6 @@ struct HomeView: View {
         }
         .scrollIndicators(.hidden)
         .saveatBackground()
-        .fullScreenCover(isPresented: $showsNewHomeTest) {
-            NavigationStack {
-                NewHomeView(
-                    onScan: {
-                        showsNewHomeTest = false
-                        onScan()
-                    },
-                    onOpenRecipes: {
-                        showsNewHomeTest = false
-                        onAskAI(MealPrompt(text: nil, zeroEuroOnly: false))
-                    },
-                    onOpenMap: { showsMapFromNewHomeTest = true }
-                )
-                .navigationTitle("Nouvelle Home (aperçu)")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Fermer") { showsNewHomeTest = false }
-                    }
-                }
-                .fullScreenCover(isPresented: $showsMapFromNewHomeTest) {
-                    NavigationStack { AntiWasteMapView() }
-                }
-            }
-        }
     }
 
     // MARK: Greeting
@@ -425,76 +395,6 @@ struct HomeView: View {
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
         }
-    }
-
-    // MARK: Map test access
-
-    /// TEMPORARY — manual entry point to try the new SAVEAT Local map before
-    /// Navigation V2 gives it a real tab (Phase 5). Remove together with
-    /// `Route.mapTest`.
-    private var mapTestAccess: some View {
-        Button {
-            Haptics.light()
-            path.append(Route.mapTest)
-        } label: {
-            HStack(spacing: 12) {
-                Text("🧪").font(.system(size: 20))
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Carte anti-gaspi (test)")
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
-                        .foregroundStyle(Theme.ink)
-                    Text("Accès temporaire — sera remplacé par un onglet")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundStyle(Theme.inkSoft)
-                }
-                Spacer(minLength: 0)
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Theme.inkSoft.opacity(0.5))
-            }
-            .padding(14)
-            .background(Theme.surface, in: .rect(cornerRadius: Theme.tileRadius))
-            .overlay {
-                RoundedRectangle(cornerRadius: Theme.tileRadius)
-                    .stroke(style: StrokeStyle(lineWidth: 1.2, dash: [5, 4]))
-                    .foregroundStyle(Theme.inkSoft.opacity(0.35))
-            }
-        }
-        .buttonStyle(SoftPressStyle())
-    }
-
-    /// TEMPORARY — manual entry point to try the SAVEAT V2 Home (`NewHomeView`,
-    /// Phase 4) before Navigation V2 replaces this screen (Phase 5). Remove
-    /// together with `showsNewHomeTest` / `showsMapFromNewHomeTest`.
-    private var newHomeTestAccess: some View {
-        Button {
-            Haptics.light()
-            showsNewHomeTest = true
-        } label: {
-            HStack(spacing: 12) {
-                Text("🧪").font(.system(size: 20))
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Nouvelle Home V2 (test)")
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
-                        .foregroundStyle(Theme.ink)
-                    Text("Accès temporaire — remplacera cet écran")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundStyle(Theme.inkSoft)
-                }
-                Spacer(minLength: 0)
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Theme.inkSoft.opacity(0.5))
-            }
-            .padding(14)
-            .background(Theme.surface, in: .rect(cornerRadius: Theme.tileRadius))
-            .overlay {
-                RoundedRectangle(cornerRadius: Theme.tileRadius)
-                    .stroke(style: StrokeStyle(lineWidth: 1.2, dash: [5, 4]))
-                    .foregroundStyle(Theme.inkSoft.opacity(0.35))
-            }
-        }
-        .buttonStyle(SoftPressStyle())
     }
 
     // MARK: Promise

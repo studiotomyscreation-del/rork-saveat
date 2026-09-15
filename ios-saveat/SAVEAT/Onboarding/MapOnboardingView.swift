@@ -6,9 +6,9 @@ import SwiftUI
 /// Purely decorative: a fixed France region with sample pins, a static
 /// search bar and filter chips that do not respond to taps, and one example
 /// place card. No location permission is requested here and no real place
-/// data is shown — the real anti-waste map (`Map/AntiWasteMapView`, live
-/// location, mock/real places) is a separate, later phase; this screen only
-/// sets expectations for it.
+/// data is shown — the real anti-waste map (`Map/AntiWasteMapView`, now the
+/// app's own "Carte" tab) is a different, fully live screen; this one only
+/// sets expectations for it during onboarding.
 struct MapOnboardingView: View {
     var onContinue: () -> Void
 

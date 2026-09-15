@@ -2,18 +2,19 @@ import SwiftUI
 
 /// SAVEAT V2 Home (§12) — reads the same `AppStore` as the existing
 /// `HomeView`, styled with the V2 design system (`SaveatColors` /
-/// `SaveatTypography` / `SaveatCard`). Built alongside the current Home, not
-/// instead of it: nothing here is wired into `RootView`'s tab bar yet — that
-/// is Navigation V2 (Phase 5).
+/// `SaveatTypography` / `SaveatCard`). The real Accueil tab as of Phase 5
+/// (Navigation V2) — `RootView` now wires every action closure for real.
 ///
-/// `onOpenStock` is optional and `nil` in every caller today, because
-/// switching tabs from here needs `RootView`'s own selection state, which
-/// only Phase 5's real navigation wiring can reach. The row still shows,
-/// honestly marked "Phase 5", rather than being wired to something that
-/// doesn't actually work yet.
+/// `quickModes` (Mode 0 €, Fin de mois, Liste de courses) has no place in
+/// the §12 card list, but those three screens had no other entry point
+/// anywhere in the app before this screen replaced `HomeView` — dropping
+/// them would have made them unreachable, which nothing here is allowed to
+/// do. They keep working exactly as before, just via `path` instead of
+/// dedicated big buttons.
 struct NewHomeView: View {
     @Environment(AppStore.self) private var store
     @State private var viewModel = HomeViewModel()
+    @Binding var path: NavigationPath
 
     let onScan: () -> Void
     let onOpenRecipes: () -> Void
@@ -30,6 +31,7 @@ struct NewHomeView: View {
                 nearbyCard
                 dealsCard
                 actions
+                quickModes
             }
             .padding(.horizontal, Theme.hMargin)
             .padding(.top, 4)
@@ -228,11 +230,27 @@ struct NewHomeView: View {
         .buttonStyle(SoftPressStyle())
         .disabled(action == nil)
     }
+
+    // MARK: Quick modes — kept reachable, see the type's doc comment
+
+    private var quickModes: some View {
+        VStack(spacing: 10) {
+            actionRow(title: S.Home.zeroEuroTitle.s, icon: "eurosign.circle.fill") {
+                path.append(Route.zeroEuro)
+            }
+            actionRow(title: S.Home.endOfMonthTitle.s, icon: "banknote.fill") {
+                path.append(Route.endOfMonth)
+            }
+            actionRow(title: S.Shopping.navTitle.s, icon: "cart.fill") {
+                path.append(Route.shopping)
+            }
+        }
+    }
 }
 
 #Preview {
     NavigationStack {
-        NewHomeView(onScan: {}, onOpenRecipes: {}, onOpenMap: {})
+        NewHomeView(path: .constant(NavigationPath()), onScan: {}, onOpenRecipes: {}, onOpenMap: {})
             .environment(AppStore())
     }
 }

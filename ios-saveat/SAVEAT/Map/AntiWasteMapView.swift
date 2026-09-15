@@ -16,9 +16,9 @@ extension GeoBoundingBox {
 /// The real SAVEAT Local map: live position (once authorized), markers from
 /// `AntiWasteRepository`, category + radius filters, and a detail sheet.
 ///
-/// Not yet reachable from the tab bar — wiring it into navigation is
-/// Phase 5. It works standalone (own state, own data), so it previews and
-/// can be pushed from anywhere once that phase wires it in.
+/// The real "Carte" tab as of Phase 5 (Navigation V2, `RootView`). Fully
+/// self-contained (own state, own data), so it also previews and can be
+/// pushed from anywhere else in the app.
 struct AntiWasteMapView: View {
     @State private var viewModel: AntiWasteMapViewModel
     @State private var camera = MapCameraPosition.region(
