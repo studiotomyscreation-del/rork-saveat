@@ -478,6 +478,14 @@ final class AppStore {
         return impact(since: weekAgo, weeklyGoal: max(profile.householdSize * 6, 10))
     }
 
+    /// Same shape as `weeklyImpact`, scoped to the current calendar month —
+    /// what the SAVEAT V2 Home's "Économies ce mois-ci" card shows.
+    var monthlyImpact: ImpactSummary {
+        let monthStart = Calendar.current.dateInterval(of: .month, for: .now)?.start
+            ?? Calendar.current.date(byAdding: .day, value: -30, to: .now) ?? .now
+        return impact(since: monthStart, weeklyGoal: max(profile.householdSize * 6, 10) * 4)
+    }
+
     var lifetimeImpact: ImpactSummary {
         impact(since: nil, weeklyGoal: 0)
     }

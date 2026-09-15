@@ -2029,4 +2029,40 @@ nonisolated enum S {
         static let sourceLabel = Loc(fr: "Source : %@", en: "Source: %@")
         static let sourceLink = Loc(fr: "Voir la fiche", en: "View record")
     }
+
+    // MARK: - SAVEAT V2 Home (Home/NewHomeView) — Phase 4
+
+    nonisolated enum NewHome {
+        static let headline = Loc(fr: "Ton frigo a encore des idées !", en: "Your fridge still has ideas!")
+
+        static let savingsCardLabel = Loc(fr: "Économies ce mois-ci", en: "Savings This Month")
+        static let rescueCardLabel = Loc(fr: "Aliments à sauver", en: "Food To Use Soon")
+        static let dealsCardLabel = Loc(fr: "Réductions disponibles", en: "Available Deals")
+        static let dealsComingSoon = Loc(
+            fr: "Bientôt disponible, dès que des commerçants SAVEAT rejoignent l'app.",
+            en: "Coming soon, once SAVEAT merchants join the app."
+        )
+        static let nearbyCardLabel = Loc(fr: "Bons plans autour de moi", en: "Deals Near Me")
+        static let nearbyCount = Loc(fr: "%d lieu à proximité", en: "%d place nearby")
+        static let nearbyCountPlural = Loc(fr: "%d lieux à proximité", en: "%d places nearby")
+        static let nearbyEmpty = Loc(
+            fr: "Aucun lieu anti-gaspi trouvé pour l'instant dans ce secteur.",
+            en: "No anti-waste place found in this area yet."
+        )
+        static let nearbyLocationHint = Loc(
+            fr: "Active ta position pour des résultats plus précis.",
+            en: "Turn on your location for more accurate results."
+        )
+        static let recipeCardLabel = Loc(fr: "Recette du jour", en: "Today's Recipe")
+        static let recipeEmpty = Loc(
+            fr: "Scanne quelques produits pour recevoir une suggestion.",
+            en: "Scan a few groceries to get a suggestion."
+        )
+
+        static let scanCTA = Loc(fr: "Scanner un produit", en: "Scan a Product")
+        static let stockCTA = Loc(fr: "Accès stock", en: "Open Stock")
+        static let recipesCTA = Loc(fr: "Accès recettes", en: "Open Recipes")
+        static let mapCTA = Loc(fr: "Accès carte", en: "Open Map")
+        static let notWiredYet = Loc(fr: "Sera relié en Phase 5", en: "Wired up in Phase 5")
+    }
 }
