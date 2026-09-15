@@ -150,15 +150,20 @@ nonisolated struct SaveatScore: Hashable, Sendable {
             ))
         }
 
+        // Sugars, salt and saturated fat all already feed into the official
+        // Nutri-Score above when one is published — re-scoring them here at
+        // full strength would penalize (or reward) the same nutritional fact
+        // twice. Kept as fine-tuning between products sharing the same
+        // letter, not as a second full verdict (Phase 7 correction).
         if let sugars = n.sugars {
             let points: Int
             let verdict: String
             let tone: ScoreTone
             switch sugars {
-            case ..<5: points = 8; verdict = S.Product.low.s; tone = .good
-            case 5..<12: points = 2; verdict = S.Product.moderate.s; tone = .medium
-            case 12..<22: points = -6; verdict = S.Product.high.s; tone = .poor
-            default: points = -12; verdict = S.Product.veryHigh.s; tone = .poor
+            case ..<5: points = 3; verdict = S.Product.low.s; tone = .good
+            case 5..<12: points = 1; verdict = S.Product.moderate.s; tone = .medium
+            case 12..<22: points = -2; verdict = S.Product.high.s; tone = .poor
+            default: points = -4; verdict = S.Product.veryHigh.s; tone = .poor
             }
             total += points
             criteria.append(Criterion(
@@ -173,10 +178,10 @@ nonisolated struct SaveatScore: Hashable, Sendable {
             let verdict: String
             let tone: ScoreTone
             switch salt {
-            case ..<0.3: points = 6; verdict = S.Product.lowSingular.s; tone = .good
-            case 0.3..<1: points = 1; verdict = S.Product.moderateSingular.s; tone = .medium
-            case 1..<1.5: points = -5; verdict = S.Product.highSingular.s; tone = .poor
-            default: points = -10; verdict = S.Product.veryHighSingular.s; tone = .poor
+            case ..<0.3: points = 2; verdict = S.Product.lowSingular.s; tone = .good
+            case 0.3..<1: points = 0; verdict = S.Product.moderateSingular.s; tone = .medium
+            case 1..<1.5: points = -2; verdict = S.Product.highSingular.s; tone = .poor
+            default: points = -3; verdict = S.Product.veryHighSingular.s; tone = .poor
             }
             total += points
             criteria.append(Criterion(
@@ -191,10 +196,10 @@ nonisolated struct SaveatScore: Hashable, Sendable {
             let verdict: String
             let tone: ScoreTone
             switch sat {
-            case ..<1.5: points = 6; verdict = S.Product.low.s; tone = .good
-            case 1.5..<5: points = 1; verdict = S.Product.moderate.s; tone = .medium
-            case 5..<10: points = -5; verdict = S.Product.high.s; tone = .poor
-            default: points = -10; verdict = S.Product.veryHigh.s; tone = .poor
+            case ..<1.5: points = 2; verdict = S.Product.low.s; tone = .good
+            case 1.5..<5: points = 0; verdict = S.Product.moderate.s; tone = .medium
+            case 5..<10: points = -2; verdict = S.Product.high.s; tone = .poor
+            default: points = -3; verdict = S.Product.veryHigh.s; tone = .poor
             }
             total += points
             criteria.append(Criterion(
@@ -240,9 +245,12 @@ nonisolated struct SaveatScore: Hashable, Sendable {
             ))
         }
 
+        // -2 per additive (was -3), capped at -10 (was -15) — pending a real
+        // classification by additive type, a benign one (vitamin C, lecithin)
+        // shouldn't cost as much as a controversial one (Phase 7 correction).
         let additiveCount = product.additives.count
         if (product.additivesKnown ?? (product.nova != nil)) || additiveCount > 0 {
-            let points = max(-15, -3 * additiveCount)
+            let points = max(-10, -2 * additiveCount)
             total += points
             criteria.append(Criterion(
                 emoji: "🧪", title: S.Product.additives.s, verdict: "\(additiveCount)",

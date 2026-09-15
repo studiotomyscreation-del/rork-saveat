@@ -1406,12 +1406,12 @@ nonisolated enum S {
                 en: "The NOVA group measures how processed a food is, not how good it tastes."
             ),
             Loc(
-                fr: "Chaque additif listé retire 3 points, dans la limite de 15.",
-                en: "Each listed additive costs 3 points, up to 15."
+                fr: "Chaque additif listé retire 2 points, dans la limite de 10.",
+                en: "Each listed additive costs 2 points, up to 10."
             ),
             Loc(
-                fr: "Sucres, sel et graisses saturées sont comparés aux repères pour 100 g.",
-                en: "Sugars, sodium and saturated fat are compared against per-100 g benchmarks."
+                fr: "Sucres, sel et graisses saturées sont comparés aux repères pour 100 g, avec un poids réduit lorsqu'un Nutri-Score officiel est publié — celui-ci les prend déjà en compte, ces critères ne font qu'affiner entre deux produits de même lettre.",
+                en: "Sugars, salt and saturated fat are compared against per-100 g benchmarks, with a lighter weight when an official Nutri-Score is published — it already accounts for them, so these only fine-tune between products sharing the same letter."
             ),
             Loc(
                 fr: "SAVEAT n'est pas un avis médical et ne remplace pas l'étiquette du produit.",
