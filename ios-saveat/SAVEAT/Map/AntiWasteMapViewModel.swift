@@ -27,6 +27,9 @@ final class AntiWasteMapViewModel {
     let locationManager: LocationManager
     private let repository: AntiWasteRepository
 
+    private var lastFetchedBBox: GeoBoundingBox?
+    private var loadTask: Task<Void, Never>?
+
     init(repository: AntiWasteRepository = .shared, locationManager: LocationManager = LocationManager()) {
         self.repository = repository
         self.locationManager = locationManager
@@ -38,10 +41,29 @@ final class AntiWasteMapViewModel {
         }
     }
 
-    func load() async {
+    /// Loads places for the visible map area, skipping the network call
+    /// entirely when the new area is comfortably inside the last one fetched
+    /// (panning a little must not refire OpenStreetMap/ADEME on every frame).
+    func load(in bbox: GeoBoundingBox, force: Bool = false) async {
+        if !force, let lastFetchedBBox, lastFetchedBBox.generouslyContains(bbox) {
+            return
+        }
         isLoading = true
-        places = await repository.places()
+        places = await repository.places(in: bbox)
+        lastFetchedBBox = bbox
         isLoading = false
+    }
+
+    /// Debounced entry point for map-camera changes: cancels any load still
+    /// waiting and starts a fresh one after a short pause, so a quick pan
+    /// gesture triggers one network round-trip, not one per intermediate frame.
+    func scheduleLoad(in bbox: GeoBoundingBox) {
+        loadTask?.cancel()
+        loadTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled else { return }
+            await self?.load(in: bbox)
+        }
     }
 
     // MARK: - Filtering
@@ -51,6 +73,14 @@ final class AntiWasteMapViewModel {
             .filter { selectedCategory == nil || $0.category == selectedCategory }
             .filter { distanceKm(to: $0) <= radiusKm }
             .sorted { distanceKm(to: $0) < distanceKm(to: $1) }
+    }
+
+    /// Categories actually present on the map right now. Drives the filter
+    /// sheet so a category with no real data today (baskets, partner deals —
+    /// see the Phase 3 report) never appears as a selectable, empty promise.
+    var availableCategories: [AntiWasteCategory] {
+        let present = Set(places.map(\.category))
+        return AntiWasteCategory.visibleCases.filter { present.contains($0) }
     }
 
     /// Distance from the current (or fallback) position, in kilometres.

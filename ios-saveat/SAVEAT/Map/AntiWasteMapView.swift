@@ -1,6 +1,18 @@
 import MapKit
 import SwiftUI
 
+extension GeoBoundingBox {
+    /// Bridges a MapKit region into the MapKit-free box every provider talks in.
+    init(region: MKCoordinateRegion) {
+        self.init(
+            minLatitude: region.center.latitude - region.span.latitudeDelta / 2,
+            maxLatitude: region.center.latitude + region.span.latitudeDelta / 2,
+            minLongitude: region.center.longitude - region.span.longitudeDelta / 2,
+            maxLongitude: region.center.longitude + region.span.longitudeDelta / 2
+        )
+    }
+}
+
 /// The real SAVEAT Local map: live position (once authorized), markers from
 /// `AntiWasteRepository`, category + radius filters, and a detail sheet.
 ///
@@ -8,7 +20,7 @@ import SwiftUI
 /// Phase 5. It works standalone (own state, own data), so it previews and
 /// can be pushed from anywhere once that phase wires it in.
 struct AntiWasteMapView: View {
-    @State private var viewModel = AntiWasteMapViewModel()
+    @State private var viewModel: AntiWasteMapViewModel
     @State private var camera = MapCameraPosition.region(
         MKCoordinateRegion(
             center: AntiWasteMapViewModel.franceFallbackCenter,
@@ -16,6 +28,10 @@ struct AntiWasteMapView: View {
         )
     )
     @State private var showsFilters = false
+
+    init(repository: AntiWasteRepository = .shared) {
+        _viewModel = State(initialValue: AntiWasteMapViewModel(repository: repository))
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -35,12 +51,14 @@ struct AntiWasteMapView: View {
             .padding(.horizontal, Theme.hMargin)
 
             recenterButton
+            osmAttribution
         }
         .background(SaveatColors.background.ignoresSafeArea())
         .navigationTitle(S.Map.title.s)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showsFilters) {
             MapFiltersView(
+                categories: viewModel.availableCategories,
                 selectedCategory: $viewModel.selectedCategory,
                 radiusKm: $viewModel.radiusKm,
                 onDone: { showsFilters = false }
@@ -55,7 +73,10 @@ struct AntiWasteMapView: View {
             )
         }
         .task {
-            await viewModel.load()
+            await viewModel.load(in: GeoBoundingBox(region: initialRegion), force: true)
+        }
+        .onMapCameraChange(frequency: .onEnd) { context in
+            viewModel.scheduleLoad(in: GeoBoundingBox(region: context.region))
         }
         .onChange(of: viewModel.locationManager.updateCount) { _, _ in
             guard let location = viewModel.locationManager.userLocation else { return }
@@ -68,6 +89,13 @@ struct AntiWasteMapView: View {
                 )
             }
         }
+    }
+
+    private var initialRegion: MKCoordinateRegion {
+        MKCoordinateRegion(
+            center: AntiWasteMapViewModel.franceFallbackCenter,
+            span: MKCoordinateSpan(latitudeDelta: 8, longitudeDelta: 8)
+        )
     }
 
     private var map: some View {
@@ -175,6 +203,27 @@ struct AntiWasteMapView: View {
             .shadow(color: SaveatColors.nightBlue.opacity(0.06), radius: 8, y: 3)
     }
 
+    /// Required by OpenStreetMap's ODbL license whenever OSM data is shown —
+    /// kept visible at all times, not tucked away in a settings screen.
+    private var osmAttribution: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Link(destination: URL(string: "https://www.openstreetmap.org/copyright")!) {
+                    Text(S.Map.osmAttribution.s)
+                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                        .foregroundStyle(SaveatColors.textSecondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(SaveatColors.surface.opacity(0.85), in: .capsule)
+                }
+                Spacer()
+            }
+            .padding(.leading, Theme.hMargin)
+            .padding(.bottom, 8)
+        }
+    }
+
     private var recenterButton: some View {
         VStack {
             Spacer()
@@ -212,6 +261,6 @@ struct AntiWasteMapView: View {
 
 #Preview {
     NavigationStack {
-        AntiWasteMapView()
+        AntiWasteMapView(repository: .preview)
     }
 }

@@ -9,7 +9,7 @@ import Foundation
 /// implements `AntiWastePlacesProviding` and replaces this service in
 /// `AntiWasteRepository.shared` — nothing else changes.
 nonisolated struct MockAntiWastePlacesService: AntiWastePlacesProviding {
-    func places() async -> [AntiWastePlace] {
+    func places(in bbox: GeoBoundingBox) async -> [AntiWastePlace] {
         Self.all
     }
 

@@ -20,11 +20,27 @@ struct AntiWastePlaceDetailView: View {
                 infoCard
 
                 actionRow
+
+                attribution
             }
             .padding(Theme.hMargin)
             .padding(.bottom, 12)
         }
         .background(SaveatColors.background.ignoresSafeArea())
+    }
+
+    /// Source credit, required by OpenStreetMap's ODbL and by ADEME's
+    /// Licence Ouverte whenever their data is shown (§ Étape 3).
+    private var attribution: some View {
+        HStack(spacing: 4) {
+            Text(S.Map.sourceLabel.f(place.source.attributionText))
+            if let url = place.sourceURL {
+                Link(S.Map.sourceLink.s, destination: url)
+            }
+        }
+        .font(.system(size: 10.5, weight: .medium, design: .rounded))
+        .foregroundStyle(SaveatColors.textSecondary)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     private var header: some View {

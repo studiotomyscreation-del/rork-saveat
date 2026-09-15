@@ -7,7 +7,7 @@ import SwiftUI
 /// `localProducer` exists so the model and repository already support it
 /// (§15/§22), but it is deliberately excluded from `visibleCases` — no
 /// producer data ships yet, and the category is not offered as a filter.
-nonisolated enum AntiWasteCategory: String, Codable, CaseIterable, Identifiable, Sendable {
+nonisolated enum AntiWasteCategory: String, Codable, CaseIterable, Identifiable, Hashable, Sendable {
     case basket
     case antiWasteStore
     case communityFridge
@@ -64,6 +64,26 @@ nonisolated enum AntiWasteCategory: String, Codable, CaseIterable, Identifiable,
     }
 }
 
+/// Where an `AntiWastePlace` record came from.
+///
+/// Kept on every place so the UI can show a proper attribution — required by
+/// OpenStreetMap's ODbL and by ADEME's Licence Ouverte — and so deduplication
+/// can decide which of two matching records to keep.
+nonisolated enum DataSource: String, Codable, Hashable, Sendable {
+    case openStreetMap
+    case ademe
+    case saveat
+    case partner
+
+    nonisolated var attributionText: String {
+        switch self {
+        case .openStreetMap: "© OpenStreetMap contributors"
+        case .ademe: "Data ADEME"
+        case .saveat, .partner: "SAVEAT"
+        }
+    }
+}
+
 /// One point on the SAVEAT Local map — a basket, a community fridge, a
 /// partner store, an association or a deal.
 ///
@@ -89,6 +109,25 @@ nonisolated struct AntiWastePlace: Identifiable, Codable, Hashable, Sendable {
     var imageURLString: String?
     var isPartner: Bool = false
     var isFeatured: Bool = false
+
+    /// Where this record was fetched from.
+    var source: DataSource = .saveat
+    /// The record's own identifier at the source (an OSM node id, an ADEME
+    /// `identifiant`…), kept for deduplication and for linking back.
+    var sourceID: String = ""
+    /// Direct link to the record at its source, when one exists (e.g. the
+    /// OSM node page).
+    var sourceURLString: String?
+    /// The licence this record is published under, e.g. "ODbL" or
+    /// "Licence Ouverte 2.0" — shown next to the source in the detail sheet.
+    var license: String?
+    /// When the source last reported this record as up to date.
+    var lastUpdated: Date?
+    /// True only for a record SAVEAT has itself reviewed (a partner, a
+    /// manually checked place). Every OSM/ADEME import starts `false` —
+    /// open data is never presented as independently verified by SAVEAT.
+    var isVerified: Bool = false
+
     /// True for every place coming from `MockAntiWastePlacesService`. Shown
     /// as a visible "Exemple" badge — never presented as a real place or a
     /// real partnership (§18).
@@ -106,6 +145,11 @@ nonisolated struct AntiWastePlace: Identifiable, Codable, Hashable, Sendable {
     nonisolated var imageURL: URL? {
         guard let imageURLString, !imageURLString.isEmpty else { return nil }
         return URL(string: imageURLString)
+    }
+
+    nonisolated var sourceURL: URL? {
+        guard let sourceURLString, !sourceURLString.isEmpty else { return nil }
+        return URL(string: sourceURLString)
     }
 
     nonisolated var fullAddress: String {

@@ -2,6 +2,9 @@ import SwiftUI
 
 /// Category + search-radius filters for the SAVEAT Local map, presented as a sheet.
 struct MapFiltersView: View {
+    /// Only categories actually present on the map today — see
+    /// `AntiWasteMapViewModel.availableCategories`.
+    let categories: [AntiWasteCategory]
     @Binding var selectedCategory: AntiWasteCategory?
     @Binding var radiusKm: Double
     var onDone: () -> Void
@@ -16,7 +19,7 @@ struct MapFiltersView: View {
                         SectionLabel(text: S.Map.categoriesSectionLabel.s)
                         VStack(spacing: 8) {
                             categoryRow(nil, title: S.Intro.mapFilterAll.s, icon: "square.grid.2x2.fill")
-                            ForEach(AntiWasteCategory.visibleCases) { category in
+                            ForEach(categories) { category in
                                 categoryRow(category, title: category.title, icon: category.icon)
                             }
                         }
@@ -89,5 +92,10 @@ struct MapFiltersView: View {
 }
 
 #Preview {
-    MapFiltersView(selectedCategory: .constant(nil), radiusKm: .constant(10), onDone: {})
+    MapFiltersView(
+        categories: AntiWasteCategory.visibleCases,
+        selectedCategory: .constant(nil),
+        radiusKm: .constant(10),
+        onDone: {}
+    )
 }

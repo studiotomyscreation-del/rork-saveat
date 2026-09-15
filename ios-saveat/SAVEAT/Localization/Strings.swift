@@ -2024,5 +2024,9 @@ nonisolated enum S {
             fr: "Découvre %@ sur SAVEAT : %@",
             en: "Check out %@ on SAVEAT: %@"
         )
+
+        static let osmAttribution = Loc(fr: "Données © OpenStreetMap contributors", en: "Data © OpenStreetMap contributors")
+        static let sourceLabel = Loc(fr: "Source : %@", en: "Source: %@")
+        static let sourceLink = Loc(fr: "Voir la fiche", en: "View record")
     }
 }
