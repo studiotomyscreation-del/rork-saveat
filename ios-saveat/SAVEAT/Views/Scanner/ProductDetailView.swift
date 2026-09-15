@@ -8,6 +8,7 @@ struct ProductDetailView: View {
 
     private var score: SaveatScore { product.score }
     private var analysis: NutritionAnalysis { product.nutritionAnalysis }
+    private var advice: NutritionAdvice? { NutritionAdviceEngine.advice(for: product) }
 
     /// Nutri-Score is only shown where it is an official or widely-adopted
     /// label (France, Spain). Showing it elsewhere would lend it false
@@ -24,6 +25,7 @@ struct ProductDetailView: View {
                 nutritionAnalysisCard
                 if !score.criteria.isEmpty { criteriaCard }
                 whyCard
+                if let advice { adviceCard(advice) }
                 if !product.nutriments.isEmpty { nutritionCard }
                 if !product.allergens.isEmpty { allergensCard }
                 if let ingredients = product.ingredientsText, !ingredients.isEmpty { ingredientsCard(ingredients) }
@@ -363,6 +365,92 @@ struct ProductDetailView: View {
             }
         }
         .saveatCard()
+    }
+
+    // MARK: Nutrition advice
+
+    /// One prioritized tip from `NutritionAdviceEngine`, never a diagnosis —
+    /// `NutritionAdvice.disclaimer` is always shown alongside it (Phase 9/10).
+    private func adviceCard(_ advice: NutritionAdvice) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                Text(adviceEmoji(for: advice))
+                    .font(.system(size: 20))
+                    .frame(width: 38, height: 38)
+                    .background(adviceTint(for: advice).opacity(0.14), in: .circle)
+                VStack(alignment: .leading, spacing: 1) {
+                    SectionLabel(text: S.Advice.cardTitle.s, color: adviceTint(for: advice))
+                    Text(advice.title)
+                        .font(.system(size: 15.5, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Theme.ink)
+                }
+                Spacer(minLength: 0)
+            }
+
+            Text(advice.summary)
+                .font(.system(size: 13.5, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(advice.why)
+                .font(.system(size: 12.5, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if let pairWith = advice.pairWith {
+                adviceTip(icon: "plus.circle.fill", text: pairWith)
+            }
+            if let alternative = advice.alternative {
+                adviceTip(icon: "arrow.triangle.2.circlepath", text: alternative)
+            }
+            if let frequencyAdvice = advice.frequencyAdvice {
+                SoftPill(text: frequencyAdvice, tint: Theme.clay, background: Theme.clay.opacity(0.14), icon: "clock")
+            }
+
+            Divider()
+
+            HStack(alignment: .top, spacing: 6) {
+                Image(systemName: "info.circle").font(.system(size: 10.5))
+                Text(NutritionAdvice.disclaimer)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .foregroundStyle(Theme.inkSoft)
+        }
+        .saveatCard()
+    }
+
+    private func adviceTip(icon: String, text: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Theme.sageDeep)
+                .padding(.top, 1)
+            Text(text)
+                .font(.system(size: 12.5, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.ink)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    /// Purely presentational — the engine stays free of UI concerns.
+    private func adviceTint(for advice: NutritionAdvice) -> Color {
+        switch advice.priority {
+        case 0: Theme.sageDeep
+        case 1, 2: Theme.terracotta
+        default: Theme.clay
+        }
+    }
+
+    private func adviceEmoji(for advice: NutritionAdvice) -> String {
+        switch advice.priority {
+        case 5: "🏭"
+        case 4: "🧂"
+        case 3: "🍬"
+        case 2: "🌾"
+        case 1: "💪"
+        default: "⚖️"
+        }
     }
 
     // MARK: Nutrition
