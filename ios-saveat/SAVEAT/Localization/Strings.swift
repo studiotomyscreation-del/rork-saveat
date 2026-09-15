@@ -1862,4 +1862,118 @@ nonisolated enum S {
             en: "Eat what you have. Buy only what's missing. Waste as little as possible."
         )
     }
+
+    // MARK: - Product-pitch onboarding (Welcome → Scan → Stock → Recipes → Map → Account)
+
+    nonisolated enum Intro {
+        static let welcomeEyebrow = Loc(fr: "FIN DE MOIS ?", en: "TIGHT BUDGET?")
+        static let welcomeTitle = Loc(
+            fr: "Ton frigo a encore des idées !",
+            en: "Your fridge still has ideas!"
+        )
+        static let welcomeSubtitle = Loc(
+            fr: "Scannez vos produits, cuisinez avec ce que vous avez et commencez dès aujourd'hui à faire des économies.",
+            en: "Scan your groceries, cook with what you have, and start saving money today."
+        )
+
+        static let welcomeIconScan = Loc(fr: "Scanner", en: "Scan")
+        static let welcomeIconCook = Loc(fr: "Cuisiner", en: "Cook")
+        static let welcomeIconSave = Loc(fr: "Économiser", en: "Save")
+
+        static let startNow = Loc(fr: "Commencer maintenant", en: "Start Now")
+        static let alreadyHaveAccount = Loc(fr: "J'ai déjà un compte", en: "I already have an account")
+
+        static let scanEyebrow = Loc(fr: "Scannez.", en: "Scan.")
+        static let scanHeadline = Loc(fr: "SAVEAT s'occupe du reste.", en: "SAVEAT handles the rest.")
+        static let scanBody = Loc(
+            fr: "Un scan suffit pour mieux comprendre ce que vous achetez.",
+            en: "One scan is enough to understand what you're really buying."
+        )
+        static let scanPointNutriScore = Loc(fr: "Nutri-Score", en: "Nutri-Score")
+        static let scanPointBarcode = Loc(fr: "Code-barres", en: "Barcode")
+        static let scanPointAnalysis = Loc(fr: "Analyse nutritionnelle", en: "Nutrition analysis")
+        static let scanPointAutoStock = Loc(fr: "Stock automatique", en: "Automatic stock")
+        static let scanPointExpiry = Loc(fr: "Date de péremption", en: "Expiration date")
+        static let scanPointDeal = Loc(fr: "Offres disponibles", en: "Available deals")
+
+        static let stockTitle = Loc(
+            fr: "Votre frigo, toujours sous contrôle.",
+            en: "Your fridge, always under control."
+        )
+        static let stockBody = Loc(
+            fr: "SAVEAT vous aide à savoir ce que vous avez et vous prévient avant qu'il ne soit trop tard.",
+            en: "SAVEAT helps you know what you have and warns you before it's too late."
+        )
+        static let stockExampleSoon = Loc(fr: "À sauver bientôt", en: "Use soon")
+
+        static let recipesTitle = Loc(
+            fr: "Cuisinez ce que vous avez déjà.",
+            en: "Cook what you already have."
+        )
+        static let recipesBody = Loc(
+            fr: "Notre IA transforme les aliments de votre stock en idées de repas.",
+            en: "Our AI turns what's in your stock into meal ideas."
+        )
+        static let recipesBadge = Loc(fr: "Recette IA", en: "AI Recipe")
+        static let recipesCounter = Loc(
+            fr: "%d ingrédients disponibles → %d recettes possibles",
+            en: "%d ingredients on hand → %d possible recipes"
+        )
+
+        static let savingsTitle = Loc(fr: "Voyez ce que vous économisez.", en: "See what you're saving.")
+        static let savingsBody = Loc(
+            fr: "Moins de gaspillage. Plus d'économies.",
+            en: "Less waste. More savings."
+        )
+        static let savingsMonthLabel = Loc(fr: "Économies ce mois-ci", en: "Savings this month")
+        static let savingsMealsFromStock = Loc(
+            fr: "repas préparés avec le stock",
+            en: "meals cooked from stock"
+        )
+        static let savingsDealsUsed = Loc(fr: "réductions utilisées", en: "deals redeemed")
+        static let savingsDemoNotice = Loc(fr: "Données de démonstration", en: "Example data")
+
+        static let mapTitle = Loc(fr: "Les bons plans sont autour de vous.", en: "Deals Are All Around You.")
+        static let mapBody = Loc(
+            fr: "Découvrez les solutions anti-gaspillage et les bonnes affaires près de chez vous.",
+            en: "Discover anti-waste options and deals near you."
+        )
+        static let mapCTA = Loc(fr: "Découvrir autour de moi", en: "Discover Near Me")
+        static let mapSearchPlaceholder = Loc(fr: "Rechercher un lieu ou une ville", en: "Search a place or city")
+        static let mapFilterAll = Loc(fr: "Tous", en: "All")
+        static let mapFilterBaskets = Loc(fr: "Paniers", en: "Baskets")
+        static let mapFilterAntiWaste = Loc(fr: "Anti-gaspi", en: "Anti-waste")
+        static let mapFilterFridges = Loc(fr: "Frigos", en: "Fridges")
+        static let mapExampleBadge = Loc(fr: "Anti-gaspi", en: "Anti-waste")
+        static let mapPreviewNotice = Loc(
+            fr: "Aperçu — la carte anti-gaspillage arrive bientôt.",
+            en: "Preview — the anti-waste map is coming soon."
+        )
+
+        static let accountTitle = Loc(fr: "Votre SAVEAT. Partout avec vous.", en: "Your SAVEAT. Everywhere with you.")
+        static let accountBenefitStock = Loc(fr: "Sauvegardez votre stock", en: "Back up your stock")
+        static let accountBenefitSavings = Loc(fr: "Retrouvez vos économies", en: "Pick up your savings history")
+        static let accountBenefitFavorites = Loc(fr: "Conservez vos favoris", en: "Keep your favorites")
+        static let accountBenefitSync = Loc(fr: "Synchronisez vos préférences", en: "Sync your preferences")
+        static let continueWithApple = Loc(fr: "Continuer avec Apple", en: "Continue with Apple")
+        static let continueWithGoogle = Loc(fr: "Continuer avec Google", en: "Continue with Google")
+        static let continueWithEmail = Loc(fr: "Continuer avec mon e-mail", en: "Continue with Email")
+        static let later = Loc(fr: "Plus tard", en: "Later")
+        /// Shown under the account step until a real AuthService exists.
+        static let accountComingSoonNotice = Loc(
+            fr: "La création de compte arrive bientôt. Pour l'instant, tes données restent sur cet appareil.",
+            en: "Account creation is coming soon. For now, your data stays on this device."
+        )
+
+        static let completeTitle = Loc(fr: "Tout est prêt.", en: "You're all set.")
+        static let completeSubtitle = Loc(
+            fr: "Scannez. Cuisinez. Économisez.\nEt ensemble, gaspillons moins.",
+            en: "Scan. Cook. Save.\nAnd waste a little less, together."
+        )
+        static let completeThanks = Loc(
+            fr: "Merci de faire partie du changement.",
+            en: "Thank you for being part of the change."
+        )
+        static let completeCTA = Loc(fr: "Découvrir mon SAVEAT", en: "Discover My SAVEAT")
+    }
 }

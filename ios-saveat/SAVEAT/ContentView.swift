@@ -7,9 +7,19 @@ struct ContentView: View {
     @State private var languages = LanguageStore()
     @State private var isLaunching = true
 
+    /// True once the product-pitch onboarding (Welcome…Account) has been shown.
+    /// Separate from `profile.hasCompletedOnboarding` on purpose: an existing
+    /// install that already finished the household setup has this at `false`
+    /// too, but never sees the pitch — `hasCompletedOnboarding` alone already
+    /// sends it straight to `RootView` below.
+    @AppStorage("saveat.hasSeenIntro.v1") private var hasSeenIntro = false
+
     var body: some View {
         Group {
-            if store.profile.hasCompletedOnboarding {
+            if !hasSeenIntro && !store.profile.hasCompletedOnboarding {
+                OnboardingContainerView(onFinished: { hasSeenIntro = true })
+                    .transition(.opacity)
+            } else if store.profile.hasCompletedOnboarding {
                 RootView()
                     .transition(.opacity)
             } else {
@@ -25,6 +35,7 @@ struct ContentView: View {
         .environment(languages)
         .environment(\.locale, languages.locale)
         .animation(.easeInOut(duration: 0.35), value: store.profile.hasCompletedOnboarding)
+        .animation(.easeInOut(duration: 0.35), value: hasSeenIntro)
         .tint(Theme.sageDeep)
         .preferredColorScheme(.light)
         .overlay {
