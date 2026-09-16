@@ -441,38 +441,70 @@ nonisolated enum S {
             en: "Track exactly how much money you stop throwing away."
         )
 
-        static let perkScansTitle = Loc(fr: "Scans illimités", en: "Unlimited scanning")
-        static let perkScansBody = Loc(
-            fr: "Scanne toutes tes courses d'un coup, sans compteur.",
-            en: "Scan a whole grocery run at once, with no counter."
+        // MARK: 4 pillars (replaces the old flat 6-perk list)
+
+        static let pillarMapTitle = Loc(fr: "Anti-gaspi autour de toi", en: "Anti-Waste Nearby")
+        static let pillarMapBody = Loc(
+            fr: "Découvre les lieux et initiatives anti-gaspi disponibles autour de toi grâce à la carte SAVEAT.",
+            en: "Discover anti-waste places and initiatives near you with the SAVEAT map."
         )
-        static let perkAITitle = Loc(fr: "IA cuisine illimitée", en: "Unlimited AI recipes")
-        static let perkAIBody = Loc(
-            fr: "Des recettes générées à partir de ton stock réel.",
-            en: "Recipes built from the food you actually have."
+        static let pillarStockTitle = Loc(fr: "Ton frigo sous contrôle", en: "Your Fridge Under Control")
+        static let pillarStockBody = Loc(
+            fr: "Suis ton stock, tes dates et les aliments à consommer en priorité pour mieux utiliser ce que tu as déjà.",
+            en: "Track your stock, your dates and what to eat first to make the most of what you already have."
         )
-        static let perkZeroTitle = Loc(fr: "Mode 0 €", en: "Cook with what you have")
-        static let perkZeroBody = Loc(
-            fr: "Des repas complets sans dépenser un centime.",
-            en: "Complete meals without spending a cent."
+        static let pillarRecipesTitle = Loc(fr: "Recettes IA illimitées", en: "Unlimited AI Recipes")
+        static let pillarRecipesBody = Loc(
+            fr: "Transforme les aliments de ton stock en recettes personnalisées, adaptées à tes préférences et à tes régimes alimentaires.",
+            en: "Turn what's in your stock into personalized recipes, matched to your preferences and diets."
         )
-        static let perkBudgetTitle = Loc(fr: "Mode fin de mois", en: "Tight-budget planner")
-        static let perkBudgetBody = Loc(
-            fr: "Un plan repas qui tient jusqu'au dernier jour.",
-            en: "A meal plan that lasts until payday."
+        static let pillarBudgetTitle = Loc(fr: "Maîtrise ton budget", en: "Master Your Budget")
+        static let pillarBudgetBody = Loc(
+            fr: "Suis tes économies et utilise davantage ce que tu as déjà pour mieux maîtriser ton budget alimentaire.",
+            en: "Track your savings and use more of what you already own to take control of your grocery budget."
         )
-        static let perkStatsTitle = Loc(fr: "Stats d'économies", en: "Savings tracker")
-        static let perkStatsBody = Loc(
-            fr: "Estimation de ce que tu ne jettes plus.",
-            en: "An estimate of what you no longer throw out."
+
+        static let scansChip = Loc(fr: "+ Scans illimités", en: "+ Unlimited scans")
+
+        /// Budget spotlight — only features that genuinely ship today; kept in
+        /// sync with what `ImpactView`/the weekly-budget planner actually do,
+        /// never a wish list (§ "uniquement lorsque les fonctions existent réellement").
+        static let budgetSpotlightTitle = Loc(
+            fr: "Ce que ça change concrètement",
+            en: "What this actually changes"
         )
-        static let perkAlertsTitle = Loc(
-            fr: "Alertes produits à sauver",
-            en: "Expiration reminders"
+        static let budgetPointBudget = Loc(fr: "Suivi de ton budget courses", en: "Grocery budget tracking")
+        static let budgetPointSavings = Loc(
+            fr: "Suivi de tes économies réalisées",
+            en: "Tracking of your realized savings"
         )
-        static let perkAlertsBody = Loc(
-            fr: "Prévenu avant que ça se perde.",
-            en: "A heads-up before food goes bad."
+        static let budgetPointValue = Loc(
+            fr: "Valeur des aliments que tu as sauvés",
+            en: "Value of the food you've saved"
+        )
+        static let budgetPointWaste = Loc(
+            fr: "Estimation du gaspillage évité",
+            en: "Estimate of waste avoided"
+        )
+        static let budgetPointHistory = Loc(
+            fr: "Historique de tes économies et de tes repas cuisinés",
+            en: "History of your savings and cooked meals"
+        )
+
+        // MARK: Closing message
+
+        static let closingLine1 = Loc(fr: "TON FRIGO.", en: "YOUR FRIDGE.")
+        static let closingLine2 = Loc(fr: "TON BUDGET.", en: "YOUR BUDGET.")
+        static let closingLine3 = Loc(fr: "TES RECETTES.", en: "YOUR RECIPES.")
+        static let closingLine4 = Loc(fr: "L'ANTI-GASPI AUTOUR DE TOI.", en: "ANTI-WASTE NEARBY.")
+        static let closingSentence = Loc(
+            fr: "Une seule application pour mieux gérer tes aliments, cuisiner avec ce que tu as, réduire le gaspillage et mieux maîtriser ton budget.",
+            en: "One app to manage your food, cook with what you have, waste less and take control of your budget."
+        )
+        static let closingThanks = Loc(fr: "Ensemble, gaspillons moins.", en: "Together, let's waste less.")
+        static let closingSupport = Loc(
+            fr: "Ton abonnement soutient le développement de SAVEAT et nous aide à continuer d'améliorer nos outils anti-gaspillage.",
+            en: "Your subscription supports SAVEAT's development and helps us keep improving our anti-waste tools."
         )
 
         static let annual = Loc(fr: "Annuel", en: "Annual")

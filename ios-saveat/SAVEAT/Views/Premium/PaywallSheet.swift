@@ -52,7 +52,8 @@ struct NativePaywallView: View {
             ScrollView {
                 VStack(spacing: 22) {
                     hero
-                    benefits
+                    pillars
+                    budgetSpotlight
                     testerProof
                     if subscriptions.isLoadingOfferings && packages.isEmpty {
                         ProgressView().tint(Theme.sageDeep).padding(.vertical, 30)
@@ -61,6 +62,7 @@ struct NativePaywallView: View {
                     } else {
                         planList
                     }
+                    closingMessage
                     legal
                 }
                 .padding(.horizontal, Theme.hMargin)
@@ -176,31 +178,32 @@ struct NativePaywallView: View {
         }
     }
 
-    private var perks: [(String, String, String)] {
+    /// The four pillars SAVEAT Premium is now presented around — each one
+    /// maps to a screen that genuinely ships (Map, Stock, AI recipes,
+    /// Budget/Impact), never a promised feature.
+    private var pillarItems: [(String, String, String)] {
         [
-            ("barcode.viewfinder", S.Paywall.perkScansTitle.s, S.Paywall.perkScansBody.s),
-            ("sparkles", S.Paywall.perkAITitle.s, S.Paywall.perkAIBody.s),
-            ("tag.circle.fill", S.Paywall.perkZeroTitle.s, S.Paywall.perkZeroBody.s),
-            ("calendar.badge.clock", S.Paywall.perkBudgetTitle.s, S.Paywall.perkBudgetBody.s),
-            ("chart.line.uptrend.xyaxis", S.Paywall.perkStatsTitle.s, S.Paywall.perkStatsBody.s),
-            ("bell.badge.fill", S.Paywall.perkAlertsTitle.s, S.Paywall.perkAlertsBody.s)
+            ("map.fill", S.Paywall.pillarMapTitle.s, S.Paywall.pillarMapBody.s),
+            ("refrigerator.fill", S.Paywall.pillarStockTitle.s, S.Paywall.pillarStockBody.s),
+            ("sparkles", S.Paywall.pillarRecipesTitle.s, S.Paywall.pillarRecipesBody.s),
+            ("chart.line.uptrend.xyaxis", S.Paywall.pillarBudgetTitle.s, S.Paywall.pillarBudgetBody.s)
         ]
     }
 
-    private var benefits: some View {
+    private var pillars: some View {
         VStack(spacing: 14) {
-            ForEach(perks, id: \.1) { perk in
+            ForEach(pillarItems, id: \.1) { pillar in
                 HStack(spacing: 13) {
-                    Image(systemName: perk.0)
-                        .font(.system(size: 15, weight: .semibold))
+                    Image(systemName: pillar.0)
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(Theme.sageDeep)
-                        .frame(width: 38, height: 38)
+                        .frame(width: 42, height: 42)
                         .background(Theme.sageMist, in: .circle)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(perk.1)
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        Text(pillar.1)
+                            .font(.system(size: 15.5, weight: .semibold, design: .rounded))
                             .foregroundStyle(Theme.ink)
-                        Text(perk.2)
+                        Text(pillar.2)
                             .font(.system(size: 12.5, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.inkSoft)
                             .fixedSize(horizontal: false, vertical: true)
@@ -208,8 +211,91 @@ struct NativePaywallView: View {
                     Spacer(minLength: 0)
                 }
             }
+
+            HStack {
+                Text(S.Paywall.scansChip.s)
+                    .font(.system(size: 12.5, weight: .bold, design: .rounded))
+                    .foregroundStyle(Theme.sageDeep)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Theme.sageMist, in: .capsule)
+                Spacer(minLength: 0)
+            }
         }
         .saveatCard(padding: 18)
+    }
+
+    /// Only the budget-tracking features that genuinely exist today (weekly
+    /// budget planner, `ImpactView`'s savings/waste/history cards) — never a
+    /// wish list, and never a guaranteed-savings claim.
+    private var budgetSpotlight: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(S.Paywall.budgetSpotlightTitle.s)
+                .font(.system(size: 13.5, weight: .bold, design: .rounded))
+                .foregroundStyle(Theme.ink)
+
+            VStack(alignment: .leading, spacing: 8) {
+                budgetPoint(S.Paywall.budgetPointBudget.s)
+                budgetPoint(S.Paywall.budgetPointSavings.s)
+                budgetPoint(S.Paywall.budgetPointValue.s)
+                budgetPoint(S.Paywall.budgetPointWaste.s)
+                budgetPoint(S.Paywall.budgetPointHistory.s)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .saveatCard(padding: 18)
+    }
+
+    private func budgetPoint(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Theme.sageDeep)
+            Text(text)
+                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.ink)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var closingMessage: some View {
+        VStack(spacing: 10) {
+            Text(S.Paywall.badge.s)
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .tracking(2.5)
+                .foregroundStyle(Theme.sageDeep)
+
+            VStack(spacing: 2) {
+                Text(S.Paywall.closingLine1.s)
+                Text(S.Paywall.closingLine2.s)
+                Text(S.Paywall.closingLine3.s)
+                Text(S.Paywall.closingLine4.s)
+            }
+            .font(.system(size: 19, weight: .bold, design: .rounded))
+            .foregroundStyle(Theme.ink)
+            .multilineTextAlignment(.center)
+
+            Text(S.Paywall.closingSentence.s)
+                .font(.system(size: 13.5, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.inkSoft)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+
+            VStack(spacing: 4) {
+                Text(S.Paywall.closingThanks.s)
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundStyle(Theme.sageDeep)
+                Text(S.Paywall.closingSupport.s)
+                    .font(.system(size: 11.5, weight: .medium, design: .rounded))
+                    .foregroundStyle(Theme.inkSoft)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.top, 8)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 8)
+        .padding(.top, 4)
     }
 
     /// Observed result from our 10-person test group.
