@@ -146,7 +146,7 @@ final class SubscriptionStore {
     static let entitlementID = "saveat_pro"
 
     /// Free-tier limits (never blocking the core loop, only the premium extras).
-    static let freeDailyScans = 8
+    static let freeDailyScans = 3
     static let freeDailyAIRequests = 3
 
     private enum Keys {

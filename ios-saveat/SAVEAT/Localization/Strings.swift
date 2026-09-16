@@ -421,8 +421,8 @@ nonisolated enum S {
         )
 
         static let upsellScans = Loc(
-            fr: "Tu as atteint tes scans gratuits du jour. Passe en illimité pour finir tes courses.",
-            en: "You've used today's free scans. Go unlimited to finish putting your groceries away."
+            fr: "Tes 3 scans gratuits sont utilisés pour aujourd'hui. Passe à SAVEAT Premium pour scanner sans limite et profiter de toute l'expérience SAVEAT.",
+            en: "Your 3 free scans are used for today. Go Premium to scan without limits and enjoy the full SAVEAT experience."
         )
         static let upsellAI = Loc(
             fr: "Tu as utilisé tes suggestions IA du jour. Débloque l'IA cuisine illimitée.",
@@ -986,6 +986,8 @@ nonisolated enum S {
         )
         static let itemsAdded = Loc(fr: "produit ajouté", en: "item added")
         static let itemsAddedPlural = Loc(fr: "produits ajoutés", en: "items added")
+        /// Free-tier daily scan quota, shown only to non-Premium users.
+        static let freeScansQuota = Loc(fr: "%d / %d scans utilisés aujourd'hui", en: "%d / %d scans used today")
         static let runTotal = Loc(
             fr: "Courses enregistrées : %@ — estimation",
             en: "Groceries logged: %@ — estimate"

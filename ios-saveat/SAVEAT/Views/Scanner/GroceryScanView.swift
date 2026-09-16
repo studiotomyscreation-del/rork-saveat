@@ -145,6 +145,7 @@ struct GroceryScanView: View {
 
             VStack {
                 topBar
+                if !subscriptions.isPremium { quotaPill }
                 Spacer()
                 if camera.state == .running { scanFrame }
                 Spacer()
@@ -208,6 +209,18 @@ struct GroceryScanView: View {
             }
             .accessibilityLabel(S.Scan.manualEntryTitle.s)
         }
+    }
+
+    /// Free-tier daily quota, shown only to non-Premium users — Premium never
+    /// sees a counter since it never applies to them (`canScan` unblocked).
+    private var quotaPill: some View {
+        Text(S.Scan.freeScansQuota.f(min(subscriptions.scansUsedToday, SubscriptionStore.freeDailyScans), SubscriptionStore.freeDailyScans))
+            .font(.system(size: 12, weight: .semibold, design: .rounded))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(.black.opacity(0.35), in: .capsule)
+            .padding(.top, 8)
     }
 
     private var scanFrame: some View {
