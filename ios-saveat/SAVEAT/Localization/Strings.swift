@@ -416,8 +416,8 @@ nonisolated enum S {
             en: "Save more. Waste less."
         )
         static let subtitle = Loc(
-            fr: "Scanne sans limite, cuisine avec ton Chef SAVEAT et suis tes économies mois après mois.",
-            en: "Scan without limits, cook with your SAVEAT Chef and track what you save, month after month."
+            fr: "Scanne sans limite, cuisine avec l'IA et suis tes économies mois après mois.",
+            en: "Scan without limits, cook with AI and track what you save, month after month."
         )
 
         static let upsellScans = Loc(
