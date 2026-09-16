@@ -5,6 +5,7 @@ import SwiftUI
 /// account starts genuinely at zero (see `AppStore.hasNoHistory`).
 struct SavingsOnboardingView: View {
     var onContinue: () -> Void
+    var onSkip: () -> Void
 
     /// Ties "what you save" back to real food rather than an abstract chart —
     /// used until a dedicated `onboarding_savings` photo exists.
@@ -19,7 +20,8 @@ struct SavingsOnboardingView: View {
             title: S.Intro.savingsTitle.s,
             body_: S.Intro.savingsBody.s,
             ctaTitle: S.Common.next.s,
-            onContinue: onContinue
+            onContinue: onContinue,
+            onSkip: onSkip
         ) {
             VStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 14) {
@@ -66,5 +68,5 @@ struct SavingsOnboardingView: View {
 }
 
 #Preview {
-    SavingsOnboardingView(onContinue: {})
+    SavingsOnboardingView(onContinue: {}, onSkip: {})
 }

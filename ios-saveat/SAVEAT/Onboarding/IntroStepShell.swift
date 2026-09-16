@@ -16,6 +16,7 @@ struct IntroStepShell<Extra: View>: View {
     let body_: String
     let ctaTitle: String
     let onContinue: () -> Void
+    var onSkip: (() -> Void)? = nil
     private let extra: () -> Extra
 
     init(
@@ -27,6 +28,7 @@ struct IntroStepShell<Extra: View>: View {
         body_: String,
         ctaTitle: String,
         onContinue: @escaping () -> Void,
+        onSkip: (() -> Void)? = nil,
         @ViewBuilder extra: @escaping () -> Extra
     ) {
         self.photoAssetNames = photoAssetNames
@@ -37,6 +39,7 @@ struct IntroStepShell<Extra: View>: View {
         self.body_ = body_
         self.ctaTitle = ctaTitle
         self.onContinue = onContinue
+        self.onSkip = onSkip
         self.extra = extra
     }
 
@@ -45,8 +48,17 @@ struct IntroStepShell<Extra: View>: View {
             OnboardingPhotoBackground(assetNames: photoAssetNames)
 
             VStack(spacing: 0) {
-                OnboardingProgressDots(stepIndex: stepIndex, stepCount: stepCount)
-                    .padding(.top, 8)
+                ZStack {
+                    OnboardingProgressDots(stepIndex: stepIndex, stepCount: stepCount)
+                    if let onSkip {
+                        HStack {
+                            Spacer()
+                            SaveatTextButton(title: S.Common.skip.s, action: onSkip)
+                        }
+                        .padding(.trailing, Theme.hMargin)
+                    }
+                }
+                .padding(.top, 8)
 
                 Spacer(minLength: 20)
 
@@ -97,11 +109,13 @@ extension IntroStepShell where Extra == EmptyView {
         title: String,
         body_: String,
         ctaTitle: String,
-        onContinue: @escaping () -> Void
+        onContinue: @escaping () -> Void,
+        onSkip: (() -> Void)? = nil
     ) {
         self.init(
             photoAssetNames: photoAssetNames, stepIndex: stepIndex, stepCount: stepCount,
-            icon: icon, title: title, body_: body_, ctaTitle: ctaTitle, onContinue: onContinue
+            icon: icon, title: title, body_: body_, ctaTitle: ctaTitle, onContinue: onContinue,
+            onSkip: onSkip
         ) { EmptyView() }
     }
 }

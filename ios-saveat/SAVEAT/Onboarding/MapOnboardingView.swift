@@ -13,6 +13,7 @@ import SwiftUI
 /// only sets expectations for it during onboarding.
 struct MapOnboardingView: View {
     var onContinue: () -> Void
+    var onSkip: () -> Void
 
     @State private var camera = MapCameraPosition.region(
         MKCoordinateRegion(
@@ -52,7 +53,8 @@ struct MapOnboardingView: View {
             title: S.Intro.mapTitle.s,
             body_: S.Intro.mapBody.s,
             ctaTitle: S.Intro.mapCTA.s,
-            onContinue: onContinue
+            onContinue: onContinue,
+            onSkip: onSkip
         ) {
             VStack(spacing: 10) {
                 mapPreview
@@ -148,5 +150,5 @@ struct MapOnboardingView: View {
 }
 
 #Preview {
-    MapOnboardingView(onContinue: {})
+    MapOnboardingView(onContinue: {}, onSkip: {})
 }

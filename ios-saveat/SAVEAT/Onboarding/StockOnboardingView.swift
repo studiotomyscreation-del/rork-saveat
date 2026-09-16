@@ -7,6 +7,7 @@ import SwiftUI
 /// onboarding.
 struct StockOnboardingView: View {
     var onContinue: () -> Void
+    var onSkip: () -> Void
 
     @State private var selected: StorageLocation = .fridge
 
@@ -39,7 +40,8 @@ struct StockOnboardingView: View {
             title: S.Intro.stockTitle.s,
             body_: S.Intro.stockBody.s,
             ctaTitle: S.Common.next.s,
-            onContinue: onContinue
+            onContinue: onContinue,
+            onSkip: onSkip
         ) {
             VStack(spacing: 12) {
                 locationTabs
@@ -92,5 +94,5 @@ struct StockOnboardingView: View {
 }
 
 #Preview {
-    StockOnboardingView(onContinue: {})
+    StockOnboardingView(onContinue: {}, onSkip: {})
 }

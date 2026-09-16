@@ -3,6 +3,7 @@ import SwiftUI
 /// Second screen of the product-pitch onboarding: what scanning gets you.
 struct ScanOnboardingView: View {
     var onContinue: () -> Void
+    var onSkip: () -> Void
 
     /// No existing bundled photo fits "scanning a product package" well
     /// (the food photos on hand are all finished dishes) — reserves
@@ -19,7 +20,8 @@ struct ScanOnboardingView: View {
             title: "\(S.Intro.scanEyebrow.s)\n\(S.Intro.scanHeadline.s)",
             body_: S.Intro.scanBody.s,
             ctaTitle: S.Common.next.s,
-            onContinue: onContinue
+            onContinue: onContinue,
+            onSkip: onSkip
         ) {
             VStack(alignment: .leading, spacing: 14) {
                 IntroPointRow(icon: "checkmark.seal.fill", text: S.Intro.scanPointNutriScore.s)
@@ -36,5 +38,5 @@ struct ScanOnboardingView: View {
 }
 
 #Preview {
-    ScanOnboardingView(onContinue: {})
+    ScanOnboardingView(onContinue: {}, onSkip: {})
 }

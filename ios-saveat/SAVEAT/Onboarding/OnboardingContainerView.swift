@@ -31,19 +31,19 @@ struct OnboardingContainerView: View {
             )
             .tag(0)
 
-            ScanOnboardingView(onContinue: advance)
+            ScanOnboardingView(onContinue: advance, onSkip: onFinished)
                 .tag(1)
 
-            StockOnboardingView(onContinue: advance)
+            StockOnboardingView(onContinue: advance, onSkip: onFinished)
                 .tag(2)
 
-            RecipeOnboardingView(onContinue: advance)
+            RecipeOnboardingView(onContinue: advance, onSkip: onFinished)
                 .tag(3)
 
-            SavingsOnboardingView(onContinue: advance)
+            SavingsOnboardingView(onContinue: advance, onSkip: onFinished)
                 .tag(4)
 
-            MapOnboardingView(onContinue: advance)
+            MapOnboardingView(onContinue: advance, onSkip: onFinished)
                 .tag(5)
 
             AccountOnboardingView(onContinue: advance)

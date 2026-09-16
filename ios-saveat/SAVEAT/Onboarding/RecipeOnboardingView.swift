@@ -9,6 +9,7 @@ import SwiftUI
 /// onboarding. The tagline bubble is pure pitch copy, not a data claim.
 struct RecipeOnboardingView: View {
     var onContinue: () -> Void
+    var onSkip: () -> Void
 
     /// A finished, plated dish reads as "premium cuisine" better than a raw
     /// ingredient shot — used until a dedicated `onboarding_recipes` photo
@@ -24,7 +25,8 @@ struct RecipeOnboardingView: View {
             title: S.Intro.recipesTitle.s,
             body_: S.Intro.recipesBody.s,
             ctaTitle: S.Common.next.s,
-            onContinue: onContinue
+            onContinue: onContinue,
+            onSkip: onSkip
         ) {
             HStack(spacing: 10) {
                 Image(systemName: "heart.fill")
@@ -45,5 +47,5 @@ struct RecipeOnboardingView: View {
 }
 
 #Preview {
-    RecipeOnboardingView(onContinue: {})
+    RecipeOnboardingView(onContinue: {}, onSkip: {})
 }
