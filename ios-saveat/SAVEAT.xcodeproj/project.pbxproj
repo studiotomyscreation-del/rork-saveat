@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		XXD63457E41125E77BACFDXX /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = XX8F6E1A701EA04CDCEA3DXX /* RevenueCat */; };
+		XXE960ACDFC75590142324XX /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = XX70E6CBFA84B289AEF966XX /* RevenueCatUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				XXD63457E41125E77BACFDXX /* RevenueCat in Frameworks */,
+				XXE960ACDFC75590142324XX /* RevenueCatUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -118,6 +120,7 @@
 			name = SAVEAT;
 			packageProductDependencies = (
 				XX8F6E1A701EA04CDCEA3DXX /* RevenueCat */,
+				XX70E6CBFA84B289AEF966XX /* RevenueCatUI */,
 			);
 			productName = SAVEAT;
 			productReference = 105FC57A2E9EAD3100EA8BCF /* SAVEAT.app */;
@@ -608,6 +611,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		XX70E6CBFA84B289AEF966XX /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = XX56D7F10BAEE1D3529BF9XX /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCatUI;
+		};
 		XX8F6E1A701EA04CDCEA3DXX /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = XX56D7F10BAEE1D3529BF9XX /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
