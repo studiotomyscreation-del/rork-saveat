@@ -11,6 +11,10 @@ struct ProfileView: View {
     @State private var showsProSignUp = false
     @State private var isRunningSelfTest = false
     @State private var selfTestSummary: String?
+    #if DEBUG
+    @State private var aiDiagnostic: MealAIService.DiagnosticResult?
+    @State private var isRunningAIDiagnostic = false
+    #endif
 
     private var impact: ImpactSummary { store.lifetimeImpact }
 
@@ -20,6 +24,9 @@ struct ProfileView: View {
                 headerCard
                 subscriptionCard
                 testStoreDiagnostics
+                #if DEBUG
+                aiDiagnosticsCard
+                #endif
                 savingsCard
                 menuSection
                 SaveatLocalCard()
@@ -407,6 +414,74 @@ struct ProfileView: View {
             .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
         }
     }
+
+    #if DEBUG
+    /// Debug-only connectivity check for the Rork Toolkit AI gateway
+    /// (Chef SAVEAT's recipe engine) — never shown outside DEBUG builds,
+    /// never displays the secret key itself.
+    private var aiDiagnosticsCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Theme.sageDeep)
+                Text("DIAGNOSTIC IA (DEBUG)")
+                    .font(.system(size: 10.5, weight: .bold, design: .rounded))
+                    .tracking(1.5)
+                    .foregroundStyle(Theme.sageDeep)
+                Spacer(minLength: 0)
+            }
+
+            if let result = aiDiagnostic {
+                aiDiagnosticLine("Clé détectée", result.keyDetected ? "Oui" : "Non")
+                aiDiagnosticLine("Code HTTP", result.httpStatusCode.map(String.init) ?? "—")
+                aiDiagnosticLine("Modèle utilisé", result.modelUsed ?? "—")
+                aiDiagnosticLine("Réponse décodée", result.decodedSuccessfully ? "Oui" : "Non")
+                aiDiagnosticLine("Repli local utilisé", result.usedLocalFallback ? "Oui" : "Non")
+                if let error = result.errorDescription {
+                    aiDiagnosticLine("Erreur", error)
+                }
+            }
+
+            Divider()
+
+            Button {
+                Task {
+                    isRunningAIDiagnostic = true
+                    aiDiagnostic = await MealAIService.shared.runDiagnostic()
+                    isRunningAIDiagnostic = false
+                }
+            } label: {
+                if isRunningAIDiagnostic {
+                    ProgressView().tint(Theme.inkSoft)
+                } else {
+                    Text("Tester la connexion IA")
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Theme.sageDeep)
+                }
+            }
+            .disabled(isRunningAIDiagnostic)
+            .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 13)
+        .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
+        .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
+    }
+
+    private func aiDiagnosticLine(_ label: String, _ value: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            Text(label)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.inkSoft)
+            Spacer(minLength: 8)
+            Text(value)
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .foregroundStyle(Theme.ink)
+                .multilineTextAlignment(.trailing)
+        }
+    }
+    #endif
 
     /// Entry point into SAVEAT PRO (§5 of the spec) — deliberately a single
     /// discreet card among the profile's other menu items, never a main tab,

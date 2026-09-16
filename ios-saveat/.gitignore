@@ -18,6 +18,10 @@ DerivedData/
 *.xcuserdatad/
 xcuserdata/
 
+# Local secrets — never committed, created manually on each developer's
+# own machine (see Config.swift's EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY)
+Secrets.xcconfig
+
 # Swift Package Manager
 .build/
 .swiftpm/

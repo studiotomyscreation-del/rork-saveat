@@ -56,29 +56,76 @@ nonisolated struct MealAIService: Sendable {
         request: Request
     ) async -> Answer {
         do {
-            let payload = try await callModel(inventory: inventory, profile: profile, request: request)
-            let meals = payload.meals.map { $0.toMeal() }
-            guard !meals.isEmpty else { return localAnswer(inventory: inventory, profile: profile, request: request) }
+            let result = try await callModel(inventory: inventory, profile: profile, request: request)
+            let meals = result.payload.meals.map { $0.toMeal() }
+            guard !meals.isEmpty else {
+                MealAILog.info("Aucune recette reçue — bascule sur le moteur local")
+                return localAnswer(inventory: inventory, profile: profile, request: request)
+            }
+            MealAILog.info("Recettes IA utilisées (pas de repli local)")
             return Answer(
-                message: payload.message ?? defaultMessage(count: meals.count, request: request),
+                message: result.payload.message ?? defaultMessage(count: meals.count, request: request),
                 meals: meals,
                 isFromAI: true
             )
         } catch {
-            #if DEBUG
-            print("[SAVEAT] Assistant indisponible, bascule sur le moteur local: \(error.localizedDescription)")
-            #endif
+            MealAILog.error("Appel IA échoué (\(error.localizedDescription)) — bascule sur le moteur local")
             return localAnswer(inventory: inventory, profile: profile, request: request)
+        }
+    }
+
+    // MARK: - Diagnostics (§ debug test, never logs the key itself)
+
+    nonisolated struct DiagnosticResult: Sendable {
+        var keyDetected: Bool
+        var httpStatusCode: Int?
+        var modelUsed: String?
+        var decodedSuccessfully: Bool
+        var usedLocalFallback: Bool
+        var errorDescription: String?
+    }
+
+    /// Fires one minimal real request at the Rork Toolkit gateway and
+    /// reports what actually happened — for the DEBUG diagnostics card in
+    /// Profile, never for production decision-making.
+    nonisolated func runDiagnostic() async -> DiagnosticResult {
+        let keyDetected = !Config.EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY.isEmpty
+        let request = Request(userText: "Diagnostic de connexion SAVEAT", servings: 2)
+        do {
+            let result = try await callModel(inventory: [], profile: UserProfile(), request: request)
+            return DiagnosticResult(
+                keyDetected: keyDetected,
+                httpStatusCode: result.httpStatusCode,
+                modelUsed: result.model,
+                decodedSuccessfully: true,
+                usedLocalFallback: result.payload.meals.isEmpty,
+                errorDescription: nil
+            )
+        } catch {
+            return DiagnosticResult(
+                keyDetected: keyDetected,
+                httpStatusCode: nil,
+                modelUsed: nil,
+                decodedSuccessfully: false,
+                usedLocalFallback: true,
+                errorDescription: error.localizedDescription
+            )
         }
     }
 
     // MARK: - Network
 
+    private nonisolated struct CallResult: Sendable {
+        var payload: MealAIPayload
+        var httpStatusCode: Int
+        var model: String?
+    }
+
     private nonisolated func callModel(
         inventory: [FoodItem],
         profile: UserProfile,
         request: Request
-    ) async throws -> MealAIPayload {
+    ) async throws -> CallResult {
         guard let url = URL(string: "\(toolkitURL)/v2/vercel/v1/chat/completions") else {
             throw URLError(.badURL)
         }
@@ -105,24 +152,37 @@ nonisolated struct MealAIService: Sendable {
         urlRequest.timeoutInterval = 45
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         let key = Config.EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY
+        MealAILog.info("Clé détectée : \(!key.isEmpty)")
         if !key.isEmpty {
             urlRequest.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
         }
         urlRequest.httpBody = try JSONSerialization.data(withJSONObject: body)
 
+        MealAILog.info("Requête envoyée à \(url.absoluteString)")
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+        guard let http = response as? HTTPURLResponse else {
+            MealAILog.error("Réponse non-HTTP")
+            throw URLError(.badServerResponse)
+        }
+        MealAILog.info("Code HTTP reçu : \(http.statusCode)")
+        guard (200..<300).contains(http.statusCode) else {
             throw URLError(.badServerResponse)
         }
 
         let completion = try JSONDecoder().decode(ChatCompletion.self, from: data)
+        if let model = completion.model {
+            MealAILog.info("Modèle utilisé : \(model)")
+        }
         guard let content = completion.choices.first?.message.content, !content.isEmpty else {
+            MealAILog.error("Réponse vide ou mal formée")
             throw URLError(.cannotParseResponse)
         }
 
         let json = Self.extractJSON(from: content)
         guard let jsonData = json.data(using: .utf8) else { throw URLError(.cannotParseResponse) }
-        return try JSONDecoder().decode(MealAIPayload.self, from: jsonData)
+        let payload = try JSONDecoder().decode(MealAIPayload.self, from: jsonData)
+        MealAILog.info("Réponse IA décodée avec succès (\(payload.meals.count) recette(s))")
+        return CallResult(payload: payload, httpStatusCode: http.statusCode, model: completion.model)
     }
 
     /// Models sometimes wrap JSON in prose or code fences — keep only the object.
@@ -659,4 +719,7 @@ private nonisolated struct ChatCompletion: Decodable, Sendable {
         var message: Message
     }
     var choices: [Choice]
+    /// Which model actually served the request, when the gateway echoes it
+    /// back — used only for the DEBUG diagnostics card, never assumed.
+    var model: String?
 }
