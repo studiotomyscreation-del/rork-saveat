@@ -1,12 +1,16 @@
 import SwiftUI
 import RevenueCat
-import RevenueCatUI
 
 /// Entry point for every upsell in SAVEAT.
 ///
-/// Uses the RevenueCat hosted Paywall when one is configured for the current
-/// offering, and falls back to the native SAVEAT paywall otherwise so the app
-/// always has a sellable screen (Test Store, offline, no remote paywall yet).
+/// Always the native SAVEAT paywall — RevenueCatUI's hosted `PaywallView`
+/// was only ever a fallback path for a remote paywall template, and no
+/// template is configured for this app's offering (`remotePaywallOffering`
+/// requires `offering.paywall != nil` in RevenueCat's own dashboard, which
+/// hasn't been set up here), so that branch was always dead in production.
+/// Dropped instead of guarded, since importing `RevenueCatUI` for an unused
+/// path isn't worth carrying its binary-framework compatibility risk with
+/// each new Xcode release.
 struct PaywallSheet: View {
     @Environment(SubscriptionStore.self) private var subscriptions
     @Environment(\.dismiss) private var dismiss
@@ -14,23 +18,10 @@ struct PaywallSheet: View {
     var feature: PremiumFeature?
 
     var body: some View {
-        Group {
-            if let offering = subscriptions.remotePaywallOffering {
-                RevenueCatUI.PaywallView(offering: offering, displayCloseButton: true)
-                    .onPurchaseCompleted { (info: CustomerInfo) in
-                        subscriptions.apply(info)
-                        Haptics.success()
-                    }
-                    .onRestoreCompleted { (info: CustomerInfo) in
-                        subscriptions.apply(info)
-                    }
-            } else {
-                NativePaywallView(feature: feature)
+        NativePaywallView(feature: feature)
+            .onChange(of: subscriptions.isPremium) { _, isPremium in
+                if isPremium { dismiss() }
             }
-        }
-        .onChange(of: subscriptions.isPremium) { _, isPremium in
-            if isPremium { dismiss() }
-        }
     }
 }
 
