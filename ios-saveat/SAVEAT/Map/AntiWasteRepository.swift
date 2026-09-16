@@ -38,24 +38,59 @@ nonisolated struct GeoBoundingBox: Sendable, Equatable {
     }
 }
 
+/// Which territory a provider's data actually covers.
+///
+/// Kept as an explicit type rather than a bare `Set<String>` so "no
+/// restriction" (OpenStreetMap) and "this exact list of ISO 3166-1 alpha-2
+/// codes" (ADEME → `["FR"]`) can never be confused with each other.
+nonisolated enum ProviderCountryScope: Sendable, Equatable {
+    case worldwide
+    case countries(Set<String>)
+
+    /// `true` when this provider should be asked for places in `countryCode`.
+    /// A `nil` code (geocoding failed or hasn't resolved yet) only reaches
+    /// worldwide providers — a country-scoped one would rather stay silent
+    /// than risk showing a French dataset over Berlin because geocoding blipped.
+    nonisolated func supports(_ countryCode: String?) -> Bool {
+        switch self {
+        case .worldwide: true
+        case .countries(let codes):
+            guard let countryCode else { return false }
+            return codes.contains(countryCode)
+        }
+    }
+}
+
 /// Anything that can list SAVEAT Local places for a given map area. The map
 /// talks only to this protocol, never to a concrete data source — swapping
 /// or adding a provider (OpenStreetMap, ADEME, a future SAVEAT backend…)
 /// never touches `AntiWasteMapView` or its view model (§18).
 protocol AntiWastePlacesProviding: Sendable {
+    /// Territory this provider's data actually covers. Defaults to
+    /// `.worldwide` below — a provider only overrides this when its data
+    /// source is genuinely national (see `ADEMEProvider`).
+    var supportedCountries: ProviderCountryScope { get }
     func places(in bbox: GeoBoundingBox) async -> [AntiWastePlace]
+}
+
+extension AntiWastePlacesProviding {
+    var supportedCountries: ProviderCountryScope { .worldwide }
 }
 
 /// Single access point the Map module talks to.
 ///
-/// Fans out to every configured provider in parallel, then deduplicates
+/// Resolves which country the visible area is in, keeps only the providers
+/// that cover it, fans out to those in parallel, then deduplicates
 /// (§ Étape 4) before handing places back. Adding a new source is a one-line
-/// change to `shared` below — nothing else in `Map/` moves.
+/// change to `shared` below — nothing else in `Map/` moves, and a provider
+/// scoped to one country never fires outside it (§ architecture internationale).
 nonisolated struct AntiWasteRepository: Sendable {
     private let providers: [AntiWastePlacesProviding]
+    private let countryResolver: CountryDataProviderResolver
 
-    init(providers: [AntiWastePlacesProviding]) {
+    init(providers: [AntiWastePlacesProviding], countryResolver: CountryDataProviderResolver = .shared) {
         self.providers = providers
+        self.countryResolver = countryResolver
     }
 
     /// Real open-data sources. `ADEMEProvider` is implemented and verified
@@ -64,6 +99,14 @@ nonisolated struct AntiWasteRepository: Sendable {
     /// matches for its keyword list across a large region, so shipping it
     /// active would add API calls without adding real places. See
     /// `ADEMEProvider`'s doc comment and the Phase 3 report.
+    ///
+    /// No other national provider is wired in as of the international
+    /// architecture pass — the research phase found no food-donation open
+    /// dataset for Germany, Spain, Italy, Brazil or the USA that is both
+    /// national in scope and clearly licensed for this use. See that
+    /// report. `OpenStreetMapProvider` alone already covers every country
+    /// (`.worldwide`), which is why the map works the same in Bordeaux,
+    /// Berlin or São Paulo today.
     static let shared = AntiWasteRepository(providers: [
         OpenStreetMapProvider()
     ])
@@ -73,8 +116,16 @@ nonisolated struct AntiWasteRepository: Sendable {
 
     func places(in bbox: GeoBoundingBox) async -> [AntiWastePlace] {
         let padded = bbox.padded()
+        // Reverse-geocoding costs a real round-trip and Apple rate-limits it,
+        // so it only runs when a country-scoped provider is actually in play
+        // — today that's nobody (see `shared` below), so this stays free.
+        let hasCountryScopedProvider = providers.contains {
+            if case .countries = $0.supportedCountries { true } else { false }
+        }
+        let countryCode = hasCountryScopedProvider ? await countryResolver.countryCode(for: padded) : nil
+        let activeProviders = providers.filter { $0.supportedCountries.supports(countryCode) }
         let merged = await withTaskGroup(of: [AntiWastePlace].self) { group -> [AntiWastePlace] in
-            for provider in providers {
+            for provider in activeProviders {
                 group.addTask { await provider.places(in: padded) }
             }
             var all: [AntiWastePlace] = []

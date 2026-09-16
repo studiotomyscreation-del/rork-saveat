@@ -113,6 +113,11 @@ nonisolated struct OpenStreetMapProvider: AntiWastePlacesProviding {
             address: street,
             city: tags["addr:city"] ?? "",
             postalCode: tags["addr:postcode"] ?? "",
+            // `addr:country` is a free but usually-present OSM tag, already
+            // ISO 3166-1 alpha-2 by convention on the wiki — taken as-is,
+            // never inferred from anything else.
+            countryCode: tags["addr:country"],
+            region: tags["addr:state"] ?? tags["addr:province"],
             description: tags["description"] ?? "",
             openingHours: tags["opening_hours"],
             websiteURLString: tags["website"] ?? tags["contact:website"],

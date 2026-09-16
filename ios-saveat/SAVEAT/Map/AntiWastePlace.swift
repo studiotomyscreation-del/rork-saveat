@@ -99,6 +99,17 @@ nonisolated struct AntiWastePlace: Identifiable, Codable, Hashable, Sendable {
     var address: String
     var city: String
     var postalCode: String
+    /// ISO 3166-1 alpha-2 country code (e.g. "FR", "US"), when the source
+    /// publishes or implies one. Never guessed from the app's language —
+    /// only from the record itself or from a provider that only ever
+    /// covers one country (`ADEMEProvider` always sets "FR").
+    var countryCode: String? = nil
+    /// State / province / administrative region, for countries where a city
+    /// and postal code alone don't disambiguate a place (e.g. US "TX").
+    var region: String? = nil
+    /// ISO 4217 currency code for any price shown on this place's offer,
+    /// when one applies. Never assumed to be EUR (§ modèle international).
+    var currencyCode: String? = nil
     var description: String
     var openingHours: String?
     var websiteURLString: String?

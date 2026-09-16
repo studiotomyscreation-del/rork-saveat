@@ -32,6 +32,10 @@ import Foundation
 /// file. It is kept here, documented, in case a future dataset or a smarter
 /// matching strategy makes it worth activating.
 nonisolated struct ADEMEProvider: AntiWastePlacesProviding {
+    /// This dataset only ever covers France — never queried for a map area
+    /// resolved to another country (§ architecture internationale, ADEME).
+    var supportedCountries: ProviderCountryScope { .countries(["FR"]) }
+
     private static let datasetID = "longue-vie-aux-objets-acteurs-de-leconomie-circulaire"
     private static let linesURL = "https://data.ademe.fr/data-fair/api/v1/datasets/\(datasetID)/lines"
 
@@ -121,6 +125,7 @@ nonisolated struct ADEMEProvider: AntiWastePlacesProviding {
             address: row.adresse ?? "",
             city: row.ville ?? "",
             postalCode: row.codePostal ?? "",
+            countryCode: "FR",
             description: row.description ?? "",
             openingHours: row.horairesOsm ?? row.horairesDescription,
             websiteURLString: row.siteWeb,
