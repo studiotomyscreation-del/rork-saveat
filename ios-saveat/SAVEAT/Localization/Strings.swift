@@ -1959,17 +1959,16 @@ nonisolated enum S {
         static let stockExampleSoon = Loc(fr: "À sauver bientôt", en: "Use soon")
 
         static let recipesTitle = Loc(
-            fr: "Cuisinez ce que vous avez déjà.",
-            en: "Cook what you already have."
+            fr: "Votre Chef à la maison.",
+            en: "Your Chef at home."
         )
         static let recipesBody = Loc(
-            fr: "Notre IA transforme les aliments de votre stock en idées de repas.",
-            en: "Our AI turns what's in your stock into meal ideas."
+            fr: "De bons menus préparés avec vos ingrédients, adaptés à vos envies, votre budget et votre quotidien.",
+            en: "Great menus made from your ingredients, tailored to your cravings, your budget and your everyday life."
         )
-        static let recipesBadge = Loc(fr: "Recette IA", en: "AI Recipe")
-        static let recipesCounter = Loc(
-            fr: "%d ingrédients disponibles → %d recettes possibles",
-            en: "%d ingredients on hand → %d possible recipes"
+        static let recipesTagline = Loc(
+            fr: "Des repas gourmands avec ce que vous avez déjà !",
+            en: "Delicious meals with what you already have!"
         )
 
         static let savingsTitle = Loc(fr: "Voyez ce que vous économisez.", en: "See what you're saving.")
