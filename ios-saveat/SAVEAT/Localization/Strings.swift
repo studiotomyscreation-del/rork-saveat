@@ -412,12 +412,12 @@ nonisolated enum S {
     nonisolated enum Paywall {
         static let badge = Loc(fr: "SAVEAT PREMIUM", en: "SAVEAT PRO")
         static let title = Loc(
-            fr: "Fais économiser encore plus à ton frigo.",
-            en: "Get even more out of your fridge."
+            fr: "Économise plus. Gaspille moins.",
+            en: "Save more. Waste less."
         )
         static let subtitle = Loc(
-            fr: "Scanne sans limite, cuisine avec l'IA et suis tes économies mois après mois.",
-            en: "Scan without limits, cook with AI and track what you save, month after month."
+            fr: "Scanne sans limite, cuisine avec ton Chef SAVEAT et suis tes économies mois après mois.",
+            en: "Scan without limits, cook with your SAVEAT Chef and track what you save, month after month."
         )
 
         static let upsellScans = Loc(
@@ -441,7 +441,7 @@ nonisolated enum S {
             en: "Track exactly how much money you stop throwing away."
         )
 
-        // MARK: 4 pillars (replaces the old flat 6-perk list)
+        // MARK: 5 pillars
 
         static let pillarMapTitle = Loc(fr: "Anti-gaspi autour de toi", en: "Anti-Waste Nearby")
         static let pillarMapBody = Loc(
@@ -453,10 +453,24 @@ nonisolated enum S {
             fr: "Suis ton stock, tes dates et les aliments à consommer en priorité pour mieux utiliser ce que tu as déjà.",
             en: "Track your stock, your dates and what to eat first to make the most of what you already have."
         )
-        static let pillarRecipesTitle = Loc(fr: "Recettes IA illimitées", en: "Unlimited AI Recipes")
-        static let pillarRecipesBody = Loc(
-            fr: "Transforme les aliments de ton stock en recettes personnalisées, adaptées à tes préférences et à tes régimes alimentaires.",
-            en: "Turn what's in your stock into personalized recipes, matched to your preferences and diets."
+        /// "Ton Chef à la maison" — deliberately describes what the recipe
+        /// engine does today (personalized recipes from real stock, diet and
+        /// allergens respected), not the menu/plating experience described in
+        /// the master prompt, which isn't built yet (§58: don't sell what
+        /// doesn't exist).
+        static let pillarChefTitle = Loc(fr: "Ton Chef à la maison", en: "Your Home Chef")
+        static let pillarChefBody = Loc(
+            fr: "Des recettes personnalisées à partir de ton stock, adaptées à tes préférences et à tes régimes alimentaires.",
+            en: "Personalized recipes built from your stock, matched to your preferences and diets."
+        )
+        /// "Ton Guide nutritionnel" — scoped to what's real: diet/allergen
+        /// rules actually enforced in every suggestion, plus the calories and
+        /// protein already shown per serving. Not a full meal-balance analysis
+        /// (doesn't exist yet).
+        static let pillarNutritionTitle = Loc(fr: "Ton Guide nutritionnel", en: "Your Nutrition Guide")
+        static let pillarNutritionBody = Loc(
+            fr: "Des repas qui respectent réellement tes préférences (végétarien, vegan, sans gluten, halal, kasher…) et tes allergies, avec calories et protéines par portion.",
+            en: "Meals that genuinely respect your preferences (vegetarian, vegan, gluten-free, halal, kosher…) and allergies, with calories and protein per serving."
         )
         static let pillarBudgetTitle = Loc(fr: "Maîtrise ton budget", en: "Master Your Budget")
         static let pillarBudgetBody = Loc(
@@ -494,12 +508,13 @@ nonisolated enum S {
         // MARK: Closing message
 
         static let closingLine1 = Loc(fr: "TON FRIGO.", en: "YOUR FRIDGE.")
-        static let closingLine2 = Loc(fr: "TON BUDGET.", en: "YOUR BUDGET.")
-        static let closingLine3 = Loc(fr: "TES RECETTES.", en: "YOUR RECIPES.")
-        static let closingLine4 = Loc(fr: "L'ANTI-GASPI AUTOUR DE TOI.", en: "ANTI-WASTE NEARBY.")
+        static let closingLine2 = Loc(fr: "TON CHEF.", en: "YOUR CHEF.")
+        static let closingLine3 = Loc(fr: "TON ALIMENTATION.", en: "YOUR NUTRITION.")
+        static let closingLine4 = Loc(fr: "TON BUDGET.", en: "YOUR BUDGET.")
+        static let closingLine5 = Loc(fr: "L'ANTI-GASPI AUTOUR DE TOI.", en: "ANTI-WASTE NEARBY.")
         static let closingSentence = Loc(
-            fr: "Une seule application pour mieux gérer tes aliments, cuisiner avec ce que tu as, réduire le gaspillage et mieux maîtriser ton budget.",
-            en: "One app to manage your food, cook with what you have, waste less and take control of your budget."
+            fr: "SAVEAT t'accompagne de tes courses jusqu'à ton assiette.",
+            en: "SAVEAT goes with you from the grocery aisle to your plate."
         )
         static let closingThanks = Loc(fr: "Ensemble, gaspillons moins.", en: "Together, let's waste less.")
         static let closingSupport = Loc(

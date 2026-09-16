@@ -178,14 +178,18 @@ struct NativePaywallView: View {
         }
     }
 
-    /// The four pillars SAVEAT Premium is now presented around — each one
-    /// maps to a screen that genuinely ships (Map, Stock, AI recipes,
-    /// Budget/Impact), never a promised feature.
+    /// The five pillars SAVEAT Premium is now presented around — each one
+    /// maps to a screen or behavior that genuinely ships (Map, Stock,
+    /// personalized recipes, diet/allergen rules, Budget/Impact), never a
+    /// promised feature. "Ton Chef"/"Ton Guide nutritionnel" describe what
+    /// the recipe engine already does today, not the fuller menu/plating
+    /// experience — that's a separate, not-yet-built chantier.
     private var pillarItems: [(String, String, String)] {
         [
             ("map.fill", S.Paywall.pillarMapTitle.s, S.Paywall.pillarMapBody.s),
             ("refrigerator.fill", S.Paywall.pillarStockTitle.s, S.Paywall.pillarStockBody.s),
-            ("sparkles", S.Paywall.pillarRecipesTitle.s, S.Paywall.pillarRecipesBody.s),
+            ("sparkles", S.Paywall.pillarChefTitle.s, S.Paywall.pillarChefBody.s),
+            ("leaf.fill", S.Paywall.pillarNutritionTitle.s, S.Paywall.pillarNutritionBody.s),
             ("chart.line.uptrend.xyaxis", S.Paywall.pillarBudgetTitle.s, S.Paywall.pillarBudgetBody.s)
         ]
     }
@@ -270,6 +274,7 @@ struct NativePaywallView: View {
                 Text(S.Paywall.closingLine2.s)
                 Text(S.Paywall.closingLine3.s)
                 Text(S.Paywall.closingLine4.s)
+                Text(S.Paywall.closingLine5.s)
             }
             .font(.system(size: 19, weight: .bold, design: .rounded))
             .foregroundStyle(Theme.ink)
