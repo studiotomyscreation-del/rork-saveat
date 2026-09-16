@@ -24,8 +24,17 @@ struct StockOnboardingView: View {
         PreviewRow(emoji: "🥒", name: "Courgettes", detail: S.Intro.stockExampleSoon.s, isSoon: true)
     ]
 
+    /// The bundled fridge-interior photo already used on the welcome page
+    /// fits this screen's own topic (frigo/placard/congélateur) even more
+    /// literally — reused here until a dedicated `onboarding_stock` photo
+    /// exists.
+    private static let photoAssetNames = ["onboarding_stock", "open_refrigerator_interior"]
+
     var body: some View {
         IntroStepShell(
+            photoAssetNames: Self.photoAssetNames,
+            stepIndex: 2,
+            stepCount: 7,
             icon: "refrigerator",
             title: S.Intro.stockTitle.s,
             body_: S.Intro.stockBody.s,
@@ -35,27 +44,26 @@ struct StockOnboardingView: View {
             VStack(spacing: 12) {
                 locationTabs
 
-                SaveatCard(padding: 10) {
-                    VStack(spacing: 0) {
-                        ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
-                            HStack(spacing: 12) {
-                                Text(row.emoji).font(.system(size: 22))
-                                Text(row.name)
-                                    .font(SaveatTypography.headline(14.5))
-                                    .foregroundStyle(SaveatColors.textPrimary)
-                                Spacer(minLength: 8)
-                                Text(row.detail)
-                                    .font(.system(size: 12.5, weight: .semibold, design: .rounded))
-                                    .foregroundStyle(row.isSoon ? SaveatColors.promo : SaveatColors.textSecondary)
-                            }
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 10)
-                            if index < rows.count - 1 {
-                                Divider().overlay(SaveatColors.forestDeep.opacity(0.06))
-                            }
+                VStack(spacing: 0) {
+                    ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
+                        HStack(spacing: 12) {
+                            Text(row.emoji).font(.system(size: 22))
+                            Text(row.name)
+                                .font(SaveatTypography.headline(14.5))
+                                .foregroundStyle(SaveatColors.textPrimary)
+                            Spacer(minLength: 8)
+                            Text(row.detail)
+                                .font(.system(size: 12.5, weight: .semibold, design: .rounded))
+                                .foregroundStyle(row.isSoon ? SaveatColors.promo : SaveatColors.textSecondary)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 10)
+                        if index < rows.count - 1 {
+                            Divider().overlay(SaveatColors.forestDeep.opacity(0.06))
                         }
                     }
                 }
+                .saveatTranslucentCard(padding: 10)
             }
             .padding(.horizontal, Theme.hMargin)
         }
@@ -73,7 +81,7 @@ struct StockOnboardingView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .background(
-                            selected == location ? SaveatColors.brand : SaveatColors.surface,
+                            selected == location ? SaveatColors.brand : .white.opacity(0.92),
                             in: .capsule
                         )
                 }

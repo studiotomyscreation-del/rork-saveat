@@ -57,16 +57,21 @@ struct SaveatSecondaryButton: View {
     }
 }
 
-/// SAVEAT V2 quiet text-only action ("Passer", "J'ai déjà un compte").
+/// SAVEAT V2 quiet text-only action ("Passer", "Plus tard").
+///
+/// Both current call sites (onboarding) sit on a dark photo background, so
+/// the default tint is light rather than `SaveatColors.textSecondary` —
+/// override `tint` if a future call site needs it on a light surface.
 struct SaveatTextButton: View {
     let title: String
+    var tint: Color = .white.opacity(0.85)
     var action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Text(title)
                 .font(SaveatTypography.caption(14))
-                .foregroundStyle(SaveatColors.textSecondary)
+                .foregroundStyle(tint)
         }
         .buttonStyle(.plain)
     }

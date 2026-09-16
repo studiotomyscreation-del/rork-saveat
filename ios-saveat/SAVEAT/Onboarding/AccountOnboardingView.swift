@@ -19,52 +19,61 @@ struct AccountOnboardingView: View {
     ]
 
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 24)
+        ZStack {
+            // No specific photo fits an account/sign-in step — the brand
+            // gradient alone (same base every page shares) stays premium
+            // without forcing an unrelated food shot behind a login screen.
+            OnboardingPhotoBackground(assetNames: [])
 
-            ZStack {
-                Circle().fill(SaveatColors.brandSoft).frame(width: 108, height: 108)
-                BrandMark(size: 56)
-            }
-            .padding(.bottom, 24)
+            VStack(spacing: 0) {
+                OnboardingProgressDots(stepIndex: 6, stepCount: 7)
+                    .padding(.top, 8)
 
-            Text(S.Intro.accountTitle.s)
-                .font(SaveatTypography.hero(25))
-                .multilineTextAlignment(.center)
-                .foregroundStyle(SaveatColors.textPrimary)
-                .padding(.horizontal, Theme.hMargin)
+                Spacer(minLength: 20)
 
-            SaveatCard {
+                ZStack {
+                    Circle().fill(.white.opacity(0.16)).frame(width: 108, height: 108)
+                    BrandMark(size: 56)
+                }
+                .padding(.bottom, 22)
+
+                Text(S.Intro.accountTitle.s)
+                    .font(SaveatTypography.hero(25))
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.25), radius: 8, y: 2)
+                    .padding(.horizontal, Theme.hMargin)
+
                 VStack(alignment: .leading, spacing: 14) {
                     ForEach(benefits) { benefit in
                         IntroPointRow(icon: benefit.icon, text: benefit.title)
                     }
                 }
+                .saveatTranslucentCard()
+                .padding(.horizontal, Theme.hMargin)
+                .padding(.top, 20)
+
+                Spacer(minLength: 20)
+
+                VStack(spacing: 12) {
+                    SaveatPrimaryButton(title: S.Intro.continueWithApple.s, action: onContinue)
+                    SaveatSecondaryButton(title: S.Intro.continueWithGoogle.s, action: onContinue)
+                    SaveatSecondaryButton(title: S.Intro.continueWithEmail.s, action: onContinue)
+
+                    SaveatTextButton(title: S.Intro.later.s, action: onContinue)
+                        .padding(.top, 4)
+
+                    Text(S.Intro.accountComingSoonNotice.s)
+                        .font(SaveatTypography.caption(11))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.white.opacity(0.75))
+                        .padding(.top, 2)
+                }
+                .padding(.horizontal, Theme.hMargin)
+                .padding(.bottom, 24)
             }
-            .padding(.horizontal, Theme.hMargin)
-            .padding(.top, 22)
-
-            Spacer(minLength: 20)
-
-            VStack(spacing: 12) {
-                SaveatPrimaryButton(title: S.Intro.continueWithApple.s, action: onContinue)
-                SaveatSecondaryButton(title: S.Intro.continueWithGoogle.s, action: onContinue)
-                SaveatSecondaryButton(title: S.Intro.continueWithEmail.s, action: onContinue)
-
-                SaveatTextButton(title: S.Intro.later.s, action: onContinue)
-                    .padding(.top, 4)
-
-                Text(S.Intro.accountComingSoonNotice.s)
-                    .font(SaveatTypography.caption(11))
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(SaveatColors.textSecondary)
-                    .padding(.top, 2)
-            }
-            .padding(.horizontal, Theme.hMargin)
-            .padding(.bottom, 24)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(SaveatColors.background.ignoresSafeArea())
     }
 }
 

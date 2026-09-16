@@ -1,10 +1,16 @@
 import SwiftUI
 
-/// Shared layout for the four pitch cards of the product onboarding
-/// (Scan / Stock / Recipes / Map): icon, title, body, optional bullet list,
-/// primary CTA. Keeps the four screens visually identical without repeating
-/// the same layout code four times.
+/// Shared layout for the photographic pitch cards of the product onboarding
+/// (Scan / Stock / Recipes / Savings): a full-bleed photo, SAVEAT's dark
+/// scrim, then icon, title, body, optional extra content and a primary CTA —
+/// all native SwiftUI on top, never text baked into the photo itself. Keeps
+/// every screen visually identical without repeating the same layout code.
 struct IntroStepShell<Extra: View>: View {
+    /// Preferred photo asset name(s) for this page, most-preferred first —
+    /// see `OnboardingPhotoBackground`.
+    let photoAssetNames: [String]
+    let stepIndex: Int
+    let stepCount: Int
     let icon: String
     let title: String
     let body_: String
@@ -13,6 +19,9 @@ struct IntroStepShell<Extra: View>: View {
     private let extra: () -> Extra
 
     init(
+        photoAssetNames: [String],
+        stepIndex: Int,
+        stepCount: Int,
         icon: String,
         title: String,
         body_: String,
@@ -20,6 +29,9 @@ struct IntroStepShell<Extra: View>: View {
         onContinue: @escaping () -> Void,
         @ViewBuilder extra: @escaping () -> Extra
     ) {
+        self.photoAssetNames = photoAssetNames
+        self.stepIndex = stepIndex
+        self.stepCount = stepCount
         self.icon = icon
         self.title = title
         self.body_ = body_
@@ -29,48 +41,68 @@ struct IntroStepShell<Extra: View>: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 24)
+        ZStack {
+            OnboardingPhotoBackground(assetNames: photoAssetNames)
 
-            ZStack {
-                Circle()
-                    .fill(SaveatColors.brandSoft)
-                    .frame(width: 120, height: 120)
-                Image(systemName: icon)
-                    .font(.system(size: 44, weight: .semibold))
-                    .foregroundStyle(SaveatColors.forestDeep)
-            }
-            .padding(.bottom, 28)
+            VStack(spacing: 0) {
+                OnboardingProgressDots(stepIndex: stepIndex, stepCount: stepCount)
+                    .padding(.top, 8)
 
-            VStack(spacing: 10) {
-                Text(title)
-                    .font(SaveatTypography.hero(26))
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(SaveatColors.textPrimary)
-                Text(body_)
-                    .font(SaveatTypography.body(15))
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(SaveatColors.textSecondary)
-            }
-            .padding(.horizontal, Theme.hMargin)
+                Spacer(minLength: 20)
 
-            extra()
-                .padding(.top, 22)
+                ZStack {
+                    Circle()
+                        .fill(.white.opacity(0.16))
+                        .frame(width: 92, height: 92)
+                    Image(systemName: icon)
+                        .font(.system(size: 34, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                .padding(.bottom, 22)
 
-            Spacer(minLength: 24)
-
-            SaveatPrimaryButton(title: ctaTitle, action: onContinue)
+                VStack(spacing: 10) {
+                    Text(title)
+                        .font(SaveatTypography.hero(25))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.white)
+                        .shadow(color: .black.opacity(0.25), radius: 8, y: 2)
+                    Text(body_)
+                        .font(SaveatTypography.body(15))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.white.opacity(0.88))
+                        .shadow(color: .black.opacity(0.2), radius: 6, y: 1)
+                }
                 .padding(.horizontal, Theme.hMargin)
-                .padding(.bottom, 24)
+
+                extra()
+                    .padding(.top, 20)
+
+                Spacer(minLength: 20)
+
+                SaveatPrimaryButton(title: ctaTitle, action: onContinue)
+                    .padding(.horizontal, Theme.hMargin)
+                    .padding(.bottom, 24)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(SaveatColors.background.ignoresSafeArea())
     }
 }
 
 extension IntroStepShell where Extra == EmptyView {
-    init(icon: String, title: String, body_: String, ctaTitle: String, onContinue: @escaping () -> Void) {
-        self.init(icon: icon, title: title, body_: body_, ctaTitle: ctaTitle, onContinue: onContinue) { EmptyView() }
+    init(
+        photoAssetNames: [String],
+        stepIndex: Int,
+        stepCount: Int,
+        icon: String,
+        title: String,
+        body_: String,
+        ctaTitle: String,
+        onContinue: @escaping () -> Void
+    ) {
+        self.init(
+            photoAssetNames: photoAssetNames, stepIndex: stepIndex, stepCount: stepCount,
+            icon: icon, title: title, body_: body_, ctaTitle: ctaTitle, onContinue: onContinue
+        ) { EmptyView() }
     }
 }
 

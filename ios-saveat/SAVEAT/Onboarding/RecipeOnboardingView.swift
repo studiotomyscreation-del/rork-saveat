@@ -20,8 +20,16 @@ struct RecipeOnboardingView: View {
         PreviewRecipe(emoji: "🍲", name: "Soupe anti-gaspi", minutes: 20)
     ]
 
+    /// A finished, plated dish reads as "premium cuisine" better than a raw
+    /// ingredient shot — used until a dedicated `onboarding_recipes` photo
+    /// (the AI turning stock into a meal) exists.
+    private static let photoAssetNames = ["onboarding_recipes", "fried_rice_cast_iron_pan"]
+
     var body: some View {
         IntroStepShell(
+            photoAssetNames: Self.photoAssetNames,
+            stepIndex: 3,
+            stepCount: 7,
             icon: "sparkles",
             title: S.Intro.recipesTitle.s,
             body_: S.Intro.recipesBody.s,
@@ -46,13 +54,13 @@ struct RecipeOnboardingView: View {
                                 .foregroundStyle(SaveatColors.textSecondary)
                         }
                         .padding(12)
-                        .background(SaveatColors.surface, in: .rect(cornerRadius: 14))
+                        .saveatTranslucentCard(padding: 0, radius: 14)
                     }
                 }
 
                 Text(S.Intro.recipesCounter.f(8, 3))
                     .font(SaveatTypography.caption(12.5))
-                    .foregroundStyle(SaveatColors.textSecondary)
+                    .foregroundStyle(.white.opacity(0.85))
             }
             .padding(.horizontal, Theme.hMargin)
         }

@@ -2,13 +2,15 @@ import SwiftUI
 
 /// First screen of the product-pitch onboarding: what SAVEAT does, in one look.
 ///
-/// Reuses the bundled `open_refrigerator_interior` photo as the hero
-/// background rather than a new placeholder asset — a real kitchen photo
-/// already ships with the app.
+/// Prefers a dedicated `onboarding_welcome` photo once one is added; until
+/// then falls back to a bundled premium food photo rather than a new
+/// placeholder asset (see `OnboardingPhotoBackground`).
 struct WelcomeOnboardingView: View {
     var onStart: () -> Void
     var onHaveAccount: () -> Void
     var onSkip: () -> Void
+
+    private static let photoAssetNames = ["onboarding_welcome", "chicken_rice_bowl_topdown"]
 
     private let features: [IntroFeature] = [
         IntroFeature(S.Intro.welcomeIconScan.s, icon: "barcode.viewfinder"),
@@ -18,7 +20,7 @@ struct WelcomeOnboardingView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            background
+            OnboardingPhotoBackground(assetNames: Self.photoAssetNames)
 
             VStack {
                 HStack {
@@ -72,28 +74,6 @@ struct WelcomeOnboardingView: View {
             }
             .scrollIndicators(.hidden)
         }
-    }
-
-    private var background: some View {
-        GeometryReader { geo in
-            Image("open_refrigerator_interior")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: geo.size.width, height: geo.size.height)
-                .clipped()
-                .overlay {
-                    LinearGradient(
-                        colors: [
-                            SaveatColors.nightBlue.opacity(0.55),
-                            SaveatColors.nightBlue.opacity(0.72),
-                            SaveatColors.nightBlue.opacity(0.94)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                }
-        }
-        .ignoresSafeArea()
     }
 
     private var featureRow: some View {

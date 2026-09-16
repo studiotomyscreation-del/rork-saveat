@@ -6,8 +6,15 @@ import SwiftUI
 struct SavingsOnboardingView: View {
     var onContinue: () -> Void
 
+    /// Ties "what you save" back to real food rather than an abstract chart —
+    /// used until a dedicated `onboarding_savings` photo exists.
+    private static let photoAssetNames = ["onboarding_savings", "zucchini_cheese_gratin"]
+
     var body: some View {
         IntroStepShell(
+            photoAssetNames: Self.photoAssetNames,
+            stepIndex: 4,
+            stepCount: 7,
             icon: "chart.line.uptrend.xyaxis",
             title: S.Intro.savingsTitle.s,
             body_: S.Intro.savingsBody.s,
@@ -15,33 +22,32 @@ struct SavingsOnboardingView: View {
             onContinue: onContinue
         ) {
             VStack(spacing: 12) {
-                SaveatCard {
-                    VStack(alignment: .leading, spacing: 14) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(S.Intro.savingsMonthLabel.s)
-                                    .font(SaveatTypography.caption(12.5))
-                                    .foregroundStyle(SaveatColors.textSecondary)
-                                Text(Format.euro(64.80, decimals: 2))
-                                    .font(SaveatTypography.numeric(30))
-                                    .foregroundStyle(SaveatColors.forestDeep)
-                            }
-                            Spacer(minLength: 0)
-                            SaveatBadge(text: "+12%", tone: .brand, icon: "arrow.up.right")
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(S.Intro.savingsMonthLabel.s)
+                                .font(SaveatTypography.caption(12.5))
+                                .foregroundStyle(SaveatColors.textSecondary)
+                            Text(Format.euro(64.80, decimals: 2))
+                                .font(SaveatTypography.numeric(30))
+                                .foregroundStyle(SaveatColors.forestDeep)
                         }
+                        Spacer(minLength: 0)
+                        SaveatBadge(text: "+12%", tone: .brand, icon: "arrow.up.right")
+                    }
 
-                        VStack(alignment: .leading, spacing: 10) {
-                            savingsLine(icon: "leaf.fill", text: "12 \(S.Home.savedItemsLabel.s)")
-                            savingsLine(icon: "fork.knife", text: "8 \(S.Intro.savingsMealsFromStock.s)")
-                            savingsLine(icon: "tag.fill", text: "4 \(S.Intro.savingsDealsUsed.s)")
-                        }
+                    VStack(alignment: .leading, spacing: 10) {
+                        savingsLine(icon: "leaf.fill", text: "12 \(S.Home.savedItemsLabel.s)")
+                        savingsLine(icon: "fork.knife", text: "8 \(S.Intro.savingsMealsFromStock.s)")
+                        savingsLine(icon: "tag.fill", text: "4 \(S.Intro.savingsDealsUsed.s)")
                     }
                 }
+                .saveatTranslucentCard()
                 .padding(.horizontal, Theme.hMargin)
 
                 Text(S.Intro.savingsDemoNotice.s)
                     .font(SaveatTypography.caption(11.5))
-                    .foregroundStyle(SaveatColors.textSecondary)
+                    .foregroundStyle(.white.opacity(0.85))
             }
         }
     }

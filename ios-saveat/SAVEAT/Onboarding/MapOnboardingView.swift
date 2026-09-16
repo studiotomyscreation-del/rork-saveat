@@ -3,12 +3,14 @@ import SwiftUI
 
 /// Sixth screen of the product-pitch onboarding: a preview of SAVEAT Local.
 ///
-/// Purely decorative: a fixed France region with sample pins, a static
-/// search bar and filter chips that do not respond to taps, and one example
-/// place card. No location permission is requested here and no real place
-/// data is shown — the real anti-waste map (`Map/AntiWasteMapView`, now the
-/// app's own "Carte" tab) is a different, fully live screen; this one only
-/// sets expectations for it during onboarding.
+/// The map itself is genuine MapKit — a real `Map` with sample pins, not a
+/// flattened image — kept prominent as this page's hero visual instead of a
+/// food photo, since the map *is* the subject here. The search bar and
+/// filter chips are static (they don't respond to taps) and the example
+/// place card is fictional: no location permission is requested and no real
+/// place data is shown. The real anti-waste map (`Map/AntiWasteMapView`, now
+/// the app's own "Carte" tab) is a different, fully live screen; this one
+/// only sets expectations for it during onboarding.
 struct MapOnboardingView: View {
     var onContinue: () -> Void
 
@@ -43,6 +45,9 @@ struct MapOnboardingView: View {
 
     var body: some View {
         IntroStepShell(
+            photoAssetNames: [],
+            stepIndex: 5,
+            stepCount: 7,
             icon: "map.fill",
             title: S.Intro.mapTitle.s,
             body_: S.Intro.mapBody.s,
@@ -50,13 +55,13 @@ struct MapOnboardingView: View {
             onContinue: onContinue
         ) {
             VStack(spacing: 10) {
+                mapPreview
                 searchBar
                 filterChips
-                mapPreview
                 exampleCard
                 Text(S.Intro.mapPreviewNotice.s)
                     .font(SaveatTypography.caption(11))
-                    .foregroundStyle(SaveatColors.textSecondary)
+                    .foregroundStyle(.white.opacity(0.85))
             }
             .padding(.horizontal, Theme.hMargin)
         }
@@ -74,7 +79,7 @@ struct MapOnboardingView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 11)
-        .background(SaveatColors.surface, in: .capsule)
+        .background(.white.opacity(0.92), in: .capsule)
     }
 
     private var filterChips: some View {
@@ -86,7 +91,7 @@ struct MapOnboardingView: View {
                     .padding(.horizontal, 12)
                     .padding(.vertical, 7)
                     .background(
-                        selectedFilter == index ? SaveatColors.brand : SaveatColors.surface,
+                        selectedFilter == index ? SaveatColors.brand : .white.opacity(0.92),
                         in: .capsule
                     )
                     .onTapGesture {
@@ -111,11 +116,12 @@ struct MapOnboardingView: View {
             }
         }
         .allowsHitTesting(false)
-        .frame(height: 170)
-        .clipShape(.rect(cornerRadius: 20))
+        .frame(height: 210)
+        .clipShape(.rect(cornerRadius: 24))
         .overlay {
-            RoundedRectangle(cornerRadius: 20).stroke(SaveatColors.forestDeep.opacity(0.10), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 24).stroke(.white.opacity(0.5), lineWidth: 1.5)
         }
+        .shadow(color: SaveatColors.nightBlue.opacity(0.35), radius: 20, x: 0, y: 10)
     }
 
     private var exampleCard: some View {
@@ -137,8 +143,7 @@ struct MapOnboardingView: View {
             }
             Spacer(minLength: 0)
         }
-        .padding(12)
-        .background(SaveatColors.surface, in: .rect(cornerRadius: 16))
+        .saveatTranslucentCard(padding: 12, radius: 16)
     }
 }
 
