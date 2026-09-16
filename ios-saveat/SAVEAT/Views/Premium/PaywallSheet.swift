@@ -413,7 +413,8 @@ struct NativePaywallView: View {
     }
 
     private func planSubtitle(_ package: Package) -> String? {
-        if let intro = package.storeProduct.introductoryDiscount, intro.price == 0 {
+        if let intro = package.storeProduct.introductoryDiscount, intro.price == 0,
+           subscriptions.isEligibleForIntroOffer(package) {
             let value = intro.subscriptionPeriod.value
             let trial = "\(value) \(periodText(intro.subscriptionPeriod))"
             let price = subscriptions.priceLabel(for: package)
@@ -513,7 +514,8 @@ struct NativePaywallView: View {
 
     private var ctaTitle: String {
         guard let package = selectedPackage else { return S.Paywall.subscribeCTA.s }
-        if let intro = package.storeProduct.introductoryDiscount, intro.price == 0 {
+        if let intro = package.storeProduct.introductoryDiscount, intro.price == 0,
+           subscriptions.isEligibleForIntroOffer(package) {
             return S.Paywall.trialCTA.s
         }
         return S.Paywall.subscribeCTA.s

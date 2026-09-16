@@ -180,6 +180,12 @@ final class SubscriptionStore {
     private(set) var scansUsedToday = 0
     private(set) var aiRequestsUsedToday = 0
 
+    /// Product identifiers Apple has confirmed *this* Apple account is
+    /// actually eligible for a trial/intro offer on — never assumed from a
+    /// product simply having one configured. A user who already redeemed an
+    /// intro offer must not be shown "7 days free" again.
+    private(set) var eligibleForIntroOffer: Set<String> = []
+
     var isPremium: Bool { status.isPremium }
 
     /// Which RevenueCat store this build talks to — every build now uses the
@@ -333,6 +339,7 @@ final class SubscriptionStore {
                 } else {
                     loadFailureMessage = nil
                     lastOfferingsErrorDetail = nil
+                    await refreshIntroEligibility(for: current.availablePackages)
                 }
             } else {
                 PurchaseLog.error("offerings loaded but no current offering is set in RevenueCat")
@@ -351,6 +358,28 @@ final class SubscriptionStore {
                 await loadOfferings(isRetry: true)
             }
         }
+    }
+
+    /// Asks Apple which of these packages this Apple account can still redeem
+    /// a trial/intro offer on. Never blocks package display on this: a slow
+    /// or failed check simply leaves those products out of
+    /// `eligibleForIntroOffer`, so the paywall falls back to showing the
+    /// regular price rather than a trial it can't confirm.
+    private func refreshIntroEligibility(for packages: [Package]) async {
+        let productIDs = packages.map(\.storeProduct.productIdentifier)
+        guard !productIDs.isEmpty else { return }
+        let result = await Purchases.shared.checkTrialOrIntroDiscountEligibility(productIdentifiers: productIDs)
+        eligibleForIntroOffer = Set(result.compactMap { id, eligibility in
+            eligibility.status == .eligible ? id : nil
+        })
+        PurchaseLog.info("intro eligibility: \(eligibleForIntroOffer.isEmpty ? "none eligible" : eligibleForIntroOffer.joined(separator: ", "))")
+    }
+
+    /// Whether Apple has confirmed this account can redeem `package`'s
+    /// introductory offer — the paywall must never show trial copy without
+    /// this being true first.
+    func isEligibleForIntroOffer(_ package: Package) -> Bool {
+        eligibleForIntroOffer.contains(package.storeProduct.productIdentifier)
     }
 
     /// Packages of the current offering, annual first, prices straight from the App Store.
