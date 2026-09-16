@@ -267,7 +267,15 @@ struct ProfileView: View {
 
     private var savingsCard: some View {
         Button {
-            path.append(Route.impact)
+            // The simple lifetime summary shown on this card stays free for
+            // everyone (§10 "résumé simple des économies") — only the
+            // detailed history/breakdown behind it is Premium.
+            if subscriptions.canUse(.savingsStats) {
+                path.append(Route.impact)
+            } else {
+                Haptics.warning()
+                showsPaywall = true
+            }
         } label: {
             VStack(alignment: .leading, spacing: 10) {
                 Text(S.Profile.sinceJoining.s)

@@ -586,6 +586,24 @@ final class SubscriptionStore {
     var canScan: Bool { isPremium || scansUsedToday < Self.freeDailyScans }
     var canAskAI: Bool { isPremium || aiRequestsUsedToday < Self.freeDailyAIRequests }
 
+    // MARK: - Centralized access
+
+    /// Single place every screen asks "can the user use this right now?" —
+    /// so a gate never has to be re-decided inline in a dozen views (§51).
+    /// `.unlimitedScans`/`.unlimitedAI` defer to the quota-aware checks above
+    /// rather than a plain `isPremium`, since Trial and Premium both unlock
+    /// them but a Free user may still have quota left today.
+    func canUse(_ feature: PremiumFeature) -> Bool {
+        switch feature {
+        case .unlimitedScans: canScan
+        case .unlimitedAI: canAskAI
+        // Explicitly kept free for every tier — not a Premium exclusive.
+        case .zeroEuroMode: true
+        case .endOfMonth: isPremium
+        case .savingsStats: isPremium
+        }
+    }
+
     func registerScan() {
         guard !isPremium else { return }
         rollDayIfNeeded()

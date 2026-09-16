@@ -13,7 +13,9 @@ import SwiftUI
 /// dedicated big buttons.
 struct NewHomeView: View {
     @Environment(AppStore.self) private var store
+    @Environment(SubscriptionStore.self) private var subscriptions
     @State private var viewModel = HomeViewModel()
+    @State private var showsPaywall = false
     @Binding var path: NavigationPath
 
     let onScan: () -> Void
@@ -39,6 +41,7 @@ struct NewHomeView: View {
         }
         .scrollIndicators(.hidden)
         .background(SaveatColors.background.ignoresSafeArea())
+        .sheet(isPresented: $showsPaywall) { PaywallSheet(feature: .endOfMonth) }
         .task {
             await viewModel.loadNearbyIfNeeded()
         }
@@ -239,7 +242,12 @@ struct NewHomeView: View {
                 path.append(Route.zeroEuro)
             }
             actionRow(title: S.Home.endOfMonthTitle.s, icon: "banknote.fill") {
-                path.append(Route.endOfMonth)
+                if subscriptions.canUse(.endOfMonth) {
+                    path.append(Route.endOfMonth)
+                } else {
+                    Haptics.warning()
+                    showsPaywall = true
+                }
             }
             actionRow(title: S.Shopping.navTitle.s, icon: "cart.fill") {
                 path.append(Route.shopping)
