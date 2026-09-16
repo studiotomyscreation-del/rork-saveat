@@ -53,7 +53,8 @@ nonisolated enum ProviderCountryScope: Sendable, Equatable {
     /// than risk showing a French dataset over Berlin because geocoding blipped.
     nonisolated func supports(_ countryCode: String?) -> Bool {
         switch self {
-        case .worldwide: true
+        case .worldwide:
+            return true
         case .countries(let codes):
             guard let countryCode else { return false }
             return codes.contains(countryCode)
@@ -69,12 +70,12 @@ protocol AntiWastePlacesProviding: Sendable {
     /// Territory this provider's data actually covers. Defaults to
     /// `.worldwide` below — a provider only overrides this when its data
     /// source is genuinely national (see `ADEMEProvider`).
-    var supportedCountries: ProviderCountryScope { get }
+    nonisolated var supportedCountries: ProviderCountryScope { get }
     func places(in bbox: GeoBoundingBox) async -> [AntiWastePlace]
 }
 
 extension AntiWastePlacesProviding {
-    var supportedCountries: ProviderCountryScope { .worldwide }
+    nonisolated var supportedCountries: ProviderCountryScope { .worldwide }
 }
 
 /// Single access point the Map module talks to.
