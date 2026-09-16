@@ -1753,6 +1753,25 @@ nonisolated enum S {
         )
         static let toSpend = Loc(fr: "à dépenser", en: "to spend")
         static let estimated = Loc(fr: "estimé", en: "estimated")
+        static let savingsBadge = Loc(fr: "%@ économisés", en: "%@ saved")
+        static let savingsCardTitle = Loc(
+            fr: "En cuisinant avec ton stock plutôt qu'en achetant tout",
+            en: "By cooking with your stock instead of buying everything"
+        )
+        static let dietFilterAll = Loc(fr: "Tous", en: "All")
+        static let compatibleWithDiet = Loc(fr: "Compatible : %@", en: "Compatible: %@")
+
+        static let tabOverview = Loc(fr: "Vue d'ensemble", en: "Overview")
+        static let tabIngredients = Loc(fr: "Ingrédients", en: "Ingredients")
+        static let tabSteps = Loc(fr: "Préparation", en: "Directions")
+        static let tabTips = Loc(fr: "Conseils", en: "Tips")
+        static let tabNutrition = Loc(fr: "Nutrition", en: "Nutrition")
+        static let chipHaveCount = Loc(fr: "Vous avez déjà (%d)", en: "You already have (%d)")
+        static let chipMissingCount = Loc(fr: "Il manque (%d)", en: "Missing (%d)")
+        static let noTip = Loc(
+            fr: "Pas de conseil particulier pour cette recette.",
+            en: "No special tip for this recipe."
+        )
 
         static let prepLabel = Loc(fr: "préparation", en: "prep")
         static let cookLabel = Loc(fr: "cuisson", en: "cook")

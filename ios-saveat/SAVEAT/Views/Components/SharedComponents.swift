@@ -426,6 +426,15 @@ struct MealCard: View {
                     }
                 }
 
+                if meal.potentialSavings > 0 {
+                    SoftPill(
+                        text: S.Meals.savingsBadge.f(Format.euro(meal.potentialSavings)),
+                        tint: Theme.sageDeep,
+                        background: Theme.sageMist,
+                        icon: "leaf.circle.fill"
+                    )
+                }
+
                 if let highlight = meal.rescueHighlight {
                     HStack(spacing: 6) {
                         Image(systemName: "arrow.3.trianglepath").font(.system(size: 10))

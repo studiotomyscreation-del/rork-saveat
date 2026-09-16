@@ -32,6 +32,28 @@ struct MealAssistantView: View {
     @State private var zeroEuroOnly = false
     @State private var usedAI = true
     @State private var hasLoaded = false
+    @State private var dietFilter: DietPreference?
+
+    /// Previews another diet on top of the already-fetched, already-safe
+    /// results — real allergens and dislikes from the household profile
+    /// still apply, only `diet` changes, so this can never suggest something
+    /// the household is actually allergic to.
+    private var filteredMeals: [Meal] {
+        guard let dietFilter else { return meals }
+        var preview = store.profile
+        preview.diet = dietFilter
+        return meals.filter { MealEngine.isCompatible($0, with: preview) }
+    }
+
+    /// Only offered when the current results actually contain a compatible
+    /// meal — never a filter chip that would just empty the list.
+    private var availableDietFilters: [DietPreference] {
+        [.vegetarian, .vegan, .pescatarian, .halal, .kosher].filter { diet in
+            var preview = store.profile
+            preview.diet = diet
+            return meals.contains { MealEngine.isCompatible($0, with: preview) }
+        }
+    }
 
     private var quickAsks: [String] { S.Assistant.quickAsks.map(\.s) }
 
@@ -254,13 +276,47 @@ struct MealAssistantView: View {
                 }
             }
 
-            ForEach(meals) { meal in
+            if !availableDietFilters.isEmpty { dietFilterChips }
+
+            ForEach(filteredMeals) { meal in
                 NavigationLink(value: Route.meal(meal)) {
                     MealCard(meal: meal)
                 }
                 .buttonStyle(SoftPressStyle())
             }
         }
+    }
+
+    private var dietFilterChips: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 8) {
+                dietChip(title: S.Meals.dietFilterAll.s, isActive: dietFilter == nil) {
+                    dietFilter = nil
+                }
+                ForEach(availableDietFilters) { diet in
+                    dietChip(title: diet.title, isActive: dietFilter == diet) {
+                        dietFilter = (dietFilter == diet) ? nil : diet
+                    }
+                }
+            }
+            .padding(.vertical, 2)
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    private func dietChip(title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
+        Button {
+            Haptics.light()
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) { action() }
+        } label: {
+            Text(title)
+                .font(.system(size: 12.5, weight: .semibold, design: .rounded))
+                .foregroundStyle(isActive ? Theme.surface : Theme.sageDeep)
+                .padding(.horizontal, 13)
+                .padding(.vertical, 8)
+                .background(isActive ? Theme.sage : Theme.sageMist, in: .capsule)
+        }
+        .buttonStyle(SoftPressStyle())
     }
 
     private var quickAskSection: some View {

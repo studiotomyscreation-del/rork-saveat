@@ -1,31 +1,63 @@
 import SwiftUI
 
-/// Full recipe sheet: what you already have, what is missing, cost and steps.
+/// Full recipe sheet — SAVEAT V2 design: photo hero, real-time availability
+/// and savings, then tabbed sections (Overview / Ingredients / Steps / Tips /
+/// Nutrition) instead of one long scroll.
 struct MealDetailView: View {
     @Environment(AppStore.self) private var store
 
     let meal: Meal
 
     @State private var showsCookSheet = false
+    @State private var selectedTab: DetailTab = .overview
+
+    private enum DetailTab: CaseIterable, Hashable {
+        case overview, ingredients, steps, tips, nutrition
+
+        var title: String {
+            switch self {
+            case .overview: S.Meals.tabOverview.s
+            case .ingredients: S.Meals.tabIngredients.s
+            case .steps: S.Meals.tabSteps.s
+            case .tips: S.Meals.tabTips.s
+            case .nutrition: S.Meals.tabNutrition.s
+            }
+        }
+    }
 
     /// Always re-resolved against the live stock so availability stays honest.
     private var resolved: Meal { store.resolve(meal) }
+
+    private var coverageFraction: Double {
+        guard !resolved.ingredients.isEmpty else { return 0 }
+        return Double(resolved.availableIngredients.count) / Double(resolved.ingredients.count)
+    }
+
+    /// Only shown when this meal is actually compatible with the household's
+    /// own diet — real `MealEngine` logic, never a guessed label. Omnivore
+    /// and flexitarian aren't restrictions, so they never earn a badge.
+    private var compatibleDietBadge: DietPreference? {
+        let diet = store.profile.diet
+        guard diet != .omnivore, diet != .flexitarian else { return nil }
+        return MealEngine.isCompatible(resolved, with: store.profile) ? diet : nil
+    }
+
+    private let missingTint = SaveatBadgeTone.promo.foreground
+    private let missingBackground = SaveatBadgeTone.promo.background
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 hero
                 facts
-                availabilityCard
-                ingredientsCard
-                if !resolved.missingIngredients.isEmpty { missingCard }
-                stepsCard
-                nutritionCard
+                tabBar
+                tabContent
+                    .padding(.horizontal, Theme.hMargin)
             }
             .padding(.bottom, 30)
         }
         .scrollIndicators(.hidden)
-        .saveatBackground()
+        .background(SaveatColors.background.ignoresSafeArea())
         .navigationTitle(meal.displayName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
@@ -42,7 +74,7 @@ struct MealDetailView: View {
     @ViewBuilder
     private var hero: some View {
         if let imageName = meal.imageName, UIImage(named: imageName) != nil {
-            Theme.sageMist
+            SaveatColors.brandSoft
                 .frame(height: 210)
                 .overlay {
                     Image(imageName)
@@ -58,25 +90,34 @@ struct MealDetailView: View {
                         .background(.white.opacity(0.92), in: .circle)
                         .padding(16)
                 }
+                .overlay(alignment: .topTrailing) {
+                    if let compatibleDietBadge {
+                        SaveatBadge(text: S.Meals.compatibleWithDiet.f(compatibleDietBadge.title), tone: .brand, icon: "checkmark.seal.fill")
+                            .padding(16)
+                    }
+                }
         } else {
-            HStack(spacing: 14) {
+            HStack(alignment: .top, spacing: 14) {
                 Text(meal.emoji).font(.system(size: 40))
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(meal.displayName)
-                        .font(Theme.title(20))
-                        .foregroundStyle(Theme.ink)
+                        .font(SaveatTypography.title(20))
+                        .foregroundStyle(SaveatColors.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                     if !meal.summary.isEmpty {
                         Text(meal.displaySummary)
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
-                            .foregroundStyle(Theme.inkSoft)
+                            .font(SaveatTypography.caption(13))
+                            .foregroundStyle(SaveatColors.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
+                    }
+                    if let compatibleDietBadge {
+                        SaveatBadge(text: S.Meals.compatibleWithDiet.f(compatibleDietBadge.title), tone: .brand, icon: "checkmark.seal.fill")
                     }
                 }
                 Spacer(minLength: 0)
             }
             .padding(18)
-            .background(Theme.sageMist)
+            .background(SaveatColors.brandSoft)
         }
     }
 
@@ -99,103 +140,216 @@ struct MealDetailView: View {
     private func fact(value: String, label: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 15, weight: .bold, design: .rounded))
-                .foregroundStyle(Theme.ink)
+                .font(SaveatTypography.headline(15))
+                .foregroundStyle(SaveatColors.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
             Text(label)
-                .font(.system(size: 10, weight: .medium, design: .rounded))
-                .foregroundStyle(Theme.inkSoft)
+                .font(SaveatTypography.caption(10))
+                .foregroundStyle(SaveatColors.textSecondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .background(Theme.surface, in: .rect(cornerRadius: 16))
+        .background(SaveatColors.surface, in: .rect(cornerRadius: 16))
     }
 
-    // MARK: Availability
+    // MARK: Tabs
 
-    private var availabilityCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(resolved.isZeroEuro ? S.Meals.haveEverything.s : resolved.availabilityText)
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
-                        .foregroundStyle(resolved.isZeroEuro ? Theme.sageDeep : Theme.ink)
-                    Text(resolved.isZeroEuro
-                         ? S.Meals.noPurchase.s
-                         : S.Meals.extraCostNote.s)
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
-                        .foregroundStyle(Theme.inkSoft)
+    private var tabBar: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 8) {
+                ForEach(DetailTab.allCases, id: \.self) { tab in
+                    pillTab(tab)
                 }
-                Spacer()
-                VStack(spacing: 0) {
-                    Text(resolved.isZeroEuro ? Units.zeroCostLabel : Format.euro(resolved.extraCost))
-                        .font(.system(size: 26, weight: .bold, design: .rounded).monospacedDigit())
-                        .foregroundStyle(resolved.isZeroEuro ? Theme.sageDeep : Theme.terracotta)
-                    Text(S.Meals.toSpend.s)
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundStyle(Theme.inkSoft)
+            }
+            .padding(.horizontal, Theme.hMargin)
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    private func pillTab(_ tab: DetailTab) -> some View {
+        Button {
+            Haptics.light()
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) { selectedTab = tab }
+        } label: {
+            Text(tab.title)
+                .font(SaveatTypography.caption(12.5))
+                .foregroundStyle(selectedTab == tab ? SaveatColors.textOnDark : SaveatColors.textPrimary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background(selectedTab == tab ? SaveatColors.brand : SaveatColors.surface, in: .capsule)
+        }
+        .buttonStyle(SoftPressStyle())
+    }
+
+    @ViewBuilder
+    private var tabContent: some View {
+        switch selectedTab {
+        case .overview: overviewTab
+        case .ingredients: ingredientsTab
+        case .steps: stepsTab
+        case .tips: tipsTab
+        case .nutrition: nutritionTab
+        }
+    }
+
+    // MARK: Overview
+
+    private var overviewTab: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SaveatCard {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(spacing: 14) {
+                        coverageRing
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(resolved.isZeroEuro ? S.Meals.haveEverything.s : resolved.availabilityText)
+                                .font(SaveatTypography.headline(15))
+                                .foregroundStyle(SaveatColors.textPrimary)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text(resolved.isZeroEuro ? S.Meals.noPurchase.s : S.Meals.extraCostNote.s)
+                                .font(SaveatTypography.caption(12))
+                                .foregroundStyle(SaveatColors.textSecondary)
+                        }
+                        Spacer(minLength: 0)
+                    }
+
+                    if resolved.potentialSavings > 0 {
+                        HStack(spacing: 10) {
+                            Image(systemName: "leaf.circle.fill")
+                                .foregroundStyle(SaveatColors.brand)
+                            Text(S.Meals.savingsCardTitle.s)
+                                .font(SaveatTypography.caption(12))
+                                .foregroundStyle(SaveatColors.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Spacer(minLength: 8)
+                            Text(Format.euro(resolved.potentialSavings))
+                                .font(SaveatTypography.headline(16))
+                                .foregroundStyle(SaveatColors.forestDeep)
+                        }
+                        .padding(12)
+                        .background(SaveatColors.brandSoft, in: .rect(cornerRadius: 14))
+                    }
                 }
             }
 
-            if let note = resolved.displayNote, !note.isEmpty {
-                HStack(spacing: 6) {
-                    Image(systemName: "leaf.fill").font(.system(size: 11))
-                    Text(note)
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .foregroundStyle(Theme.sageDeep)
+            haveMissGrid
+        }
+    }
+
+    private var coverageRing: some View {
+        ZStack {
+            Circle().stroke(SaveatColors.brandSoft, lineWidth: 7)
+            Circle()
+                .trim(from: 0, to: coverageFraction)
+                .stroke(SaveatColors.brand, style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            Text("\(Int((coverageFraction * 100).rounded()))%")
+                .font(SaveatTypography.headline(14.5))
+                .foregroundStyle(SaveatColors.forestDeep)
+                .minimumScaleFactor(0.8)
+        }
+        .frame(width: 64, height: 64)
+    }
+
+    private var haveMissGrid: some View {
+        HStack(alignment: .top, spacing: 10) {
+            haveMissColumn(
+                title: S.Meals.chipHaveCount.f(resolved.availableIngredients.count),
+                items: resolved.availableIngredients,
+                tint: SaveatColors.brand,
+                background: SaveatColors.brandSoft
+            )
+            if !resolved.missingIngredients.isEmpty {
+                haveMissColumn(
+                    title: S.Meals.chipMissingCount.f(resolved.missingIngredients.count),
+                    items: resolved.missingIngredients,
+                    tint: missingTint,
+                    background: missingBackground
+                )
             }
         }
-        .saveatCard()
-        .padding(.horizontal, Theme.hMargin)
+    }
+
+    private func haveMissColumn(title: String, items: [MealIngredient], tint: Color, background: Color) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(SaveatTypography.caption(11.5))
+                .foregroundStyle(tint)
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(items) { ingredient in
+                    HStack(spacing: 6) {
+                        Circle().fill(tint).frame(width: 6, height: 6)
+                        Text(ingredient.displayName)
+                            .font(SaveatTypography.caption(12.5))
+                            .foregroundStyle(SaveatColors.textPrimary)
+                            .lineLimit(1)
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(background, in: .rect(cornerRadius: 16))
     }
 
     // MARK: Ingredients
 
-    private var ingredientsCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(text: S.Meals.ingredients.s)
+    private var ingredientsTab: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            SaveatCard {
+                VStack(spacing: 0) {
+                    ForEach(Array(resolved.ingredients.enumerated()), id: \.element.id) { index, ingredient in
+                        HStack(spacing: 12) {
+                            Image(systemName: ingredient.isFree ? "checkmark.circle.fill" : "cart.badge.plus")
+                                .font(.system(size: 18))
+                                .foregroundStyle(ingredient.isFree ? SaveatColors.brand : missingTint)
 
-            VStack(spacing: 0) {
-                ForEach(Array(resolved.ingredients.enumerated()), id: \.element.id) { index, ingredient in
-                    HStack(spacing: 12) {
-                        Image(systemName: ingredient.isFree ? "checkmark.circle.fill" : "cart.badge.plus")
-                            .font(.system(size: 18))
-                            .foregroundStyle(ingredient.isFree ? Theme.sage : Theme.terracotta)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(ingredient.displayName)
+                                    .font(SaveatTypography.headline(14.5))
+                                    .foregroundStyle(SaveatColors.textPrimary)
+                                Text(subtitle(for: ingredient))
+                                    .font(SaveatTypography.caption(11.5))
+                                    .foregroundStyle(ingredient.isFree ? SaveatColors.brand : missingTint)
+                            }
 
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(ingredient.displayName)
-                                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                                .foregroundStyle(Theme.ink)
-                            Text(subtitle(for: ingredient))
-                                .font(.system(size: 12, weight: .medium, design: .rounded))
-                                .foregroundStyle(ingredient.isFree ? Theme.sageDeep : Theme.terracotta)
+                            Spacer(minLength: 4)
+
+                            if !ingredient.isFree {
+                                Text("~\(Format.euro(ingredient.estimatedPrice))")
+                                    .font(SaveatTypography.caption(12.5))
+                                    .foregroundStyle(missingTint)
+                            }
                         }
+                        .padding(.vertical, 10)
 
-                        Spacer(minLength: 4)
-
-                        if !ingredient.isFree {
-                            Text("~\(Format.euro(ingredient.estimatedPrice))")
-                                .font(.system(size: 13, weight: .semibold, design: .rounded).monospacedDigit())
-                                .foregroundStyle(Theme.terracotta)
+                        if index < resolved.ingredients.count - 1 {
+                            Divider()
                         }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-
-                    if index < resolved.ingredients.count - 1 {
-                        Divider().padding(.leading, 50)
                     }
                 }
             }
-            .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
-            .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
+
+            if !resolved.missingIngredients.isEmpty {
+                Button {
+                    store.addToShoppingList(MealEngine.shoppingList(for: [resolved]))
+                    Haptics.success()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "cart.badge.plus")
+                        Text(S.Meals.addToList.s)
+                    }
+                    .font(SaveatTypography.headline(15))
+                    .foregroundStyle(SaveatColors.textOnDark)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(SaveatColors.brand, in: .capsule)
+                }
+                .buttonStyle(SoftPressStyle())
+            }
         }
-        .padding(.horizontal, Theme.hMargin)
     }
 
     private func subtitle(for ingredient: MealIngredient) -> String {
@@ -205,118 +359,96 @@ struct MealDetailView: View {
         return "\(quantity)\(S.Meals.toBuy.s)"
     }
 
-    // MARK: Missing
-
-    private var missingCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(resolved.missingIngredients.count > 1
-                ? S.Meals.missingCountPlural.f(resolved.missingIngredients.count)
-                : S.Meals.missingCount.f(resolved.missingIngredients.count))
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
-                .foregroundStyle(Theme.ink)
-
-            Text(resolved.missingIngredients.map(\.displayName).joined(separator: " • "))
-                .font(.system(size: 13, weight: .medium, design: .rounded))
-                .foregroundStyle(Theme.inkSoft)
-                .fixedSize(horizontal: false, vertical: true)
-
-            Button {
-                store.addToShoppingList(MealEngine.shoppingList(for: [resolved]))
-                Haptics.success()
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "cart.badge.plus")
-                    Text(S.Meals.addToList.s)
-                }
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .foregroundStyle(Theme.terracotta)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(Theme.terracotta.opacity(0.14), in: .capsule)
-            }
-            .buttonStyle(SoftPressStyle())
-        }
-        .saveatCard()
-        .padding(.horizontal, Theme.hMargin)
-    }
-
     // MARK: Steps
 
-    private var stepsCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionLabel(text: S.Meals.stepsSection.s)
-
+    private var stepsTab: some View {
+        SaveatCard {
             VStack(alignment: .leading, spacing: 14) {
                 ForEach(Array(resolved.displaySteps.enumerated()), id: \.offset) { index, step in
                     HStack(alignment: .top, spacing: 12) {
                         Text("\(index + 1)")
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
+                            .font(SaveatTypography.caption(13))
+                            .foregroundStyle(SaveatColors.textOnDark)
                             .frame(width: 26, height: 26)
-                            .background(Theme.sage, in: .circle)
+                            .background(SaveatColors.brand, in: .circle)
                         Text(step)
-                            .font(.system(size: 15, weight: .medium, design: .rounded))
-                            .foregroundStyle(Theme.ink)
+                            .font(SaveatTypography.body(15))
+                            .foregroundStyle(SaveatColors.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
         }
-        .saveatCard()
-        .padding(.horizontal, Theme.hMargin)
+    }
+
+    // MARK: Tips
+
+    private var tipsTab: some View {
+        SaveatCard {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "leaf.fill")
+                    .font(.system(size: 15))
+                    .foregroundStyle(SaveatColors.brand)
+                let note = resolved.displayNote ?? ""
+                Text(note.isEmpty ? S.Meals.noTip.s : note)
+                    .font(SaveatTypography.body(14.5))
+                    .foregroundStyle(SaveatColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
     }
 
     // MARK: Nutrition
 
-    private var nutritionCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(text: S.Meals.nutritionSection.s)
-            HStack(spacing: 10) {
-                nutrient("\(resolved.kcalPerServing)", S.Meals.kcalPerServing.s)
-                nutrient(Units.weight(grams: Double(resolved.proteinsPerServing)), S.Meals.proteins.s)
-                nutrient(Format.euro(resolved.extraCostPerServing), S.Meals.costPerServing.s)
+    private var nutritionTab: some View {
+        SaveatCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 10) {
+                    nutrient("\(resolved.kcalPerServing)", S.Meals.kcalPerServing.s)
+                    nutrient(Units.weight(grams: Double(resolved.proteinsPerServing)), S.Meals.proteins.s)
+                    nutrient(Format.euro(resolved.extraCostPerServing), S.Meals.costPerServing.s)
+                }
+                Text(S.Meals.nutritionNote.s)
+                    .font(SaveatTypography.caption(11))
+                    .foregroundStyle(SaveatColors.textSecondary)
             }
-            Text(S.Meals.nutritionNote.s)
-                .font(.system(size: 11, weight: .medium, design: .rounded))
-                .foregroundStyle(Theme.inkSoft)
         }
-        .saveatCard()
-        .padding(.horizontal, Theme.hMargin)
     }
 
     private func nutrient(_ value: String, _ label: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 17, weight: .bold, design: .rounded).monospacedDigit())
-                .foregroundStyle(Theme.ink)
+                .font(SaveatTypography.headline(16))
+                .foregroundStyle(SaveatColors.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
             Text(label)
-                .font(.system(size: 10, weight: .medium, design: .rounded))
-                .foregroundStyle(Theme.inkSoft)
+                .font(SaveatTypography.caption(10))
+                .foregroundStyle(SaveatColors.textSecondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .background(Theme.creamDeep, in: .rect(cornerRadius: 14))
+        .background(SaveatColors.background, in: .rect(cornerRadius: 14))
     }
 
     // MARK: Cook bar
 
     private var cookBar: some View {
-        VStack(spacing: 0) {
-            Button {
-                Haptics.soft()
-                showsCookSheet = true
-            } label: {
-                Text(S.Meals.cook.s)
-            }
-            .buttonStyle(SaveatButtonStyle())
-            .padding(.horizontal, Theme.hMargin)
-            .padding(.top, 12)
-            .padding(.bottom, 10)
+        SaveatPrimaryButton(title: S.Meals.cook.s) {
+            showsCookSheet = true
         }
+        .padding(.horizontal, Theme.hMargin)
+        .padding(.top, 12)
+        .padding(.bottom, 10)
         .background(.ultraThinMaterial)
+    }
+}
+
+#Preview {
+    NavigationStack {
+        MealDetailView(meal: MockData.curatedMeals.first!)
+            .environment(AppStore())
     }
 }

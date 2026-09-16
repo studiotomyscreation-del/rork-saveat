@@ -88,6 +88,13 @@ nonisolated struct Meal: Identifiable, Codable, Hashable, Sendable {
 
     nonisolated var isZeroEuro: Bool { missingIngredients.isEmpty }
 
+    /// What cooking this with the stock avoids paying, vs. buying every
+    /// ingredient fresh — the sum of estimated prices for what's already on
+    /// hand. Real per-ingredient prices only, never a guessed headline figure.
+    nonisolated var potentialSavings: Double {
+        availableIngredients.reduce(0) { $0 + $1.estimatedPrice }
+    }
+
     // MARK: Localized display
 
     /// Recipe title in the reader's language.
