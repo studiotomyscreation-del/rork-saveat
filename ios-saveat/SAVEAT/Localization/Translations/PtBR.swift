@@ -379,7 +379,6 @@ nonisolated enum StringsPtBR {
         "High in saturated fat": "Rico em gordura saturada",
         "High in sodium": "Rico em sódio",
         "High in sugar": "Rico em açúcar",
-        "High protein": "Rico em proteínas",
         "Home": "Início",
         "Household Preferences": "Preferências da casa",
         "How do you eat?": "Como você come?",

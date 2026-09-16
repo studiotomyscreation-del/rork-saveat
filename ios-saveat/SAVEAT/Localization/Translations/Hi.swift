@@ -380,7 +380,6 @@ nonisolated enum StringsHi {
         "High in saturated fat": "सैचुरेटेड फैट ज़्यादा",
         "High in sodium": "सोडियम ज़्यादा",
         "High in sugar": "चीनी ज़्यादा",
-        "High protein": "हाई प्रोटीन",
         "Home": "होम",
         "Household Preferences": "घर की प्राथमिकताएँ",
         "How do you eat?": "आप कैसा खाते हैं?",

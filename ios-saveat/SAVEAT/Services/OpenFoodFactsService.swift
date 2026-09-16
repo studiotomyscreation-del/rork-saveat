@@ -27,10 +27,11 @@ nonisolated struct OpenFoodFactsService: Sendable {
     private static let fields = [
         "code", "product_name", "product_name_fr", "product_name_en",
         "product_name_es", "product_name_pt", "product_name_zh", "product_name_hi",
+        "product_name_it",
         "brands",
         "image_front_url", "image_url", "quantity",
         "ingredients_text_fr", "ingredients_text_en", "ingredients_text",
-        "ingredients_text_es", "ingredients_text_pt",
+        "ingredients_text_es", "ingredients_text_pt", "ingredients_text_it",
         "allergens_tags", "additives_tags",
         "nutriscore_grade", "nova_group", "nutriments", "categories_tags"
     ].joined(separator: ",")
@@ -83,6 +84,7 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
     var productNamePT: String?
     var productNameZH: String?
     var productNameHI: String?
+    var productNameIT: String?
     var brands: String?
     var imageFrontURL: String?
     var imageURL: String?
@@ -91,6 +93,7 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
     var ingredientsTextEN: String?
     var ingredientsTextES: String?
     var ingredientsTextPT: String?
+    var ingredientsTextIT: String?
     var ingredientsText: String?
     var allergensTags: [String]?
     var additivesTags: [String]?
@@ -107,6 +110,7 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
         case productNamePT = "product_name_pt"
         case productNameZH = "product_name_zh"
         case productNameHI = "product_name_hi"
+        case productNameIT = "product_name_it"
         case brands
         case imageFrontURL = "image_front_url"
         case imageURL = "image_url"
@@ -115,6 +119,7 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
         case ingredientsTextEN = "ingredients_text_en"
         case ingredientsTextES = "ingredients_text_es"
         case ingredientsTextPT = "ingredients_text_pt"
+        case ingredientsTextIT = "ingredients_text_it"
         case ingredientsText = "ingredients_text"
         case allergensTags = "allergens_tags"
         case additivesTags = "additives_tags"
@@ -138,6 +143,7 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
         case .ptBR: localName = productNamePT
         case .zhCN: localName = productNameZH
         case .hi: localName = productNameHI
+        case .it: localName = productNameIT
         }
         let namesByPreference = [localName, productName, productNameEN, productNameFR]
             .map { $0 as String? }
@@ -150,6 +156,7 @@ private nonisolated struct OFFProduct: Decodable, Sendable {
         case .en, .enGB: localIngredients = ingredientsTextEN
         case .es: localIngredients = ingredientsTextES
         case .ptBR: localIngredients = ingredientsTextPT
+        case .it: localIngredients = ingredientsTextIT
         case .zhCN, .hi: localIngredients = nil
         }
         let ingredientsByPreference = [localIngredients, ingredientsText, ingredientsTextEN, ingredientsTextFR]

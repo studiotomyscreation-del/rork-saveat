@@ -16,6 +16,7 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
     case ptBR
     case zhCN
     case hi
+    case it
 
     nonisolated var id: String { rawValue }
 
@@ -29,6 +30,7 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
         case .ptBR: "Português (Brasil)"
         case .zhCN: "简体中文"
         case .hi: "हिन्दी"
+        case .it: "Italiano"
         }
     }
 
@@ -41,6 +43,7 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
         case .ptBR: "🇧🇷"
         case .zhCN: "🇨🇳"
         case .hi: "🇮🇳"
+        case .it: "🇮🇹"
         }
     }
 
@@ -54,6 +57,7 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
         case .ptBR: Locale(identifier: "pt_BR")
         case .zhCN: Locale(identifier: "zh_CN")
         case .hi: Locale(identifier: "hi_IN")
+        case .it: Locale(identifier: "it_IT")
         }
     }
 
@@ -61,21 +65,21 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
     /// oz / cups / Fahrenheit. English (UK) keeps grams, millilitres and Celsius.
     nonisolated var usesMetric: Bool { self != .en }
 
-    /// Comma decimal separator (1,5 kg) as written in France, Spain and Brazil.
+    /// Comma decimal separator (1,5 kg) as written in France, Spain, Brazil and Italy.
     nonisolated var usesCommaDecimal: Bool {
         switch self {
-        case .fr, .es, .ptBR: true
+        case .fr, .es, .ptBR, .it: true
         case .en, .enGB, .zhCN, .hi: false
         }
     }
 
-    /// Day-first printed dates (09/12 = 9 December) for fr, es, pt-BR and hi;
+    /// Day-first printed dates (09/12 = 9 December) for fr, es, pt-BR, hi and it;
     /// month-first for US packs. China writes year-first, which the numeric
     /// patterns still parse month-first — acceptable for the two-digit year
     /// formats on Chinese packaging.
     nonisolated var readsDayFirstDates: Bool {
         switch self {
-        case .fr, .es, .ptBR, .hi, .enGB: true
+        case .fr, .es, .ptBR, .hi, .enGB, .it: true
         case .en, .zhCN: false
         }
     }
@@ -90,6 +94,7 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
         case .ptBR: "português do Brasil"
         case .zhCN: "简体中文"
         case .hi: "हिन्दी"
+        case .it: "italiano"
         }
     }
 
@@ -102,6 +107,7 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
         case .ptBR: "pt"
         case .zhCN: "zh"
         case .hi: "hi"
+        case .it: "it"
         }
     }
 
@@ -114,6 +120,7 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
         if prefix.hasPrefix("pt") { return .ptBR }
         if prefix.hasPrefix("zh") { return .zhCN }
         if prefix.hasPrefix("hi") { return .hi }
+        if prefix.hasPrefix("it") { return .it }
         if prefix.hasPrefix("en-gb") { return .enGB }
         return .en
     }
@@ -192,6 +199,7 @@ nonisolated enum TranslationCatalog {
         case .ptBR: StringsPtBR.table[english]
         case .zhCN: StringsZhCN.table[english]
         case .hi: StringsHi.table[english]
+        case .it: StringsIt.table[english]
         }
     }
 }

@@ -256,7 +256,7 @@ nonisolated enum Money {
     /// it (12 €). This is a writing convention, so it follows the language.
     nonisolated static var symbolLeads: Bool {
         switch LanguageRuntime.current {
-        case .fr, .es: false
+        case .fr, .es, .it: false
         case .en, .enGB, .ptBR, .zhCN, .hi: true
         }
     }
@@ -265,7 +265,7 @@ nonisolated enum Money {
     /// unavailable — never in place of a real region.
     private nonisolated static var languageFallbackCode: String {
         switch LanguageRuntime.current {
-        case .fr, .es: "EUR"
+        case .fr, .es, .it: "EUR"
         case .en: "USD"
         case .enGB: "GBP"
         case .ptBR: "BRL"

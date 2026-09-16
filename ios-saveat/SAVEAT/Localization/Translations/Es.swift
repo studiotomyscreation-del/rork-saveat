@@ -378,7 +378,6 @@ nonisolated enum StringsEs {
         "High in saturated fat": "Alto en grasas saturadas",
         "High in sodium": "Alto en sodio",
         "High in sugar": "Alto en azúcar",
-        "High protein": "Alto en proteínas",
         "Home": "Inicio",
         "Household Preferences": "Preferencias del hogar",
         "How do you eat?": "¿Cómo comes?",

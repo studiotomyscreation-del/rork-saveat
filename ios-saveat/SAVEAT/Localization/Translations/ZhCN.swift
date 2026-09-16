@@ -381,7 +381,6 @@ nonisolated enum StringsZhCN {
         "High in saturated fat": "高饱和脂肪",
         "High in sodium": "高钠",
         "High in sugar": "高糖",
-        "High protein": "高蛋白",
         "Home": "首页",
         "Household Preferences": "家庭偏好",
         "How do you eat?": "你怎么吃？",
