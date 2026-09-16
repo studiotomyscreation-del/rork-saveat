@@ -182,7 +182,8 @@ final class SubscriptionStore {
 
     var isPremium: Bool { status.isPremium }
 
-    /// Which RevenueCat store this build talks to (Test Store today).
+    /// Which RevenueCat store this build talks to — every build now uses the
+    /// real App Store product configuration (see `PurchasesBootstrap`).
     var environment: PurchaseEnvironment { PurchasesBootstrap.environment }
 
     /// False when no valid API key was found: the app must never call `Purchases.shared`.
