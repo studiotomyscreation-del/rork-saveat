@@ -52,5 +52,74 @@ extension S {
         static let dietaryLactoseFree = Loc(fr: "Sans lactose", en: "Lactose-free")
         static let dietaryHalal = Loc(fr: "Halal", en: "Halal")
         static let dietaryKosher = Loc(fr: "Casher", en: "Kosher")
+
+        // MARK: Entry point (§5)
+
+        static let entryPointTitle = Loc(fr: "Vous êtes commerçant ?", en: "Are you a food business?")
+        static let entryPointSubtitle = Loc(
+            fr: "Publiez vos invendus gratuitement sur SAVEAT.",
+            en: "Publish your surplus food for free on SAVEAT."
+        )
+        static let becomePartnerCTA = Loc(fr: "Devenir partenaire SAVEAT", en: "Become a SAVEAT partner")
+
+        // MARK: Business identifier screen (§8)
+
+        static let signUpTitle = Loc(fr: "Identifiez votre établissement", en: "Identify your business")
+        static let signUpSubtitle = Loc(
+            fr: "Entrez votre SIRET, SAVEAT s'occupe du reste.",
+            en: "Enter your SIRET number — SAVEAT takes care of the rest."
+        )
+        static let siretFieldLabel = Loc(fr: "SIRET ou SIREN", en: "SIRET or SIREN")
+        static let siretFieldPlaceholder = Loc(fr: "14 ou 9 chiffres", en: "14 or 9 digits")
+        static let findEstablishmentCTA = Loc(fr: "Trouver mon établissement", en: "Find my business")
+        static let searchingEstablishment = Loc(
+            fr: "Recherche de votre établissement…",
+            en: "Looking up your business…"
+        )
+        static let thisIsMyEstablishment = Loc(fr: "C'est mon établissement", en: "This is my business")
+        static let notMyEstablishment = Loc(fr: "Ce n'est pas mon établissement", en: "This isn't my business")
+        static let establishmentNotFound = Loc(
+            fr: "Aucun établissement trouvé pour ce numéro.",
+            en: "No business found for this number."
+        )
+        static let invalidIdentifierFormat = Loc(
+            fr: "Entrez un SIRET (14 chiffres) ou un SIREN (9 chiffres) valide.",
+            en: "Enter a valid SIRET (14 digits) or SIREN (9 digits)."
+        )
+        static let lookupServiceUnavailable = Loc(
+            fr: "Service indisponible pour le moment. Réessayez.",
+            en: "Service unavailable right now. Try again."
+        )
+        static let otherEstablishmentsNotice = Loc(
+            fr: "Cette entreprise a d'autres établissements — si ce n'est pas le bon, entrez directement son propre SIRET.",
+            en: "This business has other locations — if this isn't the right one, enter its own SIRET directly."
+        )
+
+        // MARK: SIREN with several establishments (§9)
+
+        static let multipleEstablishmentsTitle = Loc(
+            fr: "Votre entreprise possède plusieurs établissements",
+            en: "Your business has several locations"
+        )
+        static let chooseThisEstablishment = Loc(fr: "Choisir cet établissement", en: "Choose this location")
+
+        // MARK: Responsible person (§13)
+
+        static let responsibleInfoTitle = Loc(fr: "Coordonnées du responsable", en: "Contact details")
+        static let firstNameLabel = Loc(fr: "Prénom", en: "First name")
+        static let lastNameLabel = Loc(fr: "Nom", en: "Last name")
+        static let emailLabel = Loc(fr: "E-mail", en: "Email")
+        static let phoneLabel = Loc(fr: "Téléphone", en: "Phone")
+        static let createProAccountCTA = Loc(
+            fr: "Créer mon compte SAVEAT PRO",
+            en: "Create my SAVEAT PRO account"
+        )
+        /// Shown under the create-account button until a real backend exists —
+        /// same honesty pattern as `S.Intro.accountComingSoonNotice` for the
+        /// particulier account.
+        static let proAccountComingSoonNotice = Loc(
+            fr: "La création de compte professionnel arrive bientôt. Tes informations ne sont pas encore enregistrées.",
+            en: "Professional account creation is coming soon. Your information isn't saved yet."
+        )
     }
 }

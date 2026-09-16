@@ -8,6 +8,7 @@ struct ProfileView: View {
 
     @State private var showsPaywall = false
     @State private var showsCustomerCenter = false
+    @State private var showsProSignUp = false
     @State private var isRunningSelfTest = false
     @State private var selfTestSummary: String?
 
@@ -22,6 +23,7 @@ struct ProfileView: View {
                 savingsCard
                 menuSection
                 SaveatLocalCard()
+                proEntryCard
                 legalSection
                 promise
             }
@@ -33,6 +35,7 @@ struct ProfileView: View {
         .saveatBackground()
         .sheet(isPresented: $showsPaywall) { PaywallSheet() }
         .sheet(isPresented: $showsCustomerCenter) { ManageSubscriptionSheet() }
+        .sheet(isPresented: $showsProSignUp) { ProSignUpContainerView() }
         .task { await subscriptions.refreshCustomerInfo() }
     }
 
@@ -403,6 +406,37 @@ struct ProfileView: View {
             .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
             .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
         }
+    }
+
+    /// Entry point into SAVEAT PRO (§5 of the spec) — deliberately a single
+    /// discreet card among the profile's other menu items, never a main tab,
+    /// so the particulier's own navigation stays uncluttered.
+    private var proEntryCard: some View {
+        Button {
+            showsProSignUp = true
+        } label: {
+            HStack(spacing: 14) {
+                FoodBadge(emoji: "🏪", size: 40)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(S.Pro.entryPointTitle.s)
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Theme.ink)
+                    Text(S.Pro.entryPointSubtitle.s)
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundStyle(Theme.inkSoft)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Theme.inkSoft.opacity(0.6))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .contentShape(.rect)
+        }
+        .buttonStyle(SoftPressStyle())
+        .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
+        .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
     }
 
     private func legalRow(title: String, url: URL) -> some View {
