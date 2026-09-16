@@ -2005,8 +2005,8 @@ nonisolated enum S {
 
         static let mapTitle = Loc(fr: "Les bons plans sont autour de vous.", en: "Deals Are All Around You.")
         static let mapBody = Loc(
-            fr: "Découvrez les solutions anti-gaspillage et les bonnes affaires près de chez vous.",
-            en: "Discover anti-waste options and deals near you."
+            fr: "Découvrez les lieux anti-gaspillage et les paniers surprise publiés par les commerçants partenaires SAVEAT, près de chez vous.",
+            en: "Discover anti-waste spots and surprise baskets from local SAVEAT partner businesses, near you."
         )
         static let mapCTA = Loc(fr: "Découvrir autour de moi", en: "Discover Near Me")
         static let mapSearchPlaceholder = Loc(fr: "Rechercher un lieu ou une ville", en: "Search a place or city")
