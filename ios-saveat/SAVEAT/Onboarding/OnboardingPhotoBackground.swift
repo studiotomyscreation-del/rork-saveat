@@ -18,6 +18,9 @@ struct OnboardingPhotoBackground: View {
 
     /// Darkest at the bottom, where the title and CTA usually sit; still
     /// dark enough near the top that an icon or eyebrow stays legible too.
+    /// Only ever laid over a photo — stacking it on the plain gradient too
+    /// flattened photo-less pages (e.g. Map, whose hero visual is a live
+    /// MapKit preview) into a dull, muddy wash.
     private static let scrim = LinearGradient(
         colors: [
             SaveatColors.nightBlue.opacity(0.38),
@@ -28,6 +31,26 @@ struct OnboardingPhotoBackground: View {
         endPoint: .bottom
     )
 
+    /// The base every page falls back to when it has no photo — richer than
+    /// the plain two-color gradient alone (a soft brand-green glow from the
+    /// top-leading corner) so a photo-less page doesn't read as flatter than
+    /// its neighbours.
+    private static var plainBackground: some View {
+        ZStack {
+            LinearGradient(
+                colors: [SaveatColors.forestDeep, SaveatColors.nightBlue],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            RadialGradient(
+                colors: [SaveatColors.brand.opacity(0.3), .clear],
+                center: .topLeading,
+                startRadius: 0,
+                endRadius: 420
+            )
+        }
+    }
+
     private var resolvedAssetName: String? {
         assetNames.first { UIImage(named: $0) != nil }
     }
@@ -35,23 +58,16 @@ struct OnboardingPhotoBackground: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                // Plain brand gradient first — the base every page falls back
-                // to, so a not-yet-added photo never leaves a blank/white gap.
-                LinearGradient(
-                    colors: [SaveatColors.forestDeep, SaveatColors.nightBlue],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-
                 if let resolvedAssetName {
                     Image(resolvedAssetName)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: geo.size.width, height: geo.size.height)
                         .clipped()
+                    Self.scrim
+                } else {
+                    Self.plainBackground
                 }
-
-                Self.scrim
             }
         }
         .ignoresSafeArea()
