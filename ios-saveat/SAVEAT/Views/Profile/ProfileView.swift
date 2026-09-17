@@ -536,6 +536,11 @@ struct ProfileView: View {
                         day.recipe?.displayName ?? "—"
                     )
                 }
+                Divider()
+                aiDiagnosticLine("Liste de courses", "\(plan.shoppingList.count) article(s)")
+                ForEach(plan.shoppingList.prefix(8)) { item in
+                    aiDiagnosticLine(item.name, item.quantityText)
+                }
             }
 
             Divider()

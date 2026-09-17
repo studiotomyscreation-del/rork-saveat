@@ -36,13 +36,25 @@ nonisolated struct WeeklyPlanGenerator: Sendable {
         // meals were generated (e.g. a very short stock and a strict diet).
         let meals = Array(answer.meals.prefix(numberOfDays))
         let calendar = Calendar.current
-        let days = meals.enumerated().map { index, meal -> MealPlanDay in
-            MealPlanDay(
+
+        // Resolve each day against the stock in order, depleting a working
+        // copy as we go — otherwise two days both "reusing" the same 3 eggs
+        // would each be marked as fully covered by stock, and the shopping
+        // list built from that would wrongly skip eggs entirely.
+        var workingInventory = inventory
+        var days: [MealPlanDay] = []
+        for (index, meal) in meals.enumerated() {
+            let resolved = MealEngine.resolve(meal, inventory: workingInventory)
+            days.append(MealPlanDay(
                 date: calendar.date(byAdding: .day, value: index, to: startDate) ?? startDate,
                 mealType: Self.mealType,
-                recipe: meal,
+                recipe: resolved,
                 servings: servings
-            )
+            ))
+            for deduction in MealEngine.deductions(for: resolved, inventory: workingInventory) {
+                guard let itemIndex = workingInventory.firstIndex(where: { $0.id == deduction.itemID }) else { continue }
+                workingInventory[itemIndex].quantity = deduction.after
+            }
         }
 
         return WeeklyMealPlan(

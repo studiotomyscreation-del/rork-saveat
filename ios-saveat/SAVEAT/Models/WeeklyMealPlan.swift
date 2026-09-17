@@ -19,6 +19,16 @@ nonisolated struct WeeklyMealPlan: Identifiable, Codable, Hashable, Sendable {
     var days: [MealPlanDay]
     var createdAt: Date = .now
     var updatedAt: Date = .now
+
+    /// The whole week's missing ingredients, aggregated and deduplicated
+    /// across every day — reuses `MealEngine.shoppingList(for:)` (already
+    /// extended in Phase 2 to sum compatible quantities) rather than a
+    /// second aggregation pass. Meaningful only once each day's `recipe`
+    /// has been resolved against real stock (`WeeklyPlanGenerator` always
+    /// does this before storing a plan).
+    nonisolated var shoppingList: [ShoppingItem] {
+        MealEngine.shoppingList(for: days.compactMap(\.recipe))
+    }
 }
 
 /// One meal slot inside a `WeeklyMealPlan`.
