@@ -10,8 +10,15 @@ import SwiftUI
 enum SaveatColors {
     /// #0F5132 — deep green, headlines and primary text on light surfaces.
     static let forestDeep = Color(red: 0x0F / 255, green: 0x51 / 255, blue: 0x32 / 255)
-    /// #22C55E — SAVEAT green, the primary brand and action color.
-    static let brand = Color(red: 0x22 / 255, green: 0xC5 / 255, blue: 0x5E / 255)
+    /// #4E9A6B — SAVEAT green, the primary brand and action color.
+    ///
+    /// Softened from the original #22C55E (a vivid Tailwind-style green) to
+    /// this calmer, more desaturated sage tone — closer in character to the
+    /// bottom tab bar's `Theme.sage`/`sageDeep`, so the buttons built on
+    /// `SaveatColors` (onboarding CTAs, "Cuisiner", basket actions…) stop
+    /// clashing with the tab bar's own softer green instead of standing out
+    /// as a brighter, more "tapé à l'œil" accent next to it.
+    static let brand = Color(red: 0x4E / 255, green: 0x9A / 255, blue: 0x6B / 255)
     /// #8FE34F — light green, highlights and secondary accents.
     static let brandLight = Color(red: 0x8F / 255, green: 0xE3 / 255, blue: 0x4F / 255)
     /// #101C2C — night blue, dark surfaces and high-contrast text.
