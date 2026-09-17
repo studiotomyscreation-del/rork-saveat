@@ -15,6 +15,7 @@ final class AppStore {
         static let challenges = "saveat.challenges.v2"
         static let groceryRuns = "saveat.groceryRuns.v2"
         static let waste = "saveat.waste.v1"
+        static let weeklyPlan = "saveat.weeklyPlan.v1"
     }
 
     var profile: UserProfile {
@@ -54,6 +55,12 @@ final class AppStore {
         didSet { persist(wasteLog, key: Keys.waste) }
     }
 
+    /// The household's current planned week, once one exists (Chef/semaine
+    /// roadmap Phase 3+) — `nil` until a plan is generated.
+    var currentWeeklyPlan: WeeklyMealPlan? {
+        didSet { persistOptional(currentWeeklyPlan, key: Keys.weeklyPlan) }
+    }
+
     /// Toast-style confirmation shown after an action.
     var banner: BannerMessage?
 
@@ -70,6 +77,11 @@ final class AppStore {
             return decoded
         }
 
+        func loadOptional<T: Decodable>(_ key: String) -> T? {
+            guard let data = defaults.data(forKey: key) else { return nil }
+            return try? JSONDecoder().decode(T.self, from: data)
+        }
+
         // A brand-new account starts genuinely at zero: no stock, no meals, no
         // savings. Demo content belongs to whoever generated it, never to a new
         // user. Anyone who already has data on disk keeps it exactly as it is —
@@ -81,6 +93,7 @@ final class AppStore {
         cookedLog = load(Keys.cooked, fallback: [])
         groceryRuns = load(Keys.groceryRuns, fallback: [])
         wasteLog = load(Keys.waste, fallback: [])
+        currentWeeklyPlan = loadOptional(Keys.weeklyPlan)
     }
 
     /// True while the account has never recorded anything at all.
@@ -99,6 +112,14 @@ final class AppStore {
     private func persist<T: Encodable>(_ value: T, key: String) {
         guard let data = try? JSONEncoder().encode(value) else { return }
         UserDefaults.standard.set(data, forKey: key)
+    }
+
+    private func persistOptional<T: Encodable>(_ value: T?, key: String) {
+        guard let value else {
+            UserDefaults.standard.removeObject(forKey: key)
+            return
+        }
+        persist(value, key: key)
     }
 
     // MARK: - Derived stock

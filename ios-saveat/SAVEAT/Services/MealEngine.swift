@@ -225,14 +225,26 @@ nonisolated enum MealEngine {
 
     // MARK: - Shopping & budget
 
-    /// Builds a shopping list from meals, skipping everything already in stock.
+    /// Builds a shopping list from meals, skipping everything already in
+    /// stock. When several meals need the same ingredient, their quantities
+    /// are summed via `Quantity` whenever both are parseable and compatible
+    /// (e.g. "3 pièces" + "3 pièces" → "6") — otherwise the first meal's
+    /// text is kept as-is rather than guessed, same as before this existed.
     nonisolated static func shoppingList(for meals: [Meal]) -> [ShoppingItem] {
         var byName: [String: ShoppingItem] = [:]
 
         for meal in meals {
             for ingredient in meal.missingIngredients {
                 let key = normalize(ingredient.name)
-                if byName[key] == nil {
+                if var existing = byName[key] {
+                    existing.estimatedPrice += ingredient.estimatedPrice
+                    if let existingQuantity = existing.parsedQuantity,
+                       let newQuantity = ingredient.parsedQuantity,
+                       let combined = existingQuantity.combined(with: newQuantity) {
+                        existing.quantityText = combined.displayText
+                    }
+                    byName[key] = existing
+                } else {
                     byName[key] = ShoppingItem(
                         name: ingredient.name,
                         quantityText: ingredient.quantityText,
@@ -353,7 +365,10 @@ nonisolated enum MealEngine {
         return min(1, item.quantity)
     }
 
-    private nonisolated static func leadingNumber(in text: String) -> Double? {
+    /// Extracts the leading number from a free-text quantity ("3 pièces" →
+    /// 3, "1,5 kg" → 1.5). Not private: `Quantity`'s parser reuses it rather
+    /// than re-implementing the same heuristic.
+    nonisolated static func leadingNumber(in text: String) -> Double? {
         var digits = ""
         for character in text {
             if character.isNumber || character == "," || character == "." {
