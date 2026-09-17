@@ -444,6 +444,10 @@ nonisolated enum S {
             fr: "Suis précisément l'argent que tu ne jettes plus.",
             en: "Track exactly how much money you stop throwing away."
         )
+        static let upsellWeeklyPlanning = Loc(
+            fr: "Débloque la semaine complète et régénère-la autant que tu veux.",
+            en: "Unlock the full week and regenerate it as many times as you like."
+        )
 
         // MARK: 5 pillars
 

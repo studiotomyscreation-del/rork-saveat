@@ -175,6 +175,7 @@ struct NativePaywallView: View {
         case .zeroEuroMode: S.Paywall.upsellZeroCost.s
         case .endOfMonth: S.Paywall.upsellEndOfMonth.s
         case .savingsStats: S.Paywall.upsellStats.s
+        case .weeklyPlanning: S.Paywall.upsellWeeklyPlanning.s
         }
     }
 
