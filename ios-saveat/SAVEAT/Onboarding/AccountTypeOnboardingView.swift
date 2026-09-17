@@ -18,19 +18,29 @@ struct AccountTypeOnboardingView: View {
 
     @State private var showsProSignUp = false
 
+    /// A real bundled food photo rather than the plain brand gradient — this
+    /// is the very first thing anyone sees, so it carries the most weight of
+    /// any onboarding page. Distinct from `WelcomeOnboardingView`'s photo
+    /// (`chicken_rice_bowl_topdown`), the very next screen, so two
+    /// consecutive pages never repeat the same shot.
+    private static let photoAssetNames = ["french_omelette_ham_cheese"]
+
     var body: some View {
         ZStack {
-            OnboardingPhotoBackground(assetNames: [])
+            OnboardingPhotoBackground(assetNames: Self.photoAssetNames)
 
             VStack(spacing: 28) {
-                Spacer(minLength: 40)
+                Spacer(minLength: 60)
 
                 VStack(spacing: 14) {
-                    BrandMark(size: 64)
+                    BrandMark(size: 60)
                     Text(S.Intro.accountTypeTitle.s)
-                        .font(SaveatTypography.hero(28))
+                        .font(SaveatTypography.hero(30))
                         .foregroundStyle(.white)
+                        .shadow(color: .black.opacity(0.25), radius: 8, y: 2)
                 }
+
+                Spacer(minLength: 20)
 
                 VStack(spacing: 14) {
                     optionCard(
@@ -47,8 +57,7 @@ struct AccountTypeOnboardingView: View {
                     )
                 }
                 .padding(.horizontal, Theme.hMargin)
-
-                Spacer(minLength: 40)
+                .padding(.bottom, 40)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -63,29 +72,25 @@ struct AccountTypeOnboardingView: View {
         Button(action: action) {
             HStack(spacing: 14) {
                 ZStack {
-                    Circle().fill(.white.opacity(0.16)).frame(width: 48, height: 48)
+                    Circle().fill(SaveatColors.brandSoft).frame(width: 48, height: 48)
                     Image(systemName: icon)
                         .font(.system(size: 19, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(SaveatColors.forestDeep)
                 }
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
                         .font(SaveatTypography.headline(16))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(SaveatColors.textPrimary)
                     Text(subtitle)
                         .font(SaveatTypography.caption(12.5))
-                        .foregroundStyle(.white.opacity(0.8))
+                        .foregroundStyle(SaveatColors.textSecondary)
                 }
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.right")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.6))
+                    .foregroundStyle(SaveatColors.textSecondary.opacity(0.6))
             }
-            .padding(16)
-            .background(.white.opacity(0.12), in: .rect(cornerRadius: 20))
-            .overlay {
-                RoundedRectangle(cornerRadius: 20).stroke(.white.opacity(0.25), lineWidth: 1)
-            }
+            .saveatTranslucentCard(padding: 16, radius: 20)
         }
         .buttonStyle(.plain)
     }

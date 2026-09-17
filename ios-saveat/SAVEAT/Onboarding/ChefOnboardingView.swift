@@ -26,7 +26,7 @@ struct ChefOnboardingView: View {
 
     var body: some View {
         IntroStepShell(
-            photoAssetNames: ["onboarding_chef", "chicken_rice_bowl_topdown"],
+            photoAssetNames: ["onboarding_chef", "fried_rice_cast_iron_pan"],
             stepIndex: 4,
             stepCount: 12,
             icon: "fork.knife",
