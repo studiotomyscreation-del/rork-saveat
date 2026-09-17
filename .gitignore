@@ -2,3 +2,10 @@ node_modules
 .env
 .expo
 .rork
+
+# macOS / Xcode local noise — never meant to be committed
+.DS_Store
+*.xcuserstate
+xcuserdata/
+xcshareddata/
+DerivedData/
