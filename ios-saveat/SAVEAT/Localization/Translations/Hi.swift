@@ -831,6 +831,32 @@ nonisolated enum StringsHi {
         "Halal: no pork or pork derivatives, no alcohol.": "हलाल: सूअर का मांस या उससे बनी चीज़ें नहीं, शराब नहीं।",
         "Kosher: no pork or pork derivatives, no shellfish, and never mix meat and dairy in the same recipe.": "कोशर: सूअर का मांस या उससे बनी चीज़ें नहीं, शेलफ़िश नहीं, और एक ही रेसिपी में मांस और डेयरी कभी न मिलाएँ।",
         "Low glycaemic index: favour vegetables, pulses, wholegrains and protein. Avoid added sugar, white flour, white bread, white rice and mashed potato. If a high-GI item is already in stock, pair it with fibre or protein rather than leaving it out.": "कम ग्लाईसेमिक इंडेक्स: सब्जियों, दालों, साबुत अनाज और प्रोटीन को प्राथमिकता दें। चीनी, मैदा, सफेद ब्रेड, सफेद चावल और आलू का भर्ता से बचें। अगर कोई उच्च GI चीज़ पहले से स्टॉक में है, तो उसे हटाने के बजाय फाइबर या प्रोटीन के साथ मिलाएँ।",
-        "\"Used it\" updates your food list and stops the reminders for this item.": "\"इस्तेमाल किया\" आपकी सूची अपडेट करता है और इस चीज़ के रिमाइंडर रोकता है।"
+        "\"Used it\" updates your food list and stops the reminders for this item.": "\"इस्तेमाल किया\" आपकी सूची अपडेट करता है और इस चीज़ के रिमाइंडर रोकता है।",
+
+        // MARK: - Paywall V2
+        "Your Chef,\nevery single day.": "आपका शेफ,\nहर दिन आपके साथ।",
+        "Simple meals, groceries under control and calmer days.": "आसान खाना, काबू में ख़रीदारी और सुकून भरे दिन।",
+        "Eat better every day": "हर दिन बेहतर खाएँ",
+        "Your Chef at home": "घर पर आपका शेफ",
+        "Menus and recipes built around your food and your cravings.": "आपके स्टॉक और आपके मन के मुताबिक मेन्यू और रेसिपी।",
+        "Your groceries, already sorted": "आपकी ख़रीदारी पहले से तैयार",
+        "The Chef plans your week and only adds what you're missing.": "शेफ आपका हफ़्ता तय करता है और सिर्फ़ वही जोड़ता है जो कम है।",
+        "Your fridge under control": "आपका फ़्रिज आपके काबू में",
+        "Your stock, your dates and what to use first.": "स्टॉक, तारीख़ें और पहले क्या इस्तेमाल करना है।",
+        "Less food thrown away": "कम बर्बादी",
+        "Reminders that rescue your food before it's too late.": "समय पर रिमाइंडर, जो खाना बचाएँ और पैसे भी।",
+        "A budget you actually steer": "बजट पर बेहतर पकड़",
+        "Track your savings and use more of what you already own.": "अपनी बचत देखें और जो है उसका ज़्यादा इस्तेमाल करें।",
+        "+ Anti-waste nearby": "+ आपके आसपास एंटी-वेस्ट",
+        "That's %@ / month": "यानी %@ / महीना",
+        "Save %@ a year.": "साल में %@ बचाएँ।",
+        "/ month": "/ महीना",
+        "/ year": "/ साल",
+        "/ week": "/ हफ़्ता",
+        "Secure payment": "सुरक्षित भुगतान",
+        "Billed by the App Store": "App Store से सदस्यता",
+        "Cancel anytime": "कभी भी रद्द करें",
+        "Your subscription is billed to your Apple account. It renews automatically unless you cancel at least 24 hours before the current period ends. You can manage your subscriptions in your Apple account settings.": "सदस्यता का शुल्क आपके Apple खाते से लिया जाता है। मौजूदा अवधि खत्म होने से कम से कम 24 घंटे पहले रद्द न करने पर यह अपने आप नवीनीकृत होती है। आप अपने Apple खाते की सेटिंग्स में सदस्यताएँ प्रबंधित कर सकते हैं।",
+        "By continuing you accept our [Terms of Use](%@) and our [Privacy Policy](%@).": "जारी रखने पर आप हमारी [उपयोग की शर्तें](%@) और [गोपनीयता नीति](%@) स्वीकार करते हैं।"
     ]
 }

@@ -830,6 +830,32 @@ nonisolated enum StringsPtBR {
         "Halal: no pork or pork derivatives, no alcohol.": "Dieta halal: sem porco nem derivados de porco, sem álcool.",
         "Kosher: no pork or pork derivatives, no shellfish, and never mix meat and dairy in the same recipe.": "Dieta kosher: sem porco nem derivados de porco, sem frutos do mar, e nunca misture carne e laticínios na mesma receita.",
         "Low glycaemic index: favour vegetables, pulses, wholegrains and protein. Avoid added sugar, white flour, white bread, white rice and mashed potato. If a high-GI item is already in stock, pair it with fibre or protein rather than leaving it out.": "Índice glicêmico baixo: priorize verduras, legumes, grãos integrais e proteínas. Evite açúcar adicionado, farinha branca, pão branco, arroz branco e purê de batata. Se um item de IG alto já estiver no estoque, combine-o com fibras ou proteínas em vez de deixá-lo de fora.",
-        "\"Used it\" updates your food list and stops the reminders for this item.": "\"Usei\" atualiza sua lista de comida e para os lembretes deste item."
+        "\"Used it\" updates your food list and stops the reminders for this item.": "\"Usei\" atualiza sua lista de comida e para os lembretes deste item.",
+
+        // MARK: - Paywall V2
+        "Your Chef,\nevery single day.": "Seu Chef,\ntodos os dias.",
+        "Simple meals, groceries under control and calmer days.": "Refeições simples, compras sob controle e dias mais tranquilos.",
+        "Eat better every day": "Comer melhor todos os dias",
+        "Your Chef at home": "Seu Chef em casa",
+        "Menus and recipes built around your food and your cravings.": "Menus e receitas adaptados ao que você tem e ao que está com vontade.",
+        "Your groceries, already sorted": "Suas compras já prontas",
+        "The Chef plans your week and only adds what you're missing.": "O Chef planeja sua semana e só acrescenta o que está faltando.",
+        "Your fridge under control": "Sua geladeira sob controle",
+        "Your stock, your dates and what to use first.": "Seu estoque, suas datas e o que usar primeiro.",
+        "Less food thrown away": "Menos desperdício",
+        "Reminders that rescue your food before it's too late.": "Avisos para salvar seus alimentos e economizar.",
+        "A budget you actually steer": "Seu orçamento mais controlado",
+        "Track your savings and use more of what you already own.": "Acompanhe sua economia e use mais do que você já tem.",
+        "+ Anti-waste nearby": "+ Antidesperdício perto de você",
+        "That's %@ / month": "Ou seja, %@ / mês",
+        "Save %@ a year.": "Economize %@ por ano.",
+        "/ month": "/ mês",
+        "/ year": "/ ano",
+        "/ week": "/ semana",
+        "Secure payment": "Pagamento seguro",
+        "Billed by the App Store": "Assinatura pela App Store",
+        "Cancel anytime": "Cancele quando quiser",
+        "Your subscription is billed to your Apple account. It renews automatically unless you cancel at least 24 hours before the current period ends. You can manage your subscriptions in your Apple account settings.": "A assinatura é cobrada na sua conta Apple. Ela se renova automaticamente, a menos que você cancele pelo menos 24 h antes do fim do período atual. Você pode gerenciar suas assinaturas nos ajustes da sua conta Apple.",
+        "By continuing you accept our [Terms of Use](%@) and our [Privacy Policy](%@).": "Ao continuar, você aceita nossos [Termos de uso](%@) e nossa [Política de privacidade](%@)."
     ]
 }

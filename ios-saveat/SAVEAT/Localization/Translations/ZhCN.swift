@@ -832,6 +832,32 @@ nonisolated enum StringsZhCN {
         "Halal: no pork or pork derivatives, no alcohol.": "清真饮食：不含猪肉及猪肉制品，不含酒精。",
         "Kosher: no pork or pork derivatives, no shellfish, and never mix meat and dairy in the same recipe.": "犹太教饮食：不含猪肉及猪肉制品，不含贝类海鲜，且同一道菜中绝不混用肉类和乳制品。",
         "Low glycaemic index: favour vegetables, pulses, wholegrains and protein. Avoid added sugar, white flour, white bread, white rice and mashed potato. If a high-GI item is already in stock, pair it with fibre or protein rather than leaving it out.": "低升糖指数：优先选用蔬菜、豆类、全谷物和蛋白质。避开添加糖、白面粉、白面包、白米饭和土豆泥。如果库存中已有高 GI 食材，请将其与膏食纤维或蛋白质搭配，而不是将它排除。",
-        "\"Used it\" updates your food list and stops the reminders for this item.": "\"吃掉了\"会更新你的食材清单，并停止这件商品的提醒。"
+        "\"Used it\" updates your food list and stops the reminders for this item.": "\"吃掉了\"会更新你的食材清单，并停止这件商品的提醒。",
+
+        // MARK: - Paywall V2
+        "Your Chef,\nevery single day.": "你的专属主厨，\n每天都在。",
+        "Simple meals, groceries under control and calmer days.": "简单的饭菜、可控的采购，让每天更从容。",
+        "Eat better every day": "每天吃得更好",
+        "Your Chef at home": "你的家庭主厨",
+        "Menus and recipes built around your food and your cravings.": "根据你的库存和口味定制菜单与食谱。",
+        "Your groceries, already sorted": "采购清单已备好",
+        "The Chef plans your week and only adds what you're missing.": "主厨规划你的一周，只添加你缺少的食材。",
+        "Your fridge under control": "冰箱尽在掌握",
+        "Your stock, your dates and what to use first.": "库存、日期，以及应优先食用的食材。",
+        "Less food thrown away": "更少浪费",
+        "Reminders that rescue your food before it's too late.": "及时提醒，救回食材，省下开支。",
+        "A budget you actually steer": "预算更有把握",
+        "Track your savings and use more of what you already own.": "记录你的节省，把已有食材用得更充分。",
+        "+ Anti-waste nearby": "+ 身边的反浪费",
+        "That's %@ / month": "相当于每月 %@",
+        "Save %@ a year.": "每年可省 %@。",
+        "/ month": "/ 月",
+        "/ year": "/ 年",
+        "/ week": "/ 周",
+        "Secure payment": "安全支付",
+        "Billed by the App Store": "通过 App Store 订阅",
+        "Cancel anytime": "可随时取消",
+        "Your subscription is billed to your Apple account. It renews automatically unless you cancel at least 24 hours before the current period ends. You can manage your subscriptions in your Apple account settings.": "订阅将从你的 Apple 账户扣款。除非在当前周期结束前至少 24 小时取消，订阅会自动续期。你可以在 Apple 账户设置中管理订阅。",
+        "By continuing you accept our [Terms of Use](%@) and our [Privacy Policy](%@).": "继续即表示你接受我们的[使用条款](%@)和[隐私政策](%@)。"
     ]
 }

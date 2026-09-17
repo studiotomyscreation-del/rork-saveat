@@ -602,6 +602,81 @@ nonisolated enum S {
             fr: "Résultats observés auprès de notre groupe test. Les économies varient selon les habitudes d'achat, la composition du foyer et l'utilisation de SAVEAT.",
             en: "Results observed within our test group. Savings vary depending on shopping habits, household size and how you use SAVEAT."
         )
+        // MARK: Paywall V2 (design du 17/09)
+        //
+        // Nouvelle mise en page du paywall natif : photo hero, carte de cinq
+        // bénéfices, plans avec le prix réel de l'App Store, barre de confiance.
+        // Les clés ci-dessus restent en place (elles servent encore aux upsells
+        // et au Customer Center) : rien n'est supprimé du catalogue.
+
+        /// « Votre Chef au quotidien. » — la coupure de ligne est voulue.
+        static let heroTitleV2 = Loc(
+            fr: "Votre Chef\nau quotidien.",
+            en: "Your Chef,\nevery single day."
+        )
+        static let heroSubtitleV2 = Loc(
+            fr: "Des repas simples, des courses maîtrisées et un quotidien plus serein.",
+            en: "Simple meals, groceries under control and calmer days."
+        )
+        static let heroScript = Loc(
+            fr: "Mieux manger chaque jour",
+            en: "Eat better every day"
+        )
+
+        /// Les cinq bénéfices décrivent uniquement ce qui existe déjà :
+        /// recettes depuis le stock, planification de la semaine + liste de
+        /// courses, suivi du stock et des dates, alertes avant péremption,
+        /// suivi des économies estimées.
+        static let benefitChefTitle = Loc(fr: "Votre Chef à la maison", en: "Your Chef at home")
+        static let benefitChefBody = Loc(
+            fr: "Menus et recettes adaptés à votre stock et à vos envies.",
+            en: "Menus and recipes built around your food and your cravings."
+        )
+        static let benefitGroceriesTitle = Loc(fr: "Vos courses déjà préparées", en: "Your groceries, already sorted")
+        static let benefitGroceriesBody = Loc(
+            fr: "Le Chef planifie votre semaine et ajoute uniquement ce qu'il vous manque.",
+            en: "The Chef plans your week and only adds what you're missing."
+        )
+        static let benefitFridgeTitle = Loc(fr: "Votre frigo sous contrôle", en: "Your fridge under control")
+        static let benefitFridgeBody = Loc(
+            fr: "Stock, dates et produits à utiliser en priorité.",
+            en: "Your stock, your dates and what to use first."
+        )
+        static let benefitWasteTitle = Loc(fr: "Moins de gaspillage", en: "Less food thrown away")
+        static let benefitWasteBody = Loc(
+            fr: "Des alertes pour sauver vos aliments et faire des économies.",
+            en: "Reminders that rescue your food before it's too late."
+        )
+        static let benefitBudgetTitle = Loc(fr: "Votre budget mieux maîtrisé", en: "A budget you actually steer")
+        static let benefitBudgetBody = Loc(
+            fr: "Suivez vos économies et utilisez davantage ce que vous avez déjà.",
+            en: "Track your savings and use more of what you already own."
+        )
+        static let benefitMapChip = Loc(fr: "+ Anti-gaspi autour de vous", en: "+ Anti-waste nearby")
+
+        static let bestValueV2 = Loc(fr: "⭐ Le plus avantageux", en: "⭐ Best value")
+        /// Équivalent mensuel d'un abonnement annuel, calculé sur le prix réel
+        /// renvoyé par l'App Store (jamais un prix écrit dans l'app).
+        static let monthlyEquivalentLine = Loc(fr: "Soit %@ / mois", en: "That's %@ / month")
+        static let annualSavingsLine = Loc(fr: "Économisez %@ par an.", en: "Save %@ a year.")
+        static let perMonthSuffix = Loc(fr: "/ mois", en: "/ month")
+        static let perYearSuffix = Loc(fr: "/ an", en: "/ year")
+        static let perWeekSuffix = Loc(fr: "/ semaine", en: "/ week")
+
+        static let trustSecure = Loc(fr: "Paiement sécurisé", en: "Secure payment")
+        static let trustAppStore = Loc(fr: "Abonnement via l'App Store", en: "Billed by the App Store")
+        static let trustCancel = Loc(fr: "Annulable à tout moment", en: "Cancel anytime")
+
+        static let renewalTermsV2 = Loc(
+            fr: "L'abonnement est facturé sur votre compte Apple. Il se renouvelle automatiquement sauf annulation au moins 24 h avant la fin de la période en cours. Vous pouvez gérer vos abonnements dans les réglages de votre compte Apple.",
+            en: "Your subscription is billed to your Apple account. It renews automatically unless you cancel at least 24 hours before the current period ends. You can manage your subscriptions in your Apple account settings."
+        )
+        /// Markdown : les deux `%@` reçoivent les URL réelles de `SaveatInfo`.
+        static let consentMarkdown = Loc(
+            fr: "En continuant, vous acceptez nos [Conditions d'utilisation](%@) et notre [Politique de confidentialité](%@).",
+            en: "By continuing you accept our [Terms of Use](%@) and our [Privacy Policy](%@)."
+        )
+
         static let oops = Loc(fr: "Oups", en: "Something went wrong")
         static let pendingPurchase = Loc(
             fr: "Achat en attente",

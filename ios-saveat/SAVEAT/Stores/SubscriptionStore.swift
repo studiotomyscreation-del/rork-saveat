@@ -403,6 +403,14 @@ final class SubscriptionStore {
     /// (`storeProduct.price` ÷ 12) and rendered in that product's own currency,
     /// so it always matches what Apple will actually charge.
     func monthlyEquivalent(for package: Package) -> String? {
+        guard let monthly = monthlyEquivalentAmount(for: package) else { return nil }
+        return S.Subscription.perMonth.f(monthly)
+    }
+
+    /// Monthly-equivalent amount of an annual package on its own, e.g. "1,67 €"
+    /// in France and "$1.67" in the US — for layouts that supply their own
+    /// "/ mois" wording instead of `S.Subscription.perMonth`.
+    func monthlyEquivalentAmount(for package: Package) -> String? {
         guard package.packageType == .annual else { return nil }
         let product = package.storeProduct
         let monthly = (product.price as NSDecimalNumber)
@@ -413,7 +421,26 @@ final class SubscriptionStore {
                                                                    raiseOnUnderflow: false,
                                                                    raiseOnDivideByZero: false))
         guard monthly.doubleValue > 0 else { return nil }
-        return S.Subscription.perMonth.f(Self.storePrice(monthly.decimalValue, like: product))
+        return Self.storePrice(monthly.decimalValue, like: product)
+    }
+
+    /// What subscribing yearly saves against twelve monthly payments, e.g. "3,89 €".
+    ///
+    /// Computed from the two real App Store prices of the current offering, so
+    /// it is always right in every storefront and no amount is ever written into
+    /// the app. Returns nil when the monthly plan is missing or priced in a
+    /// different currency (nothing honest to compare), or when yearly isn't
+    /// actually cheaper.
+    func annualSavings(for package: Package) -> String? {
+        guard package.packageType == .annual,
+              let monthlyProduct = packages.first(where: { $0.packageType == .monthly })?.storeProduct,
+              monthlyProduct.currencyCode == package.storeProduct.currencyCode
+        else { return nil }
+
+        let twelveMonths = (monthlyProduct.price as NSDecimalNumber).multiplying(by: 12)
+        let saved = twelveMonths.subtracting(package.storeProduct.price as NSDecimalNumber)
+        guard saved.doubleValue > 0.009 else { return nil }
+        return Self.storePrice(saved.decimalValue, like: package.storeProduct)
     }
 
     /// Formats an amount in the currency of the store product it came from.
