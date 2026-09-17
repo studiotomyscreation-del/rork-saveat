@@ -42,3 +42,30 @@ enum SaveatColors {
     /// Soft tint fill for selected rows, chips, badges.
     static let brandSoft = brand.opacity(0.14)
 }
+
+extension View {
+    /// Soft "aurora" backdrop for V2 surfaces — the ivory background plus
+    /// two large blurred brand-green blobs, echoing `NativePaywallView`'s
+    /// backdrop (ivory + soft blurred circles) while staying inside
+    /// `SaveatColors`' own palette rather than reusing `Theme`'s sage/
+    /// terracotta directly, and never `promo`/`alert` (reserved for actual
+    /// deals and warnings, not plain ambience).
+    func saveatSoftBackdrop() -> some View {
+        background {
+            ZStack {
+                SaveatColors.background
+                Circle()
+                    .fill(SaveatColors.brand.opacity(0.16))
+                    .frame(width: 420, height: 420)
+                    .blur(radius: 90)
+                    .offset(x: -130, y: -260)
+                Circle()
+                    .fill(SaveatColors.brandLight.opacity(0.22))
+                    .frame(width: 340, height: 340)
+                    .blur(radius: 90)
+                    .offset(x: 150, y: 200)
+            }
+            .ignoresSafeArea()
+        }
+    }
+}

@@ -39,7 +39,7 @@ struct NewHomeView: View {
             .padding(.bottom, 24)
         }
         .scrollIndicators(.hidden)
-        .background(SaveatColors.background.ignoresSafeArea())
+        .saveatSoftBackdrop()
         .sheet(isPresented: $showsPaywall) { PaywallSheet(feature: .endOfMonth) }
         .task {
             await viewModel.loadNearbyIfNeeded()
