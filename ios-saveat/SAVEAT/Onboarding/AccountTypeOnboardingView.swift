@@ -18,12 +18,13 @@ struct AccountTypeOnboardingView: View {
 
     @State private var showsProSignUp = false
 
-    /// A real bundled food photo rather than the plain brand gradient — this
-    /// is the very first thing anyone sees, so it carries the most weight of
-    /// any onboarding page. Distinct from `WelcomeOnboardingView`'s photo
-    /// (`chicken_rice_bowl_topdown`), the very next screen, so two
-    /// consecutive pages never repeat the same shot.
-    private static let photoAssetNames = ["french_omelette_ham_cheese"]
+    /// The lifestyle kitchen-counter photo the user supplied for this exact
+    /// screen — this is the very first thing anyone sees, so it carries the
+    /// most weight of any onboarding page. Falls back to a bundled dish
+    /// photo, distinct from `WelcomeOnboardingView`'s
+    /// (`chicken_rice_bowl_topdown`), so two consecutive pages never repeat
+    /// the same shot.
+    private static let photoAssetNames = ["onboarding_account_type", "french_omelette_ham_cheese"]
 
     var body: some View {
         ZStack {
