@@ -69,6 +69,10 @@ extension S {
             fr: "Entrez votre SIRET, SAVEAT s'occupe du reste.",
             en: "Enter your SIRET number — SAVEAT takes care of the rest."
         )
+        static let signUpFreeNotice = Loc(
+            fr: "Gratuit et sans engagement, à tout moment.",
+            en: "Free and commitment-free, cancel anytime."
+        )
         static let siretFieldLabel = Loc(fr: "SIRET ou SIREN", en: "SIRET or SIREN")
         static let siretFieldPlaceholder = Loc(fr: "14 ou 9 chiffres", en: "14 or 9 digits")
         static let findEstablishmentCTA = Loc(fr: "Trouver mon établissement", en: "Find my business")

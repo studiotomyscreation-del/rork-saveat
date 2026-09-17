@@ -1973,8 +1973,8 @@ nonisolated enum S {
         )
         static let accountTypePro = Loc(fr: "Professionnel", en: "Food business")
         static let accountTypeProSubtitle = Loc(
-            fr: "Je publie mes invendus alimentaires.",
-            en: "I publish my unsold food."
+            fr: "Je dépose mes invendus gratuitement.",
+            en: "I list my surplus for free."
         )
 
         static let welcomeEyebrow = Loc(fr: "VOTRE ASSISTANT ALIMENTAIRE", en: "YOUR FOOD ASSISTANT")
