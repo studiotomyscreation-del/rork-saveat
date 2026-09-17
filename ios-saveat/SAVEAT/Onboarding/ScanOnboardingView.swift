@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Second screen of the product-pitch onboarding: what scanning gets you.
+/// Seventh screen of the product-pitch onboarding: what scanning gets you.
 struct ScanOnboardingView: View {
     var onContinue: () -> Void
     var onSkip: () -> Void
@@ -14,8 +14,8 @@ struct ScanOnboardingView: View {
     var body: some View {
         IntroStepShell(
             photoAssetNames: Self.photoAssetNames,
-            stepIndex: 1,
-            stepCount: 7,
+            stepIndex: 6,
+            stepCount: 11,
             icon: "barcode.viewfinder",
             title: "\(S.Intro.scanEyebrow.s)\n\(S.Intro.scanHeadline.s)",
             body_: S.Intro.scanBody.s,

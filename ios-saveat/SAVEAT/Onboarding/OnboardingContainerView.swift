@@ -1,8 +1,15 @@
 import SwiftUI
 
 /// Product-pitch onboarding shown once, before the existing household setup
-/// (`OnboardingView`): Welcome → Scan → Stock → Recipes → Savings → Map →
-/// Account → Complete.
+/// (`OnboardingView`): Welcome → Envies → Foyer → Chef → Différence →
+/// Shopping list → Scan → Stock → Savings → Map → Account → Complete.
+///
+/// Repositioned around "your Chef takes care of your week" (Chef + weekly
+/// planning + shopping list) rather than leading with scanning — see the
+/// SAVEAT V2 onboarding master prompt. `RecipeOnboardingView` used to sit
+/// between Stock and Savings; it's no longer wired in here since its pitch
+/// ("Chef SAVEAT turns your stock into a menu") is now covered earlier by
+/// `ChefOnboardingView`/`DifferenceOnboardingView`.
 ///
 /// Purely presentational for now — it explains SAVEAT's value and collects no
 /// data. The household setup that follows is untouched and still does the
@@ -20,37 +27,49 @@ struct OnboardingContainerView: View {
 
     @State private var step: Int = 0
 
-    private let stepCount = 8
+    private let stepCount = 12
 
     var body: some View {
         TabView(selection: $step) {
             WelcomeOnboardingView(
                 onStart: { advance() },
-                onHaveAccount: { jump(to: 6) },
+                onHaveAccount: { jump(to: 10) },
                 onSkip: onFinished
             )
             .tag(0)
 
-            ScanOnboardingView(onContinue: advance, onSkip: onFinished)
+            EnviesOnboardingView(onContinue: advance, onSkip: onFinished)
                 .tag(1)
 
-            StockOnboardingView(onContinue: advance, onSkip: onFinished)
+            FoyerOnboardingView(onContinue: advance, onSkip: onFinished)
                 .tag(2)
 
-            RecipeOnboardingView(onContinue: advance, onSkip: onFinished)
+            ChefOnboardingView(onContinue: advance, onSkip: onFinished)
                 .tag(3)
 
-            SavingsOnboardingView(onContinue: advance, onSkip: onFinished)
+            DifferenceOnboardingView(onContinue: advance, onSkip: onFinished)
                 .tag(4)
 
-            MapOnboardingView(onContinue: advance, onSkip: onFinished)
+            ShoppingListOnboardingView(onContinue: advance, onSkip: onFinished)
                 .tag(5)
 
-            AccountOnboardingView(onContinue: advance)
+            ScanOnboardingView(onContinue: advance, onSkip: onFinished)
                 .tag(6)
 
-            OnboardingCompleteView(onFinish: onFinished)
+            StockOnboardingView(onContinue: advance, onSkip: onFinished)
                 .tag(7)
+
+            SavingsOnboardingView(onContinue: advance, onSkip: onFinished)
+                .tag(8)
+
+            MapOnboardingView(onContinue: advance, onSkip: onFinished)
+                .tag(9)
+
+            AccountOnboardingView(onContinue: advance)
+                .tag(10)
+
+            OnboardingCompleteView(onFinish: onFinished)
+                .tag(11)
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .animation(.spring(response: 0.4, dampingFraction: 0.85), value: step)

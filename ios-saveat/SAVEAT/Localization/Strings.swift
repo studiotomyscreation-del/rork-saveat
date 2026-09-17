@@ -1937,22 +1937,123 @@ nonisolated enum S {
     // MARK: - Product-pitch onboarding (Welcome → Scan → Stock → Recipes → Map → Account)
 
     nonisolated enum Intro {
-        static let welcomeEyebrow = Loc(fr: "FIN DE MOIS ?", en: "TIGHT BUDGET?")
+        static let welcomeEyebrow = Loc(fr: "VOTRE ASSISTANT ALIMENTAIRE", en: "YOUR FOOD ASSISTANT")
         static let welcomeTitle = Loc(
-            fr: "Ton frigo a encore des idées !",
-            en: "Your fridge still has ideas!"
+            fr: "Votre Chef s'occupe de votre semaine.",
+            en: "Your Chef takes care of your week."
         )
         static let welcomeSubtitle = Loc(
-            fr: "Scannez vos produits, cuisinez avec ce que vous avez et commencez dès aujourd'hui à faire des économies.",
-            en: "Scan your groceries, cook with what you have, and start saving money today."
+            fr: "Dites-lui vos envies. Il prépare vos menus, regarde ce que vous avez déjà et crée votre liste de courses.",
+            en: "Tell it what you're craving. It plans your menus, checks what you already have, and builds your shopping list."
         )
 
-        static let welcomeIconScan = Loc(fr: "Scanner", en: "Scan")
-        static let welcomeIconCook = Loc(fr: "Cuisiner", en: "Cook")
-        static let welcomeIconSave = Loc(fr: "Économiser", en: "Save")
+        static let welcomeIconChef = Loc(fr: "Chef", en: "Chef")
+        static let welcomeIconWeek = Loc(fr: "Semaine", en: "Week")
+        static let welcomeIconGroceries = Loc(fr: "Courses", en: "Groceries")
 
         static let startNow = Loc(fr: "Commencer maintenant", en: "Start Now")
         static let alreadyHaveAccount = Loc(fr: "J'ai déjà un compte", en: "I already have an account")
+
+        // MARK: Envies (envies de la semaine)
+
+        static let enviesTitle = Loc(
+            fr: "Qu'avez-vous envie de manger cette semaine ?",
+            en: "What are you craving this week?"
+        )
+        static let enviesSubtitle = Loc(
+            fr: "Votre Chef adapte les menus à vos envies.",
+            en: "Your Chef adapts the menus to your cravings."
+        )
+        static let enviesChipQuick = Loc(fr: "Rapide", en: "Quick")
+        static let enviesChipFamily = Loc(fr: "Familial", en: "Family")
+        static let enviesChipBudget = Loc(fr: "Petit budget", en: "Low budget")
+        static let enviesChipBalanced = Loc(fr: "Équilibré", en: "Balanced")
+        static let enviesChipFrench = Loc(fr: "Cuisine française", en: "French cuisine")
+        static let enviesChipItalian = Loc(fr: "Cuisine italienne", en: "Italian cuisine")
+        static let enviesChipWorld = Loc(fr: "Cuisine du monde", en: "World cuisine")
+        static let enviesChipVegetarian = Loc(fr: "Végétarien", en: "Vegetarian")
+        static let enviesChipGourmet = Loc(fr: "Gourmand", en: "Indulgent")
+        static let continueCTA = Loc(fr: "Continuer", en: "Continue")
+
+        // MARK: Foyer (personnes + jours)
+
+        static let foyerTitle = Loc(fr: "Pour combien de personnes ?", en: "How many people?")
+        static let foyerSubtitle = Loc(
+            fr: "Vous pourrez toujours ajuster ça plus tard.",
+            en: "You can always adjust this later."
+        )
+        static let foyerDaysTitle = Loc(fr: "Pour combien de jours ?", en: "How many days?")
+        static let foyerDays5 = Loc(fr: "5 jours", en: "5 days")
+        static let foyerDays7 = Loc(fr: "7 jours", en: "7 days")
+        static let foyerCTA = Loc(fr: "Créer ma semaine", en: "Create my week")
+
+        // MARK: Chef (semaine de démonstration)
+
+        static let chefTitle = Loc(
+            fr: "Votre Chef prépare votre semaine.",
+            en: "Your Chef is preparing your week."
+        )
+        static let chefSubtitle = Loc(
+            fr: "À partir de vos envies et de ce que vous avez déjà.",
+            en: "Built from your cravings and what you already have."
+        )
+        static let chefDemoNotice = Loc(fr: "Exemple de semaine", en: "Example week")
+        static let chefCTA = Loc(fr: "Voir ma semaine", en: "See my week")
+
+        static let chefDay1 = Loc(fr: "Lundi", en: "Monday")
+        static let chefDay1Dish = Loc(fr: "Poulet rôti, légumes & pommes de terre", en: "Roast chicken, vegetables & potatoes")
+        static let chefDay2 = Loc(fr: "Mardi", en: "Tuesday")
+        static let chefDay2Dish = Loc(fr: "Wraps de poulet & crudités", en: "Chicken wraps & crudités")
+        static let chefDay3 = Loc(fr: "Mercredi", en: "Wednesday")
+        static let chefDay3Dish = Loc(fr: "Risotto aux champignons", en: "Mushroom risotto")
+        static let chefDay4 = Loc(fr: "Jeudi", en: "Thursday")
+        static let chefDay4Dish = Loc(fr: "Saumon, riz & légumes", en: "Salmon, rice & vegetables")
+
+        // MARK: Différence SAVEAT (stock d'abord)
+
+        static let differenceTitle = Loc(
+            fr: "Votre Chef commence par ce que vous avez.",
+            en: "Your Chef starts with what you already have."
+        )
+        static let differenceBody = Loc(
+            fr: "Avant de créer vos courses, SAVEAT regarde votre frigo, vos placards et votre congélateur — et repère les produits à utiliser en priorité.",
+            en: "Before building your shopping list, SAVEAT checks your fridge, pantry and freezer — and spots what needs using up first."
+        )
+        static let differenceDemoNotice = Loc(fr: "Exemple", en: "Example")
+        static let differenceExampleAvailable = Loc(
+            fr: "%d ingrédients déjà disponibles",
+            en: "%d ingredients already available"
+        )
+        static let differenceExamplePriority = Loc(
+            fr: "%d produits à utiliser en priorité",
+            en: "%d products to use first"
+        )
+        static let differenceExamplePercent = Loc(
+            fr: "%d %% des ingrédients déjà chez vous",
+            en: "%d%% of ingredients already at home"
+        )
+        static let differenceCTA = Loc(fr: "Optimiser mes menus", en: "Optimize my menus")
+
+        // MARK: Liste de courses (démonstration)
+
+        static let shoppingPreviewTitle = Loc(
+            fr: "Et votre liste de courses est prête.",
+            en: "And your shopping list is ready."
+        )
+        static let shoppingPreviewSubtitle = Loc(
+            fr: "SAVEAT retire automatiquement ce que vous avez déjà chez vous.",
+            en: "SAVEAT automatically removes what you already have at home."
+        )
+        static let shoppingPreviewDemoNotice = Loc(fr: "Exemple", en: "Example")
+        static let shoppingPreviewOnions = Loc(fr: "Oignons × 4", en: "Onions × 4")
+        static let shoppingPreviewZucchini = Loc(fr: "Courgettes × 3", en: "Zucchini × 3")
+        static let shoppingPreviewMushrooms = Loc(fr: "Champignons 500 g", en: "Mushrooms 500 g")
+        static let shoppingPreviewSalmon = Loc(fr: "Saumon × 4 portions", en: "Salmon × 4 portions")
+        static let shoppingPreviewParmesan = Loc(fr: "Parmesan 200 g", en: "Parmesan 200 g")
+        static let shoppingPreviewYogurt = Loc(fr: "Yaourts × 6", en: "Yogurt × 6")
+        static let shoppingPreviewToBuy = Loc(fr: "%d produits à acheter", en: "%d items to buy")
+        static let shoppingPreviewAlreadyHave = Loc(fr: "%d déjà chez vous", en: "%d already at home")
+        static let shoppingPreviewCTA = Loc(fr: "Voir ma liste de courses", en: "See my shopping list")
 
         static let scanEyebrow = Loc(fr: "Scannez.", en: "Scan.")
         static let scanHeadline = Loc(fr: "SAVEAT s'occupe du reste.", en: "SAVEAT handles the rest.")
@@ -2020,11 +2121,12 @@ nonisolated enum S {
             en: "Preview — the anti-waste map is coming soon."
         )
 
-        static let accountTitle = Loc(fr: "Votre SAVEAT. Partout avec vous.", en: "Your SAVEAT. Everywhere with you.")
-        static let accountBenefitStock = Loc(fr: "Sauvegardez votre stock", en: "Back up your stock")
-        static let accountBenefitSavings = Loc(fr: "Retrouvez vos économies", en: "Pick up your savings history")
-        static let accountBenefitFavorites = Loc(fr: "Conservez vos favoris", en: "Keep your favorites")
-        static let accountBenefitSync = Loc(fr: "Synchronisez vos préférences", en: "Sync your preferences")
+        static let accountTitle = Loc(fr: "Prêt à simplifier vos repas ?", en: "Ready to simplify your meals?")
+        static let accountBenefitStock = Loc(fr: "Mon frigo", en: "My fridge")
+        static let accountBenefitSavings = Loc(fr: "Mes économies", en: "My savings")
+        static let accountBenefitFavorites = Loc(fr: "Ma semaine", en: "My week")
+        static let accountBenefitSync = Loc(fr: "Mes courses", en: "My groceries")
+        static let accountBenefitChef = Loc(fr: "Mon Chef", en: "My Chef")
         static let continueWithApple = Loc(fr: "Continuer avec Apple", en: "Continue with Apple")
         static let continueWithGoogle = Loc(fr: "Continuer avec Google", en: "Continue with Google")
         static let continueWithEmail = Loc(fr: "Continuer avec mon e-mail", en: "Continue with Email")

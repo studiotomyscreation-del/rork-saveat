@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Seventh screen of the product-pitch onboarding: the account pitch.
+/// Eleventh screen of the product-pitch onboarding: the account pitch.
 ///
 /// No `AuthService` exists yet in SAVEAT (confirmed during the Phase 1 audit),
 /// and Sign in with Apple / Google both need capabilities, entitlements and a
@@ -13,9 +13,10 @@ struct AccountOnboardingView: View {
 
     private let benefits: [IntroFeature] = [
         IntroFeature(S.Intro.accountBenefitStock.s, icon: "shippingbox.fill"),
-        IntroFeature(S.Intro.accountBenefitSavings.s, icon: "chart.line.uptrend.xyaxis"),
-        IntroFeature(S.Intro.accountBenefitFavorites.s, icon: "heart.fill"),
-        IntroFeature(S.Intro.accountBenefitSync.s, icon: "arrow.triangle.2.circlepath")
+        IntroFeature(S.Intro.accountBenefitChef.s, icon: "fork.knife"),
+        IntroFeature(S.Intro.accountBenefitFavorites.s, icon: "calendar"),
+        IntroFeature(S.Intro.accountBenefitSync.s, icon: "cart.fill"),
+        IntroFeature(S.Intro.accountBenefitSavings.s, icon: "chart.line.uptrend.xyaxis")
     ]
 
     var body: some View {
@@ -26,7 +27,7 @@ struct AccountOnboardingView: View {
             OnboardingPhotoBackground(assetNames: [])
 
             VStack(spacing: 0) {
-                OnboardingProgressDots(stepIndex: 6, stepCount: 7)
+                OnboardingProgressDots(stepIndex: 10, stepCount: 11)
                     .padding(.top, 8)
 
                 Spacer(minLength: 20)

@@ -1,7 +1,10 @@
 import SwiftUI
 
-/// Fourth screen of the product-pitch onboarding: Chef SAVEAT, the cooking
-/// assistant that turns whatever is in stock into a real menu.
+/// Not currently wired into `OnboardingContainerView` — its pitch ("Chef
+/// SAVEAT turns your stock into a menu") is now covered earlier by
+/// `ChefOnboardingView`/`DifferenceOnboardingView`, and keeping both back to
+/// back read as repetitive. Left in place in case a future flow variant
+/// wants it back.
 ///
 /// No fabricated recipe names or ingredient-coverage numbers here — those
 /// are only ever shown once they come from a real stock and a real

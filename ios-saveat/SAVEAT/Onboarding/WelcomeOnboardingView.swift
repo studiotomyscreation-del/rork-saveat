@@ -13,9 +13,9 @@ struct WelcomeOnboardingView: View {
     private static let photoAssetNames = ["onboarding_welcome", "chicken_rice_bowl_topdown"]
 
     private let features: [IntroFeature] = [
-        IntroFeature(S.Intro.welcomeIconScan.s, icon: "barcode.viewfinder"),
-        IntroFeature(S.Intro.welcomeIconCook.s, icon: "fork.knife"),
-        IntroFeature(S.Intro.welcomeIconSave.s, icon: "eurosign.circle.fill")
+        IntroFeature(S.Intro.welcomeIconChef.s, icon: "fork.knife"),
+        IntroFeature(S.Intro.welcomeIconWeek.s, icon: "calendar"),
+        IntroFeature(S.Intro.welcomeIconGroceries.s, icon: "cart.fill")
     ]
 
     var body: some View {

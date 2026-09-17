@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Fifth screen of the product-pitch onboarding: what the savings dashboard
+/// Ninth screen of the product-pitch onboarding: what the savings dashboard
 /// will look like — clearly labelled as example data, since a brand-new
 /// account starts genuinely at zero (see `AppStore.hasNoHistory`).
 struct SavingsOnboardingView: View {
@@ -14,8 +14,8 @@ struct SavingsOnboardingView: View {
     var body: some View {
         IntroStepShell(
             photoAssetNames: Self.photoAssetNames,
-            stepIndex: 4,
-            stepCount: 7,
+            stepIndex: 8,
+            stepCount: 11,
             icon: "chart.line.uptrend.xyaxis",
             title: S.Intro.savingsTitle.s,
             body_: S.Intro.savingsBody.s,
