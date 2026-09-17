@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Eighth screen of the product-pitch onboarding: Frigo / Placard / Congélateur.
+/// Ninth screen of the product-pitch onboarding: Frigo / Placard / Congélateur.
 ///
 /// The tab row and rows below are a static preview — illustrative examples,
 /// not the user's real stock, which does not exist yet at this point in
@@ -34,8 +34,8 @@ struct StockOnboardingView: View {
     var body: some View {
         IntroStepShell(
             photoAssetNames: Self.photoAssetNames,
-            stepIndex: 7,
-            stepCount: 11,
+            stepIndex: 8,
+            stepCount: 12,
             icon: "refrigerator",
             title: S.Intro.stockTitle.s,
             body_: S.Intro.stockBody.s,

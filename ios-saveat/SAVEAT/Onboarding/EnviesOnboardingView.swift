@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Second screen of the product-pitch onboarding: what the household feels
+/// Third screen of the product-pitch onboarding: what the household feels
 /// like cooking this week. Purely presentational — selections here are not
 /// persisted; the real preferences are collected later in the household
 /// setup (`OnboardingView`), same as every other page in this pitch.
@@ -27,8 +27,8 @@ struct EnviesOnboardingView: View {
     var body: some View {
         IntroStepShell(
             photoAssetNames: [],
-            stepIndex: 1,
-            stepCount: 11,
+            stepIndex: 2,
+            stepCount: 12,
             icon: "sparkles",
             title: S.Intro.enviesTitle.s,
             body_: S.Intro.enviesSubtitle.s,

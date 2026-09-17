@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Twelfth and final screen of the product-pitch onboarding: closes the pitch
+/// Thirteenth and final screen of the product-pitch onboarding: closes the pitch
 /// before the app hands off to the existing household setup (`OnboardingView`)
 /// or straight to `RootView`.
 struct OnboardingCompleteView: View {

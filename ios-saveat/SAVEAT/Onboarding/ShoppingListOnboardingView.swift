@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Sixth screen of the product-pitch onboarding: the shopping list SAVEAT
+/// Seventh screen of the product-pitch onboarding: the shopping list SAVEAT
 /// builds once the week is planned, with what's already at home removed.
 ///
 /// Every item, category and count here is fixed example data
@@ -35,8 +35,8 @@ struct ShoppingListOnboardingView: View {
     var body: some View {
         IntroStepShell(
             photoAssetNames: [],
-            stepIndex: 5,
-            stepCount: 11,
+            stepIndex: 6,
+            stepCount: 12,
             icon: "cart.fill",
             title: S.Intro.shoppingPreviewTitle.s,
             body_: S.Intro.shoppingPreviewSubtitle.s,

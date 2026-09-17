@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Fifth screen of the product-pitch onboarding: SAVEAT's actual
+/// Sixth screen of the product-pitch onboarding: SAVEAT's actual
 /// differentiator — the Chef starts from real stock, not a blank page.
 ///
 /// The three figures shown are fixed example numbers (`differenceDemoNotice`
@@ -15,8 +15,8 @@ struct DifferenceOnboardingView: View {
     var body: some View {
         IntroStepShell(
             photoAssetNames: [],
-            stepIndex: 4,
-            stepCount: 11,
+            stepIndex: 5,
+            stepCount: 12,
             icon: "shippingbox.fill",
             title: S.Intro.differenceTitle.s,
             body_: S.Intro.differenceBody.s,

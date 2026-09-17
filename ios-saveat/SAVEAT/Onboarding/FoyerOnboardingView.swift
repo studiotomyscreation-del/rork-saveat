@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Third screen of the product-pitch onboarding: household size and how many
+/// Fourth screen of the product-pitch onboarding: household size and how many
 /// days to plan for. Reuses `QuantityStepper` (already used for servings in
 /// `MealAssistantView`) rather than a new counter component. Purely
 /// presentational — not persisted; the real household size is set later in
@@ -15,8 +15,8 @@ struct FoyerOnboardingView: View {
     var body: some View {
         IntroStepShell(
             photoAssetNames: [],
-            stepIndex: 2,
-            stepCount: 11,
+            stepIndex: 3,
+            stepCount: 12,
             icon: "person.2.fill",
             title: S.Intro.foyerTitle.s,
             body_: S.Intro.foyerSubtitle.s,

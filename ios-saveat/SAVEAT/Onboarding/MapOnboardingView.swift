@@ -1,7 +1,7 @@
 import MapKit
 import SwiftUI
 
-/// Tenth screen of the product-pitch onboarding: a preview of SAVEAT Local.
+/// Eleventh screen of the product-pitch onboarding: a preview of SAVEAT Local.
 ///
 /// The map itself is genuine MapKit — a real `Map` with sample pins, not a
 /// flattened image — kept prominent as this page's hero visual instead of a
@@ -47,8 +47,8 @@ struct MapOnboardingView: View {
     var body: some View {
         IntroStepShell(
             photoAssetNames: [],
-            stepIndex: 9,
-            stepCount: 11,
+            stepIndex: 10,
+            stepCount: 12,
             icon: "map.fill",
             title: S.Intro.mapTitle.s,
             body_: S.Intro.mapBody.s,

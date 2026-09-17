@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// First screen of the product-pitch onboarding: what SAVEAT does, in one look.
+/// Second screen of the product-pitch onboarding: what SAVEAT does, in one look.
 ///
 /// Prefers a dedicated `onboarding_welcome` photo once one is added; until
 /// then falls back to a bundled premium food photo rather than a new

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Eleventh screen of the product-pitch onboarding: the account pitch.
+/// Twelfth screen of the product-pitch onboarding: the account pitch.
 ///
 /// No `AuthService` exists yet in SAVEAT (confirmed during the Phase 1 audit),
 /// and Sign in with Apple / Google both need capabilities, entitlements and a
@@ -27,7 +27,7 @@ struct AccountOnboardingView: View {
             OnboardingPhotoBackground(assetNames: [])
 
             VStack(spacing: 0) {
-                OnboardingProgressDots(stepIndex: 10, stepCount: 11)
+                OnboardingProgressDots(stepIndex: 11, stepCount: 12)
                     .padding(.top, 8)
 
                 Spacer(minLength: 20)

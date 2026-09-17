@@ -1937,6 +1937,20 @@ nonisolated enum S {
     // MARK: - Product-pitch onboarding (Welcome → Scan → Stock → Recipes → Map → Account)
 
     nonisolated enum Intro {
+        // MARK: Account type (particulier vs pro — very first screen)
+
+        static let accountTypeTitle = Loc(fr: "Vous êtes…", en: "You are…")
+        static let accountTypeParticulier = Loc(fr: "Particulier", en: "Home cook")
+        static let accountTypeParticulierSubtitle = Loc(
+            fr: "Je gère mon frigo et mes repas.",
+            en: "I manage my fridge and my meals."
+        )
+        static let accountTypePro = Loc(fr: "Professionnel", en: "Food business")
+        static let accountTypeProSubtitle = Loc(
+            fr: "Je publie mes invendus alimentaires.",
+            en: "I publish my unsold food."
+        )
+
         static let welcomeEyebrow = Loc(fr: "VOTRE ASSISTANT ALIMENTAIRE", en: "YOUR FOOD ASSISTANT")
         static let welcomeTitle = Loc(
             fr: "Votre Chef s'occupe de votre semaine.",

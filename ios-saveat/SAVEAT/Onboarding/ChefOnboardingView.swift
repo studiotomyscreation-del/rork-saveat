@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Fourth screen of the product-pitch onboarding: a preview of what a
+/// Fifth screen of the product-pitch onboarding: a preview of what a
 /// generated week looks like. Content here is fixed, clearly-labelled
 /// example data (`chefDemoNotice`) — the real week will come from
 /// `MealAIService` once the household's actual stock and preferences exist,
@@ -27,8 +27,8 @@ struct ChefOnboardingView: View {
     var body: some View {
         IntroStepShell(
             photoAssetNames: ["onboarding_chef", "chicken_rice_bowl_topdown"],
-            stepIndex: 3,
-            stepCount: 11,
+            stepIndex: 4,
+            stepCount: 12,
             icon: "fork.knife",
             title: S.Intro.chefTitle.s,
             body_: S.Intro.chefSubtitle.s,
