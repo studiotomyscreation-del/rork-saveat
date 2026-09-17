@@ -42,7 +42,7 @@ struct ProfileView: View {
             .padding(.bottom, 20)
         }
         .scrollIndicators(.hidden)
-        .saveatBackground()
+        .saveatSoftBackdrop()
         .sheet(isPresented: $showsPaywall) { PaywallSheet() }
         .sheet(isPresented: $showsCustomerCenter) { ManageSubscriptionSheet() }
         .sheet(isPresented: $showsProSignUp) { ProSignUpContainerView() }

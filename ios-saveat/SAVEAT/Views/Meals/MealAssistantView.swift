@@ -77,7 +77,7 @@ struct MealAssistantView: View {
 
             composer
         }
-        .saveatBackground()
+        .saveatSoftBackdrop()
         .sheet(isPresented: $showsPaywall) { PaywallSheet(feature: .unlimitedAI) }
         .task {
             guard !hasLoaded else { return }

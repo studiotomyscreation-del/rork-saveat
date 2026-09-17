@@ -44,7 +44,7 @@ struct InventoryView: View {
             .padding(.bottom, 20)
         }
         .scrollIndicators(.hidden)
-        .saveatBackground()
+        .saveatSoftBackdrop()
         .searchable(text: $search, prompt: S.Inventory.searchPrompt.s)
         .sheet(isPresented: $isAddingItem) {
             AddFoodSheet(defaultLocation: location)
