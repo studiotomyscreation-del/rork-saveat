@@ -168,6 +168,21 @@ final class ProAccountStore {
         offers[index].updatedAt = Date()
     }
 
+    /// Updates the shop front's own opening hours and pickup instructions —
+    /// the only two fields on `MerchantLocation` the professional writes
+    /// themselves (address/coordinates stay tied to the geocoded SIRET
+    /// record, never hand-edited). Empty text is stored as `nil`, not an
+    /// empty string, so `AntiWastePlaceDetailView` never shows a blank line.
+    func updateLocationDetails(openingHours: String, pickupInstructions: String) {
+        guard var location else { return }
+        let trimmedHours = openingHours.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedInstructions = pickupInstructions.trimmingCharacters(in: .whitespacesAndNewlines)
+        location.openingHours = trimmedHours.isEmpty ? nil : trimmedHours
+        location.pickupInstructions = trimmedInstructions.isEmpty ? nil : trimmedInstructions
+        location.updatedAt = Date()
+        self.location = location
+    }
+
     /// Leaves SAVEAT PRO on this device. The professional can sign up again
     /// any time — never called automatically.
     func reset() {

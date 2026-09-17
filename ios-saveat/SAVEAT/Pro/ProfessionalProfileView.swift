@@ -14,6 +14,8 @@ struct ProfessionalProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showsLeaveConfirmation = false
     @State private var showsCreateOffer = false
+    @State private var openingHoursText = ""
+    @State private var pickupInstructionsText = ""
 
     var body: some View {
         NavigationStack {
@@ -24,6 +26,9 @@ struct ProfessionalProfileView: View {
                     }
                     if let account = proAccount.account {
                         responsibleCard(account)
+                    }
+                    if proAccount.location != nil {
+                        scheduleCard
                     }
 
                     basketSection
@@ -48,6 +53,10 @@ struct ProfessionalProfileView: View {
             }
             .sheet(isPresented: $showsCreateOffer) {
                 CreateBasketOfferView()
+            }
+            .onAppear {
+                openingHoursText = proAccount.location?.openingHours ?? ""
+                pickupInstructionsText = proAccount.location?.pickupInstructions ?? ""
             }
             .scrollIndicators(.hidden)
             .background(SaveatColors.background.ignoresSafeArea())
@@ -108,6 +117,39 @@ struct ProfessionalProfileView: View {
                     .font(SaveatTypography.body(14))
                     .foregroundStyle(SaveatColors.textSecondary)
             }
+        }
+    }
+
+    // MARK: - Schedule & pickup instructions (§8)
+
+    private var scheduleCard: some View {
+        SaveatCard {
+            VStack(alignment: .leading, spacing: 14) {
+                Text(S.Pro.scheduleSectionTitle.s)
+                    .font(SaveatTypography.caption(12))
+                    .foregroundStyle(SaveatColors.textSecondary)
+                field(S.Pro.openingHoursLabel.s, text: $openingHoursText, placeholder: S.Pro.openingHoursPlaceholder.s)
+                Divider()
+                field(S.Pro.pickupInstructionsLabel.s, text: $pickupInstructionsText, placeholder: S.Pro.pickupInstructionsPlaceholder.s)
+                SaveatTextButton(title: S.Pro.saveScheduleCTA.s) {
+                    proAccount.updateLocationDetails(
+                        openingHours: openingHoursText,
+                        pickupInstructions: pickupInstructionsText
+                    )
+                    Haptics.success()
+                }
+                .padding(.top, 2)
+            }
+        }
+    }
+
+    private func field(_ label: String, text: Binding<String>, placeholder: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(label)
+                .font(SaveatTypography.caption(11.5))
+                .foregroundStyle(SaveatColors.textSecondary)
+            TextField(placeholder, text: text)
+                .font(SaveatTypography.body(14.5))
         }
     }
 

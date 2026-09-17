@@ -140,6 +140,21 @@ extension S {
         static let proProfileTitle = Loc(fr: "Mon espace pro", en: "My pro space")
         static let establishmentSectionTitle = Loc(fr: "Établissement", en: "Business")
         static let responsibleSectionTitle = Loc(fr: "Responsable", en: "Contact")
+
+        // MARK: Schedule & pickup instructions (§8 — shown on the map's detail sheet)
+
+        static let scheduleSectionTitle = Loc(fr: "Horaires & retrait", en: "Hours & pickup")
+        static let openingHoursLabel = Loc(fr: "Horaires d'ouverture", en: "Opening hours")
+        static let openingHoursPlaceholder = Loc(
+            fr: "Ex. Lun-Sam 9h-19h30",
+            en: "E.g. Mon-Sat 9am-7:30pm"
+        )
+        static let pickupInstructionsLabel = Loc(fr: "Instructions de retrait", en: "Pickup instructions")
+        static let pickupInstructionsPlaceholder = Loc(
+            fr: "Ex. Sonnez à la porte de service",
+            en: "E.g. Ring the service-door bell"
+        )
+        static let saveScheduleCTA = Loc(fr: "Enregistrer", en: "Save")
         static let dashboardComingSoonNotice = Loc(
             fr: "Les réservations et les statistiques détaillées arrivent dans une prochaine mise à jour.",
             en: "Reservations and detailed statistics are coming in a future update."

@@ -51,7 +51,7 @@ nonisolated struct SAVEATPartnerProvider: AntiWastePlacesProviding {
             city: location.city,
             postalCode: location.postalCode,
             countryCode: location.countryCode,
-            description: merchant.merchantDescription ?? S.Map.saveatPartnerDescription.s,
+            description: Self.description(merchant: merchant, location: location),
             openingHours: location.openingHours,
             websiteURLString: merchant.websiteURLString,
             phone: merchant.phone,
@@ -63,6 +63,17 @@ nonisolated struct SAVEATPartnerProvider: AntiWastePlacesProviding {
             sourceID: location.id,
             isVerified: true
         )
+    }
+
+    /// Merchant free text plus the location's own pickup instructions
+    /// (§8 — "Sonnez à la porte de service", "Présentez votre e-mail de
+    /// confirmation"…), when the professional wrote one. Falls back to a
+    /// generic line so the place is never shown with a blank description.
+    private static func description(merchant: Merchant, location: MerchantLocation) -> String {
+        let parts = [merchant.merchantDescription, location.pickupInstructions]
+            .compactMap { $0 }
+            .filter { !$0.isEmpty }
+        return parts.isEmpty ? S.Map.saveatPartnerDescription.s : parts.joined(separator: " — ")
     }
 
     private static func offerSummary(_ offer: BasketOffer) -> String {
