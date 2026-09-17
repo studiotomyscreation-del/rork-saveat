@@ -16,8 +16,6 @@ struct ProfileView: View {
     #if DEBUG
     @State private var aiDiagnostic: MealAIService.DiagnosticResult?
     @State private var isRunningAIDiagnostic = false
-    @State private var weeklyPlanTest: WeeklyMealPlan?
-    @State private var isGeneratingWeeklyPlan = false
     #endif
 
     private var impact: ImpactSummary { store.lifetimeImpact }
@@ -31,7 +29,6 @@ struct ProfileView: View {
                 #if DEBUG
                 onboardingResetCard
                 aiDiagnosticsCard
-                weeklyPlanDiagnosticsCard
                 #endif
                 savingsCard
                 menuSection
@@ -504,70 +501,6 @@ struct ProfileView: View {
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.sageDeep)
             }
-            .frame(maxWidth: .infinity)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 13)
-        .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
-        .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
-    }
-
-    /// Debug-only end-to-end test of `WeeklyPlanGenerator` — validates the
-    /// Phase 3 "Chef → semaine" generation chain before the real "Ma
-    /// semaine" screen (Phase 7) exists to trigger it from.
-    private var weeklyPlanDiagnosticsCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: "calendar")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Theme.sageDeep)
-                Text("TEST MA SEMAINE (DEBUG)")
-                    .font(.system(size: 10.5, weight: .bold, design: .rounded))
-                    .tracking(1.5)
-                    .foregroundStyle(Theme.sageDeep)
-                Spacer(minLength: 0)
-            }
-
-            if let plan = weeklyPlanTest {
-                aiDiagnosticLine("Jours générés", "\(plan.days.count) / \(plan.numberOfDays)")
-                ForEach(plan.days) { day in
-                    aiDiagnosticLine(
-                        day.date.formatted(.dateTime.weekday(.wide)),
-                        day.recipe?.displayName ?? "—"
-                    )
-                }
-                Divider()
-                aiDiagnosticLine("Liste de courses", "\(plan.shoppingList.count) article(s)")
-                ForEach(plan.shoppingList.prefix(8)) { item in
-                    aiDiagnosticLine(item.name, item.quantityText)
-                }
-            }
-
-            Divider()
-
-            Button {
-                Task {
-                    isGeneratingWeeklyPlan = true
-                    weeklyPlanTest = await WeeklyPlanGenerator.shared.generateWeek(
-                        startDate: .now,
-                        numberOfDays: 5,
-                        servings: store.profile.householdSize,
-                        preferences: ["Rapide"],
-                        inventory: store.inventory,
-                        profile: store.profile
-                    )
-                    isGeneratingWeeklyPlan = false
-                }
-            } label: {
-                if isGeneratingWeeklyPlan {
-                    ProgressView().tint(Theme.inkSoft)
-                } else {
-                    Text("Générer une semaine test")
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                        .foregroundStyle(Theme.sageDeep)
-                }
-            }
-            .disabled(isGeneratingWeeklyPlan)
             .frame(maxWidth: .infinity)
         }
         .padding(.horizontal, 16)

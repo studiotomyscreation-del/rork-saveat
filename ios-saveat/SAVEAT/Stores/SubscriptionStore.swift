@@ -123,6 +123,7 @@ nonisolated enum PremiumFeature: String, Sendable, Identifiable {
     case zeroEuroMode
     case endOfMonth
     case savingsStats
+    case weeklyPlanning
 
     nonisolated var id: String { rawValue }
 
@@ -133,6 +134,7 @@ nonisolated enum PremiumFeature: String, Sendable, Identifiable {
         case .zeroEuroMode: S.Subscription.featureZeroCost.s
         case .endOfMonth: S.Subscription.featureBudget.s
         case .savingsStats: S.Subscription.featureStats.s
+        case .weeklyPlanning: S.Subscription.featureWeeklyPlanning.s
         }
     }
 }
@@ -630,6 +632,7 @@ final class SubscriptionStore {
         case .zeroEuroMode: true
         case .endOfMonth: isPremium
         case .savingsStats: isPremium
+        case .weeklyPlanning: isPremium
         }
     }
 

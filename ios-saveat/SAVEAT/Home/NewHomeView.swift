@@ -27,9 +27,9 @@ struct NewHomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 header
+                chefCard
                 savingsCard
                 rescueCard
-                recipeCard
                 nearbyCard
                 actions
                 quickModes
@@ -120,32 +120,94 @@ struct NewHomeView: View {
         }
     }
 
-    // MARK: Recette du jour
+    // MARK: Chef SAVEAT — "what do we eat" hub (single meal or a whole week)
 
-    private var recipeCard: some View {
-        SaveatCard {
+    /// Replaces the old single-recipe "Recette du jour" card — same slot,
+    /// but leads with the Chef itself rather than one suggestion, and is the
+    /// entry point into `WeeklyPlanGenerator` (Phase 3-4 of the Chef/semaine
+    /// roadmap). "Trouver un repas" reuses the existing Repas tab
+    /// (`onOpenRecipes`); "Préparer ma semaine" pushes the real `Route.weeklyPlan`
+    /// screen — nothing here is a demo, every number shown is real.
+    private static let chefCardPhoto = "french_toast_berries"
+
+    private var chefCard: some View {
+        ZStack(alignment: .bottomLeading) {
+            GeometryReader { geo in
+                Image(Self.chefCardPhoto)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .clipped()
+            }
+
+            LinearGradient(
+                colors: [.black.opacity(0.05), .black.opacity(0.35), .black.opacity(0.78)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
             VStack(alignment: .leading, spacing: 10) {
-                SectionLabel(text: S.NewHome.recipeCardLabel.s, color: SaveatColors.forestDeep)
-                if let recipe = store.suggestions().first {
-                    HStack(spacing: 12) {
-                        Text(recipe.emoji).font(.system(size: 26))
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(recipe.displayName)
-                                .font(SaveatTypography.headline(15))
-                                .foregroundStyle(SaveatColors.textPrimary)
-                            Text(recipe.timeText)
-                                .font(SaveatTypography.caption(12))
-                                .foregroundStyle(SaveatColors.textSecondary)
-                        }
-                        Spacer(minLength: 0)
+                Text(S.NewHome.chefCardEyebrow.s)
+                    .font(SaveatTypography.eyebrow(11))
+                    .tracking(1.2)
+                    .foregroundStyle(SaveatColors.brandLight)
+                Text(S.NewHome.chefCardTitle.s)
+                    .font(SaveatTypography.hero(21))
+                    .foregroundStyle(.white)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(S.NewHome.chefCardSubtitle.s)
+                    .font(SaveatTypography.caption(12.5))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(spacing: 10) {
+                    Button {
+                        Haptics.light()
+                        onOpenRecipes()
+                    } label: {
+                        Text(S.NewHome.chefFindMealCTA.s)
+                            .font(.system(size: 13.5, weight: .semibold, design: .rounded))
+                            .foregroundStyle(SaveatColors.forestDeep)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(.white, in: .capsule)
                     }
-                } else {
-                    Text(S.NewHome.recipeEmpty.s)
-                        .font(SaveatTypography.body(14))
-                        .foregroundStyle(SaveatColors.textSecondary)
+                    Button {
+                        Haptics.light()
+                        path.append(Route.weeklyPlan)
+                    } label: {
+                        Text(S.NewHome.chefPrepareWeekCTA.s)
+                            .font(.system(size: 13.5, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(.white.opacity(0.16), in: .capsule)
+                            .overlay {
+                                Capsule().stroke(.white.opacity(0.5), lineWidth: 1)
+                            }
+                    }
                 }
+                .padding(.top, 4)
+            }
+            .padding(18)
+        }
+        .frame(height: 300)
+        .clipShape(.rect(cornerRadius: 24))
+        .overlay(alignment: .topTrailing) {
+            if store.totalProducts > 0 {
+                HStack(spacing: 5) {
+                    Image(systemName: "checkmark.seal.fill").font(.system(size: 11))
+                    Text(S.NewHome.chefStockBadge.f(store.totalProducts))
+                        .font(.system(size: 11.5, weight: .semibold, design: .rounded))
+                }
+                .foregroundStyle(SaveatColors.forestDeep)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .background(.white.opacity(0.92), in: .capsule)
+                .padding(12)
             }
         }
+        .shadow(color: SaveatColors.nightBlue.opacity(0.12), radius: 16, y: 8)
     }
 
     // MARK: Bons plans autour de moi

@@ -391,6 +391,10 @@ nonisolated enum S {
             fr: "Statistiques d'économies",
             en: "Savings statistics"
         )
+        static let featureWeeklyPlanning = Loc(
+            fr: "Semaine complète par le Chef",
+            en: "Full week planned by the Chef"
+        )
 
         static let purchasesUnavailable = Loc(
             fr: "Les achats ne sont pas disponibles sur cette version.",
@@ -1151,6 +1155,24 @@ nonisolated enum S {
     }
 
     // MARK: - Smart shopping
+
+    nonisolated enum Week {
+        static let navTitle = Loc(fr: "Ma semaine", en: "My Week")
+        static let setupTitle = Loc(fr: "Votre Chef prépare votre semaine.", en: "Your Chef plans your week.")
+        static let setupSubtitle = Loc(
+            fr: "À partir de vos envies et de ce que vous avez déjà.",
+            en: "Built from your cravings and what you already have."
+        )
+        static let freePreviewBadge = Loc(fr: "Aperçu %d jours", en: "%d-day preview")
+        static let generateCTA = Loc(fr: "Créer ma semaine", en: "Create my week")
+        static let generatingCTA = Loc(fr: "Le Chef prépare votre semaine…", en: "Your Chef is planning…")
+        static let regenerateCTA = Loc(fr: "Régénérer ma semaine", en: "Regenerate my week")
+        static let unlockFullWeekCTA = Loc(
+            fr: "Débloquer la semaine complète (5-7 jours)",
+            en: "Unlock the full week (5-7 days)"
+        )
+        static let viewShoppingListCTA = Loc(fr: "Liste de courses — %d article(s)", en: "Shopping list — %d item(s)")
+    }
 
     nonisolated enum Shopping {
         static let navTitle = Loc(fr: "Courses intelligentes", en: "Smart Shopping")
@@ -2234,17 +2256,26 @@ nonisolated enum S {
             fr: "Active ta position pour des résultats plus précis.",
             en: "Turn on your location for more accurate results."
         )
-        static let recipeCardLabel = Loc(fr: "Recette du jour", en: "Today's Recipe")
-        static let recipeEmpty = Loc(
-            fr: "Scanne quelques produits pour recevoir une suggestion.",
-            en: "Scan a few groceries to get a suggestion."
-        )
-
         static let scanCTA = Loc(fr: "Scanner un produit", en: "Scan a Product")
         static let stockCTA = Loc(fr: "Accès stock", en: "Open Stock")
         static let recipesCTA = Loc(fr: "Accès recettes", en: "Open Recipes")
         static let mapCTA = Loc(fr: "Accès carte", en: "Open Map")
         static let notWiredYet = Loc(fr: "Sera relié en Phase 5", en: "Wired up in Phase 5")
+
+        // MARK: Chef SAVEAT card
+
+        static let chefCardEyebrow = Loc(fr: "CHEF SAVEAT", en: "SAVEAT CHEF")
+        static let chefCardTitle = Loc(
+            fr: "Qu'est-ce qu'on mange aujourd'hui ?",
+            en: "What are we eating today?"
+        )
+        static let chefCardSubtitle = Loc(
+            fr: "Des idées avec ce que tu as déjà, ou une semaine entière préparée pour toi.",
+            en: "Ideas from what you already have, or a whole week planned for you."
+        )
+        static let chefFindMealCTA = Loc(fr: "Trouver un repas", en: "Find a meal")
+        static let chefPrepareWeekCTA = Loc(fr: "Préparer ma semaine", en: "Plan my week")
+        static let chefStockBadge = Loc(fr: "%d produits chez toi", en: "%d products at home")
     }
 
     // MARK: - Nutrition Advice Engine (Models/NutritionAdviceEngine) — Phase 9
