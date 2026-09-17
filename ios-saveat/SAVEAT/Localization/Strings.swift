@@ -2107,11 +2107,6 @@ nonisolated enum S {
 
         static let savingsCardLabel = Loc(fr: "Économies ce mois-ci", en: "Savings This Month")
         static let rescueCardLabel = Loc(fr: "Aliments à sauver", en: "Food To Use Soon")
-        static let dealsCardLabel = Loc(fr: "Réductions disponibles", en: "Available Deals")
-        static let dealsComingSoon = Loc(
-            fr: "Bientôt disponible, dès que des commerçants SAVEAT rejoignent l'app.",
-            en: "Coming soon, once SAVEAT merchants join the app."
-        )
         static let nearbyCardLabel = Loc(fr: "Bons plans autour de moi", en: "Deals Near Me")
         static let nearbyCount = Loc(fr: "%d lieu à proximité", en: "%d place nearby")
         static let nearbyCountPlural = Loc(fr: "%d lieux à proximité", en: "%d places nearby")

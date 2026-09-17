@@ -31,7 +31,6 @@ struct NewHomeView: View {
                 rescueCard
                 recipeCard
                 nearbyCard
-                dealsCard
                 actions
                 quickModes
             }
@@ -173,23 +172,6 @@ struct NewHomeView: View {
                         .font(SaveatTypography.caption(11.5))
                         .foregroundStyle(SaveatColors.textSecondary)
                 }
-            }
-        }
-    }
-
-    // MARK: Réductions disponibles
-
-    private var dealsCard: some View {
-        SaveatCard {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    SectionLabel(text: S.NewHome.dealsCardLabel.s, color: SaveatColors.forestDeep)
-                    Spacer(minLength: 0)
-                    SaveatBadge(text: S.Common.comingSoon.s, tone: .promo)
-                }
-                Text(S.NewHome.dealsComingSoon.s)
-                    .font(SaveatTypography.caption(12.5))
-                    .foregroundStyle(SaveatColors.textSecondary)
             }
         }
     }
