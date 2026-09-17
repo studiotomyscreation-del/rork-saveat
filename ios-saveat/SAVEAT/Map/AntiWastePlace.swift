@@ -74,12 +74,17 @@ nonisolated enum DataSource: String, Codable, Hashable, Sendable {
     case ademe
     case saveat
     case partner
+    /// `NousAntiGaspiProvider` — real store addresses curated from the
+    /// chain's own public website, not a SAVEAT partnership (see that
+    /// provider's doc comment). Attributed to them, never to SAVEAT.
+    case nousAntiGaspi
 
     nonisolated var attributionText: String {
         switch self {
         case .openStreetMap: "© OpenStreetMap contributors"
         case .ademe: "Data ADEME"
         case .saveat, .partner: "SAVEAT"
+        case .nousAntiGaspi: "NOUS Anti-Gaspi"
         }
     }
 }

@@ -16,15 +16,19 @@ nonisolated enum PlaceDeduplicator {
     /// Source priority when two records describe the same place — the
     /// higher-priority one is kept, the other dropped. A future SAVEAT/partner
     /// record always wins over open data, since it is directly maintained by
-    /// SAVEAT; between the two open sources, OpenStreetMap wins because its
-    /// tags map directly onto a SAVEAT category, while the ADEME match is a
-    /// best-effort keyword match (see `ADEMEProvider`).
+    /// SAVEAT. `NousAntiGaspiProvider` comes next — a named chain's own
+    /// address for its own store beats a crowd-sourced OSM node or a
+    /// best-effort ADEME keyword match for the same spot. Between the two
+    /// open sources, OpenStreetMap wins because its tags map directly onto a
+    /// SAVEAT category, while the ADEME match is a best-effort keyword match
+    /// (see `ADEMEProvider`).
     private static func priority(_ source: DataSource) -> Int {
         switch source {
         case .partner: 0
         case .saveat: 1
-        case .openStreetMap: 2
-        case .ademe: 3
+        case .nousAntiGaspi: 2
+        case .openStreetMap: 3
+        case .ademe: 4
         }
     }
 

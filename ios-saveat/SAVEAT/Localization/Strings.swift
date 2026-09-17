@@ -2240,6 +2240,14 @@ nonisolated enum S {
         static let osmAttribution = Loc(fr: "Données © OpenStreetMap contributors", en: "Data © OpenStreetMap contributors")
         static let sourceLabel = Loc(fr: "Source : %@", en: "Source: %@")
         static let sourceLink = Loc(fr: "Voir la fiche", en: "View record")
+
+        /// `NousAntiGaspiProvider` — same short description for every store in
+        /// the list, since the chain's own store pages all describe the
+        /// concept in the same terms.
+        static let nousAntiGaspiDescription = Loc(
+            fr: "Épicerie anti-gaspi : produits alimentaires sauvés du gaspillage, à prix réduits.",
+            en: "Anti-waste grocery store: food products rescued from waste, at reduced prices."
+        )
     }
 
     // MARK: - SAVEAT V2 Home (Home/NewHomeView) — Phase 4

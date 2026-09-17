@@ -101,6 +101,12 @@ nonisolated struct AntiWasteRepository: Sendable {
     /// active would add API calls without adding real places. See
     /// `ADEMEProvider`'s doc comment and the Phase 3 report.
     ///
+    /// `NousAntiGaspiProvider` is a curated, France-only snapshot of a real
+    /// anti-waste grocery chain's own published store addresses — added to
+    /// fill in where `OpenStreetMapProvider`'s crowd-sourced tagging hasn't
+    /// reached yet. See that provider's doc comment for how it was sourced
+    /// and why it's still not a "SAVEAT partner" record.
+    ///
     /// No other national provider is wired in as of the international
     /// architecture pass — the research phase found no food-donation open
     /// dataset for Germany, Spain, Italy, Brazil or the USA that is both
@@ -109,7 +115,8 @@ nonisolated struct AntiWasteRepository: Sendable {
     /// (`.worldwide`), which is why the map works the same in Bordeaux,
     /// Berlin or São Paulo today.
     static let shared = AntiWasteRepository(providers: [
-        OpenStreetMapProvider()
+        OpenStreetMapProvider(),
+        NousAntiGaspiProvider()
     ])
 
     /// Fictional data only — for SwiftUI Previews and offline development.
