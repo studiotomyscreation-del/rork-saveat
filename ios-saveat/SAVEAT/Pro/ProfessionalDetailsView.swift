@@ -3,11 +3,15 @@ import SwiftUI
 /// §13 of the SAVEAT PRO spec — only the fields SAVEAT actually needs from
 /// the responsible person, once their establishment is confirmed.
 ///
-/// No real account is created here yet: SAVEAT has no backend to create one
-/// against (see the Phase 1 audit — 100% local app, no server, no auth).
-/// `proAccountComingSoonNotice` says so plainly, the same honesty pattern
-/// already used for the particulier account in `AccountOnboardingView`.
+/// No real, synced account is created here: SAVEAT has no backend yet (see
+/// the Phase 1 audit — 100% local app, no server, no auth). What this screen
+/// does instead is save the merchant and responsible-person records locally
+/// via `ProAccountStore`, so `ProfessionalProfileView` has something real to
+/// show afterward. `proAccountComingSoonNotice` says plainly that this stays
+/// on-device only — the same honesty pattern already used for the
+/// particulier account in `AccountOnboardingView`.
 struct ProfessionalDetailsView: View {
+    @Environment(ProAccountStore.self) private var proAccount
     let record: BusinessRegistryRecord
     var onDone: () -> Void
 
@@ -41,6 +45,13 @@ struct ProfessionalDetailsView: View {
                 }
 
                 SaveatPrimaryButton(title: S.Pro.createProAccountCTA.s, isEnabled: canSubmit) {
+                    proAccount.createAccount(
+                        from: record,
+                        firstName: firstName.trimmingCharacters(in: .whitespaces),
+                        lastName: lastName.trimmingCharacters(in: .whitespaces),
+                        email: email.trimmingCharacters(in: .whitespaces),
+                        phone: phone.trimmingCharacters(in: .whitespaces)
+                    )
                     onDone()
                 }
 
@@ -102,5 +113,6 @@ struct ProfessionalDetailsView: View {
             ),
             onDone: {}
         )
+        .environment(ProAccountStore())
     }
 }

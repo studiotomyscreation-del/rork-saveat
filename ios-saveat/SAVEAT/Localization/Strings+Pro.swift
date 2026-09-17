@@ -114,12 +114,32 @@ extension S {
             fr: "Créer mon compte SAVEAT PRO",
             en: "Create my SAVEAT PRO account"
         )
-        /// Shown under the create-account button until a real backend exists —
-        /// same honesty pattern as `S.Intro.accountComingSoonNotice` for the
-        /// particulier account.
+        /// Shown under the create-account button — SAVEAT has no backend yet,
+        /// so this is honest about what "creating an account" means today:
+        /// saved on this device only, same honesty pattern as
+        /// `S.Intro.accountComingSoonNotice` for the particulier account.
         static let proAccountComingSoonNotice = Loc(
-            fr: "La création de compte professionnel arrive bientôt. Tes informations ne sont pas encore enregistrées.",
-            en: "Professional account creation is coming soon. Your information isn't saved yet."
+            fr: "Ton profil pro est enregistré sur cet appareil. La synchronisation et le tableau de bord complet arriveront dans une prochaine mise à jour.",
+            en: "Your pro profile is saved on this device. Sync and the full dashboard are coming in a future update."
+        )
+
+        // MARK: Professional profile (§ once signed up)
+
+        static let proProfileTitle = Loc(fr: "Mon espace pro", en: "My pro space")
+        static let establishmentSectionTitle = Loc(fr: "Établissement", en: "Business")
+        static let responsibleSectionTitle = Loc(fr: "Responsable", en: "Contact")
+        static let dashboardComingSoonNotice = Loc(
+            fr: "Le tableau de bord (paniers, réservations, statistiques) arrive dans une prochaine mise à jour.",
+            en: "The dashboard (baskets, reservations, statistics) is coming in a future update."
+        )
+        static let leaveProSpaceCTA = Loc(fr: "Quitter l'espace pro", en: "Leave the pro space")
+        static let leaveProSpaceConfirmTitle = Loc(
+            fr: "Quitter l'espace pro ?",
+            en: "Leave the pro space?"
+        )
+        static let leaveProSpaceConfirmMessage = Loc(
+            fr: "Ton profil pro sera supprimé de cet appareil. Tu pourras t'inscrire à nouveau à tout moment.",
+            en: "Your pro profile will be removed from this device. You can sign up again at any time."
         )
     }
 }

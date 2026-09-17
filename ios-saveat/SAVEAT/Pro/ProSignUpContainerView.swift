@@ -33,4 +33,5 @@ struct ProSignUpContainerView: View {
 
 #Preview {
     ProSignUpContainerView()
+        .environment(ProAccountStore())
 }

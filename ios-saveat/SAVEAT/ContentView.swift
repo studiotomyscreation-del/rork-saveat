@@ -4,6 +4,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var store = AppStore()
     @State private var subscriptions = SubscriptionStore()
+    @State private var proAccount = ProAccountStore()
     @State private var languages = LanguageStore()
     @State private var isLaunching = true
 
@@ -32,6 +33,7 @@ struct ContentView: View {
         .id(languages.language)
         .environment(store)
         .environment(subscriptions)
+        .environment(proAccount)
         .environment(languages)
         .environment(\.locale, languages.locale)
         .animation(.easeInOut(duration: 0.35), value: store.profile.hasCompletedOnboarding)

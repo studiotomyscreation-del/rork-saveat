@@ -4,11 +4,13 @@ import SwiftUI
 struct ProfileView: View {
     @Environment(AppStore.self) private var store
     @Environment(SubscriptionStore.self) private var subscriptions
+    @Environment(ProAccountStore.self) private var proAccount
     @Binding var path: NavigationPath
 
     @State private var showsPaywall = false
     @State private var showsCustomerCenter = false
     @State private var showsProSignUp = false
+    @State private var showsProProfile = false
     @State private var isRunningSelfTest = false
     @State private var selfTestSummary: String?
     #if DEBUG
@@ -30,7 +32,7 @@ struct ProfileView: View {
                 savingsCard
                 menuSection
                 SaveatLocalCard()
-                proEntryCard
+                proSection
                 legalSection
                 promise
             }
@@ -43,6 +45,7 @@ struct ProfileView: View {
         .sheet(isPresented: $showsPaywall) { PaywallSheet() }
         .sheet(isPresented: $showsCustomerCenter) { ManageSubscriptionSheet() }
         .sheet(isPresented: $showsProSignUp) { ProSignUpContainerView() }
+        .sheet(isPresented: $showsProProfile) { ProfessionalProfileView() }
         .task { await subscriptions.refreshCustomerInfo() }
     }
 
@@ -485,18 +488,31 @@ struct ProfileView: View {
 
     /// Entry point into SAVEAT PRO (§5 of the spec) — deliberately a single
     /// discreet card among the profile's other menu items, never a main tab,
-    /// so the particulier's own navigation stays uncluttered.
-    private var proEntryCard: some View {
-        Button {
-            showsProSignUp = true
-        } label: {
+    /// so the particulier's own navigation stays uncluttered. Once a local
+    /// pro profile exists (`ProAccountStore`), this card opens it instead of
+    /// the sign-up flow again.
+    @ViewBuilder
+    private var proSection: some View {
+        if let merchant = proAccount.merchant {
+            proCard(title: merchant.displayName, subtitle: S.Pro.proProfileTitle.s) {
+                showsProProfile = true
+            }
+        } else {
+            proCard(title: S.Pro.entryPointTitle.s, subtitle: S.Pro.entryPointSubtitle.s) {
+                showsProSignUp = true
+            }
+        }
+    }
+
+    private func proCard(title: String, subtitle: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             HStack(spacing: 14) {
                 FoodBadge(emoji: "🏪", size: 40)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(S.Pro.entryPointTitle.s)
+                    Text(title)
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.ink)
-                    Text(S.Pro.entryPointSubtitle.s)
+                    Text(subtitle)
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.inkSoft)
                 }
