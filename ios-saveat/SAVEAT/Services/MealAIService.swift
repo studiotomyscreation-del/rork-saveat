@@ -25,6 +25,10 @@ nonisolated struct MealAIService: Sendable {
         var maxMinutes: Int?
         var focusNames: [String]
         var history: [String]
+        /// When set, asks for exactly this many meals instead of the default
+        /// "3 to 6" range — used by `WeeklyPlanGenerator` to get one meal per
+        /// planned day (5 or 7) in the same single call, never a per-day call.
+        var mealCount: Int?
 
         nonisolated init(
             userText: String? = nil,
@@ -32,7 +36,8 @@ nonisolated struct MealAIService: Sendable {
             zeroEuroOnly: Bool = false,
             maxMinutes: Int? = nil,
             focusNames: [String] = [],
-            history: [String] = []
+            history: [String] = [],
+            mealCount: Int? = nil
         ) {
             self.userText = userText
             self.servings = servings
@@ -40,6 +45,7 @@ nonisolated struct MealAIService: Sendable {
             self.maxMinutes = maxMinutes
             self.focusNames = focusNames
             self.history = history
+            self.mealCount = mealCount
         }
     }
 
@@ -262,7 +268,7 @@ nonisolated struct MealAIService: Sendable {
         }
       ]
     }
-    Donne entre 3 et 6 repas.
+    Donne entre 3 et 6 repas. Si un nombre exact de repas est précisé dans la section Contraintes, donne exactement ce nombre à la place.
     """
 
     private nonisolated static let englishSystemPrompt = """
@@ -302,7 +308,7 @@ nonisolated struct MealAIService: Sendable {
         }
       ]
     }
-    Give between 3 and 6 meals.
+    Give between 3 and 6 meals. If an exact meal count is given in the Constraints section, give exactly that many instead.
     """
 
     /// British variant of the English prompt: same rules, but metric amounts,
@@ -345,7 +351,7 @@ nonisolated struct MealAIService: Sendable {
         }
       ]
     }
-    Give between 3 and 6 meals.
+    Give between 3 and 6 meals. If an exact meal count is given in the Constraints section, give exactly that many instead.
     """
 
     private nonisolated static let spanishSystemPrompt = """
@@ -385,7 +391,7 @@ nonisolated struct MealAIService: Sendable {
         }
       ]
     }
-    Da entre 3 y 6 comidas.
+    Da entre 3 y 6 comidas. Si se indica un número exacto de comidas en la sección Restricciones, da exactamente ese número.
     """
 
     private nonisolated static let portugueseSystemPrompt = """
@@ -425,7 +431,7 @@ nonisolated struct MealAIService: Sendable {
         }
       ]
     }
-    Dê entre 3 e 6 refeições.
+    Dê entre 3 e 6 refeições. Se um número exato de refeições for indicado na seção Restrições, dê exatamente esse número.
     """
 
     private nonisolated static let chineseSystemPrompt = """
@@ -465,7 +471,7 @@ nonisolated struct MealAIService: Sendable {
         }
       ]
     }
-    给出 3 到 6 道菜。
+    给出 3 到 6 道菜。如果"约束条件"部分给出了确切的菜数，则给出该确切数量。
     """
 
     private nonisolated static let hindiSystemPrompt = """
@@ -505,7 +511,7 @@ nonisolated struct MealAIService: Sendable {
         }
       ]
     }
-    3 से 6 भोजन दें।
+    3 से 6 भोजन दें। अगर Constraints सेक्शन में सटीक संख्या बताई गई हो, तो ठीक उतने ही भोजन दें।
     """
 
     private nonisolated static let italianSystemPrompt = """
@@ -545,7 +551,7 @@ nonisolated struct MealAIService: Sendable {
         }
       ]
     }
-    Proponi tra 3 e 6 pasti.
+    Proponi tra 3 e 6 pasti. Se nella sezione Vincoli è indicato un numero esatto di pasti, proponi esattamente quel numero.
     """
 
     /// Wording used to describe the household stock and constraints to the model.
@@ -595,6 +601,10 @@ nonisolated struct MealAIService: Sendable {
         static let focus = Loc(
             fr: "À sauver en priorité : %@.",
             en: "Use these up first: %@."
+        )
+        static let exactMealCount = Loc(
+            fr: "Nombre exact de repas demandé : %d — un par jour, sans exception.",
+            en: "Exact meal count requested: %d — one per day, no exceptions."
         )
         static let foundZeroCost = Loc(
             fr: "J'ai trouvé %d repas à 0 € avec ton stock.",
@@ -665,6 +675,9 @@ nonisolated struct MealAIService: Sendable {
         if !request.focusNames.isEmpty {
             let list = request.focusNames.map(FoodNames.display).joined(separator: ", ")
             constraints.append(Prompt.focus.f(list))
+        }
+        if let mealCount = request.mealCount {
+            constraints.append(Prompt.exactMealCount.f(mealCount))
         }
 
         let ask = request.userText?.trimmingCharacters(in: .whitespacesAndNewlines)
