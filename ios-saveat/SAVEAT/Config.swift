@@ -11,15 +11,7 @@ import Foundation
 
 enum Config {
     static let EXPO_PUBLIC_REVENUECAT_IOS_API_KEY = ""
-    /// Read from the app's own Info.plist at runtime instead of a literal,
-    /// so a local, gitignored `Secrets.xcconfig` can supply the real Rork
-    /// Toolkit key on a developer's own machine without it ever touching
-    /// source control (see `RorkToolkitSecretKey` in the target's Info
-    /// tab). Empty when that isn't configured — same behavior as the
-    /// literal it replaces.
-    static var EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY: String {
-        Bundle.main.object(forInfoDictionaryKey: "RorkToolkitSecretKey") as? String ?? ""
-    }
+    static let EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY = ""
     static let EXPO_PUBLIC_TOOLKIT_URL = ""
 
     static let allValues: [String: String] = [
