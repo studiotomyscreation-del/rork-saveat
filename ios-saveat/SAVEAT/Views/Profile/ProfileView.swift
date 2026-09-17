@@ -29,6 +29,7 @@ struct ProfileView: View {
                 subscriptionCard
                 testStoreDiagnostics
                 #if DEBUG
+                onboardingResetCard
                 aiDiagnosticsCard
                 weeklyPlanDiagnosticsCard
                 #endif
@@ -467,6 +468,42 @@ struct ProfileView: View {
                 }
             }
             .disabled(isRunningAIDiagnostic)
+            .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 13)
+        .background(Theme.surface, in: .rect(cornerRadius: Theme.cardRadius))
+        .shadow(color: Theme.ink.opacity(0.04), radius: 10, y: 3)
+    }
+
+    /// Debug-only onboarding reset. Deleting and reinstalling the app on a
+    /// real device does not reliably clear `UserDefaults` — iOS sometimes
+    /// restores an app's local data from an on-device backup tied to the
+    /// same bundle ID, so `hasSeenIntro` can survive a "fresh" reinstall.
+    /// This flips the same `@AppStorage` key `ContentView` reads directly —
+    /// `@AppStorage` observes `UserDefaults` changes made anywhere in the
+    /// process, so this takes effect immediately, no relaunch needed.
+    private var onboardingResetCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.counterclockwise")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Theme.sageDeep)
+                Text("RÉINITIALISER L'ONBOARDING (DEBUG)")
+                    .font(.system(size: 10.5, weight: .bold, design: .rounded))
+                    .tracking(1.5)
+                    .foregroundStyle(Theme.sageDeep)
+                Spacer(minLength: 0)
+            }
+
+            Button {
+                UserDefaults.standard.set(false, forKey: "saveat.hasSeenIntro.v1")
+                store.resetOnboarding()
+            } label: {
+                Text("Revoir l'onboarding depuis le début")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Theme.sageDeep)
+            }
             .frame(maxWidth: .infinity)
         }
         .padding(.horizontal, 16)
