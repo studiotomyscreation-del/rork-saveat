@@ -45,14 +45,16 @@ struct ProfessionalDetailsView: View {
                 }
 
                 SaveatPrimaryButton(title: S.Pro.createProAccountCTA.s, isEnabled: canSubmit) {
-                    proAccount.createAccount(
-                        from: record,
-                        firstName: firstName.trimmingCharacters(in: .whitespaces),
-                        lastName: lastName.trimmingCharacters(in: .whitespaces),
-                        email: email.trimmingCharacters(in: .whitespaces),
-                        phone: phone.trimmingCharacters(in: .whitespaces)
-                    )
-                    onDone()
+                    Task {
+                        await proAccount.createAccount(
+                            from: record,
+                            firstName: firstName.trimmingCharacters(in: .whitespaces),
+                            lastName: lastName.trimmingCharacters(in: .whitespaces),
+                            email: email.trimmingCharacters(in: .whitespaces),
+                            phone: phone.trimmingCharacters(in: .whitespaces)
+                        )
+                        onDone()
+                    }
                 }
 
                 Text(S.Pro.proAccountComingSoonNotice.s)

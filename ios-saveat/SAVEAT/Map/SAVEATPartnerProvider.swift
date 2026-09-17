@@ -1,15 +1,90 @@
 import Foundation
 
-/// Placeholder for SAVEAT's own network of verified partner places.
+/// SAVEAT's own network of verified partner places.
 ///
-/// Mirrors `SAVEATBasketProvider` (`BasketOffer.swift`): returns nothing
-/// today, on purpose. A partner place is only ever added once SAVEAT has
-/// actually verified it — never inferred from open data, which is why this
-/// stays separate from `OpenStreetMapProvider`/`ADEMEProvider` instead of
-/// tagging their imports as partners. Worldwide in scope, since a future
-/// partner network isn't bound to one country either.
+/// A partner place is only ever added once SAVEAT has actually verified it —
+/// here, that means a professional who signed up through SAVEAT PRO with a
+/// SIRET confirmed against the official French business registry
+/// (`FranceBusinessRegistryProvider`), never inferred from open data.
+/// Worldwide in scope, since a future partner network isn't bound to one
+/// country either.
+///
+/// **Reads `ProAccountStore`'s own `UserDefaults` keys directly**, not
+/// through `Environment` — a stateless `AntiWastePlacesProviding` value has
+/// no way to receive an `@Observable` store, and `AntiWasteRepository.shared`
+/// is built once at launch, before any environment exists. `ProAccountStore.Keys`
+/// is `internal` rather than `private` specifically so this file can share
+/// the exact same key strings instead of duplicating them.
+///
+/// SAVEAT has no backend yet (§13, §22 of the SAVEAT PRO spec — see
+/// `ProAccountStore`'s own doc comment), so **this can only ever surface the
+/// one merchant signed up on this same device** — there is no server to
+/// relay another professional's basket to a different customer's phone.
+/// That is a real, current limitation, not a bug: every basket-creation
+/// screen says so (`basketFormLocalOnlyNotice`).
 nonisolated struct SAVEATPartnerProvider: AntiWastePlacesProviding {
     func places(in bbox: GeoBoundingBox) async -> [AntiWastePlace] {
-        []
+        guard let merchant = Self.decode(Merchant.self, key: ProAccountStore.Keys.merchant),
+              let location = Self.decode(MerchantLocation.self, key: ProAccountStore.Keys.location)
+        else { return [] }
+
+        guard (bbox.minLatitude...bbox.maxLatitude).contains(location.latitude),
+              (bbox.minLongitude...bbox.maxLongitude).contains(location.longitude)
+        else { return [] }
+
+        let offers: [BasketOffer] = Self.decode([BasketOffer].self, key: ProAccountStore.Keys.offers) ?? []
+        let activeOffer = offers.first { $0.isAvailable }
+
+        return [Self.place(merchant: merchant, location: location, offer: activeOffer)]
+    }
+
+    // MARK: - Mapping
+
+    private static func place(merchant: Merchant, location: MerchantLocation, offer: BasketOffer?) -> AntiWastePlace {
+        AntiWastePlace(
+            id: "saveat-pro-\(location.id)",
+            name: merchant.displayName,
+            category: .basket,
+            latitude: location.latitude,
+            longitude: location.longitude,
+            address: location.address,
+            city: location.city,
+            postalCode: location.postalCode,
+            countryCode: location.countryCode,
+            description: merchant.merchantDescription ?? S.Map.saveatPartnerDescription.s,
+            openingHours: location.openingHours,
+            websiteURLString: merchant.websiteURLString,
+            phone: merchant.phone,
+            partnerName: merchant.displayName,
+            offerTitle: offer?.title,
+            offerDescription: offer.map(offerSummary),
+            isPartner: true,
+            source: .saveat,
+            sourceID: location.id,
+            isVerified: true
+        )
+    }
+
+    private static func offerSummary(_ offer: BasketOffer) -> String {
+        let priceText = S.Map.basketOfferPriceFormat.f(
+            Format.euro(offer.discountedPrice),
+            Format.euro(offer.originalPrice),
+            offer.discountPercent
+        )
+        let calendar = Calendar.current
+        let startComponents = calendar.dateComponents([.hour, .minute], from: offer.pickupStart)
+        let endComponents = calendar.dateComponents([.hour, .minute], from: offer.pickupEnd)
+        let start = Units.time(hour: startComponents.hour ?? 0, minute: startComponents.minute ?? 0)
+        let end = Units.time(hour: endComponents.hour ?? 0, minute: endComponents.minute ?? 0)
+        let pickupText = S.Map.basketOfferPickupFormat.f(start, end)
+        let parts = [offer.description, priceText, pickupText].filter { !$0.isEmpty }
+        return parts.joined(separator: "\n")
+    }
+
+    // MARK: - Decoding
+
+    private static func decode<T: Decodable>(_ type: T.Type, key: String) -> T? {
+        guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
+        return try? JSONDecoder().decode(T.self, from: data)
     }
 }

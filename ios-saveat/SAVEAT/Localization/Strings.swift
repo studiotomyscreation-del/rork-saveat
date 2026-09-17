@@ -2248,6 +2248,23 @@ nonisolated enum S {
             fr: "Épicerie anti-gaspi : produits alimentaires sauvés du gaspillage, à prix réduits.",
             en: "Anti-waste grocery store: food products rescued from waste, at reduced prices."
         )
+
+        /// `SAVEATPartnerProvider` — shown when a merchant hasn't written
+        /// their own `merchantDescription` yet.
+        static let saveatPartnerDescription = Loc(
+            fr: "Commerçant partenaire SAVEAT.",
+            en: "SAVEAT partner business."
+        )
+        /// %1$@ = discounted price, %2$@ = original price, %3$d = discount %.
+        static let basketOfferPriceFormat = Loc(
+            fr: "%@ au lieu de %@ (-%d%%)",
+            en: "%@ instead of %@ (-%d%%)"
+        )
+        /// %1$@ = pickup start, %2$@ = pickup end.
+        static let basketOfferPickupFormat = Loc(
+            fr: "Retrait %@ – %@",
+            en: "Pickup %@ – %@"
+        )
     }
 
     // MARK: - SAVEAT V2 Home (Home/NewHomeView) — Phase 4

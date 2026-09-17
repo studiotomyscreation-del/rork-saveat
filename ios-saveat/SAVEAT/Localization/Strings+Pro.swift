@@ -141,8 +141,8 @@ extension S {
         static let establishmentSectionTitle = Loc(fr: "Établissement", en: "Business")
         static let responsibleSectionTitle = Loc(fr: "Responsable", en: "Contact")
         static let dashboardComingSoonNotice = Loc(
-            fr: "Le tableau de bord (paniers, réservations, statistiques) arrive dans une prochaine mise à jour.",
-            en: "The dashboard (baskets, reservations, statistics) is coming in a future update."
+            fr: "Les réservations et les statistiques détaillées arrivent dans une prochaine mise à jour.",
+            en: "Reservations and detailed statistics are coming in a future update."
         )
         static let leaveProSpaceCTA = Loc(fr: "Quitter l'espace pro", en: "Leave the pro space")
         static let leaveProSpaceConfirmTitle = Loc(
@@ -152,6 +152,60 @@ extension S {
         static let leaveProSpaceConfirmMessage = Loc(
             fr: "Ton profil pro sera supprimé de cet appareil. Tu pourras t'inscrire à nouveau à tout moment.",
             en: "Your pro profile will be removed from this device. You can sign up again at any time."
+        )
+
+        // MARK: Basket / point de retrait (§18-20)
+
+        static let locationPendingNotice = Loc(
+            fr: "Localisation de votre établissement indisponible pour le moment. Réessayez plus tard.",
+            en: "Your business's location isn't available yet. Try again later."
+        )
+        static let noOfferTitle = Loc(fr: "Aucun panier publié", en: "No basket published")
+        static let noOfferSubtitle = Loc(
+            fr: "Publiez un panier anti-gaspi pour apparaître comme point de retrait sur la carte SAVEAT Local.",
+            en: "Publish an anti-waste basket to appear as a pickup point on the SAVEAT Local map."
+        )
+        static let createOfferCTA = Loc(fr: "Créer un panier", en: "Create a basket")
+        static let currentOfferSectionTitle = Loc(fr: "Panier en cours", en: "Current basket")
+        static let currentOfferCancelCTA = Loc(fr: "Retirer ce panier", en: "Take down this basket")
+        static let currentOfferQuantityRemaining = Loc(
+            fr: "%d panier restant",
+            en: "%d basket left"
+        )
+        static let currentOfferQuantityRemainingPlural = Loc(
+            fr: "%d paniers restants",
+            en: "%d baskets left"
+        )
+
+        static let basketFormTitle = Loc(fr: "Créer un panier", en: "Create a basket")
+        static let basketFormTitleLabel = Loc(fr: "Titre du panier", en: "Basket title")
+        static let basketFormTitlePlaceholder = Loc(
+            fr: "Ex. Panier surprise du soir",
+            en: "E.g. Evening surprise basket"
+        )
+        static let basketFormDescriptionLabel = Loc(fr: "Description", en: "Description")
+        static let basketFormDescriptionPlaceholder = Loc(
+            fr: "Ce que contient le panier, en quelques mots",
+            en: "What's in the basket, in a few words"
+        )
+        static let basketFormTypeLabel = Loc(fr: "Type de panier", en: "Basket type")
+        static let basketFormOriginalPriceLabel = Loc(fr: "Prix normal", en: "Regular price")
+        static let basketFormDiscountedPriceLabel = Loc(fr: "Prix anti-gaspi", en: "Anti-waste price")
+        static let basketFormQuantityLabel = Loc(fr: "Quantité disponible", en: "Quantity available")
+        static let basketFormPickupLabel = Loc(fr: "Créneau de retrait", en: "Pickup window")
+        static let basketFormPickupStartLabel = Loc(fr: "Début", en: "Start")
+        static let basketFormPickupEndLabel = Loc(fr: "Fin", en: "End")
+        static let basketFormDietaryLabel = Loc(
+            fr: "Régimes confirmés (optionnel)",
+            en: "Confirmed diets (optional)"
+        )
+        static let basketFormPublishCTA = Loc(fr: "Publier mon panier", en: "Publish my basket")
+        /// SAVEAT has no backend yet (see `ProAccountStore`'s own doc comment)
+        /// — a published basket only ever shows on the professional's own
+        /// device. Said plainly here rather than implied.
+        static let basketFormLocalOnlyNotice = Loc(
+            fr: "Ce panier apparaît sur la carte de cet appareil. Le partage avec les autres utilisateurs arrivera avec le futur backend SAVEAT.",
+            en: "This basket appears on this device's map. Sharing it with other users is coming with SAVEAT's future backend."
         )
     }
 }
