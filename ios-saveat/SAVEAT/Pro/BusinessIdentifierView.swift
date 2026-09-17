@@ -57,6 +57,11 @@ struct BusinessIdentifierView: View {
                 .foregroundStyle(SaveatColors.textSecondary)
             SaveatBadge(text: S.Pro.signUpFreeNotice.s, tone: .brand, icon: "checkmark.seal.fill")
                 .padding(.top, 2)
+            Text(S.Pro.signUpNoCommissionNotice.s)
+                .font(SaveatTypography.caption(12.5))
+                .foregroundStyle(SaveatColors.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 2)
         }
     }
 

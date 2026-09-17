@@ -57,8 +57,8 @@ extension S {
 
         static let entryPointTitle = Loc(fr: "Vous êtes commerçant ?", en: "Are you a food business?")
         static let entryPointSubtitle = Loc(
-            fr: "Publiez vos invendus gratuitement sur SAVEAT.",
-            en: "Publish your surplus food for free on SAVEAT."
+            fr: "Gratuit, sans commission — on veut juste stopper le gaspillage.",
+            en: "Free, no commission — our only goal is to stop food waste."
         )
         static let becomePartnerCTA = Loc(fr: "Devenir partenaire SAVEAT", en: "Become a SAVEAT partner")
 
@@ -72,6 +72,14 @@ extension S {
         static let signUpFreeNotice = Loc(
             fr: "Gratuit et sans engagement, à tout moment.",
             en: "Free and commitment-free, cancel anytime."
+        )
+        /// Displayed below `signUpFreeNotice` — the sign-up moment is where
+        /// this reassurance matters most: no margin taken on what a
+        /// professional sells or gives away, because the point of SAVEAT PRO
+        /// is stopping food waste, not monetizing it.
+        static let signUpNoCommissionNotice = Loc(
+            fr: "Aucune commission sur vos paniers : notre seul objectif est de stopper le gaspillage alimentaire.",
+            en: "No commission on your baskets: our only goal is to stop food waste."
         )
         static let siretFieldLabel = Loc(fr: "SIRET ou SIREN", en: "SIRET or SIREN")
         static let siretFieldPlaceholder = Loc(fr: "14 ou 9 chiffres", en: "14 or 9 digits")
