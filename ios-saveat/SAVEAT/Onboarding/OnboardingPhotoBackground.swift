@@ -31,10 +31,11 @@ struct OnboardingPhotoBackground: View {
         endPoint: .bottom
     )
 
-    /// The base every page falls back to when it has no photo — richer than
-    /// the plain two-color gradient alone (a soft brand-green glow from the
-    /// top-leading corner) so a photo-less page doesn't read as flatter than
-    /// its neighbours.
+    /// The base every page falls back to when it has no photo — an "aurora"
+    /// of two additive brand-green glows over the plain diagonal gradient,
+    /// rather than a flat two-color wash. `.plusLighter` makes each glow read
+    /// as light hitting the gradient instead of a translucent shape sitting
+    /// on top, which is what made the first version of this still look dull.
     private static var plainBackground: some View {
         ZStack {
             LinearGradient(
@@ -43,11 +44,19 @@ struct OnboardingPhotoBackground: View {
                 endPoint: .bottomTrailing
             )
             RadialGradient(
-                colors: [SaveatColors.brand.opacity(0.3), .clear],
+                colors: [SaveatColors.brand.opacity(0.6), SaveatColors.brand.opacity(0)],
                 center: .topLeading,
-                startRadius: 0,
+                startRadius: 10,
+                endRadius: 480
+            )
+            .blendMode(.plusLighter)
+            RadialGradient(
+                colors: [SaveatColors.brandLight.opacity(0.4), SaveatColors.brandLight.opacity(0)],
+                center: .bottomTrailing,
+                startRadius: 10,
                 endRadius: 420
             )
+            .blendMode(.plusLighter)
         }
     }
 
