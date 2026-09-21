@@ -4,21 +4,32 @@ import Foundation
 ///
 /// **Tags used** (each checked against the OpenStreetMap Wiki before use,
 /// never assumed):
-/// - `amenity=food_sharing` — a shared shelf, box, cabinet or fridge for
-///   surplus food (https://wiki.openstreetmap.org/wiki/Tag:amenity=food_sharing)
+/// - `amenity=food_sharing` — a shared shelf, box or cabinet for surplus
+///   food (https://wiki.openstreetmap.org/wiki/Tag:amenity=food_sharing)
+///   → `.foodSharing`. Still a rarely-used tag worldwide — kept as its own
+///   query rather than assumed to cover France on its own (§1 of the map
+///   sources import brief).
+/// - `amenity=fridge` — a public/community fridge, tagged more often than
+///   `food_sharing` for the same real-world concept
+///   (https://wiki.openstreetmap.org/wiki/Tag:amenity=fridge) → `.communityFridge`
+/// - `amenity=social_facility` + `social_facility=community_fridge` —
+///   another naming convention for the same concept as `amenity=fridge`
 ///   → `.communityFridge`
 /// - `amenity=social_facility` + `social_facility=food_bank` — a place that
 ///   distributes pre-packaged food, usually for free
 ///   (https://wiki.openstreetmap.org/wiki/Tag:social_facility=food_bank)
-///   → `.association`
+///   → `.foodDistribution`. Kept distinct from `.communityFridge`/`.foodSharing`
+///   on purpose: not every food bank is freely open to the public the way a
+///   community fridge is (§1 of the import brief).
 /// - `amenity=social_facility` + `social_facility=soup_kitchen` — a place
 ///   that serves prepared meals, usually for free
 ///   (https://wiki.openstreetmap.org/wiki/Tag:social_facility=soup_kitchen)
 ///   → `.restaurant`
 ///
-/// There is **no** OSM tag for "anti-waste grocery store" or "SAVEAT
-/// partner deal" as such — `.antiWasteStore`, `.partner`, `.deal` and
-/// `.basket` are not populated from OpenStreetMap (see the Phase 3 report).
+/// There is **no** OSM tag for "anti-waste grocery store", "épicerie
+/// solidaire" or "SAVEAT partner deal" as such — `.antiWasteStore`,
+/// `.solidarityGrocery`, `.partner`, `.deal` and `.basket` are not populated
+/// from OpenStreetMap (see the Phase 3 report).
 ///
 /// Data is © OpenStreetMap contributors, ODbL — attribution is shown on the
 /// map screen and on every place card sourced here.
@@ -60,6 +71,10 @@ nonisolated struct OpenStreetMapProvider: AntiWastePlacesProviding {
         (
           node["amenity"="food_sharing"](\(box));
           way["amenity"="food_sharing"](\(box));
+          node["amenity"="fridge"](\(box));
+          way["amenity"="fridge"](\(box));
+          node["amenity"="social_facility"]["social_facility"="community_fridge"](\(box));
+          way["amenity"="social_facility"]["social_facility"="community_fridge"](\(box));
           node["amenity"="social_facility"]["social_facility"="food_bank"](\(box));
           way["amenity"="social_facility"]["social_facility"="food_bank"](\(box));
           node["amenity"="social_facility"]["social_facility"="soup_kitchen"](\(box));
@@ -93,8 +108,10 @@ nonisolated struct OpenStreetMapProvider: AntiWastePlacesProviding {
 
         let category: AntiWasteCategory
         switch (tags["amenity"], tags["social_facility"]) {
-        case ("food_sharing", _): category = .communityFridge
-        case (_, "food_bank"): category = .association
+        case ("food_sharing", _): category = .foodSharing
+        case ("fridge", _): category = .communityFridge
+        case (_, "community_fridge"): category = .communityFridge
+        case (_, "food_bank"): category = .foodDistribution
         case (_, "soup_kitchen"): category = .restaurant
         default: return nil
         }
@@ -103,6 +120,7 @@ nonisolated struct OpenStreetMapProvider: AntiWastePlacesProviding {
             .compactMap { $0 }
             .joined(separator: " ")
         let name = tags["name"] ?? category.title
+        let postalCode = tags["addr:postcode"] ?? ""
 
         return AntiWastePlace(
             id: "osm-\(element.type)-\(element.id)",
@@ -112,7 +130,13 @@ nonisolated struct OpenStreetMapProvider: AntiWastePlacesProviding {
             longitude: lon,
             address: street,
             city: tags["addr:city"] ?? "",
-            postalCode: tags["addr:postcode"] ?? "",
+            postalCode: postalCode,
+            // Only derived when the address is French — `addr:country`
+            // (below) is what actually tells us that, this is never guessed
+            // from the postal code format alone.
+            department: tags["addr:country"] == "FR"
+                ? FrenchAdministrativeDivisions.department(fromPostalCode: postalCode)
+                : nil,
             // `addr:country` is a free but usually-present OSM tag, already
             // ISO 3166-1 alpha-2 by convention on the wiki — taken as-is,
             // never inferred from anything else.

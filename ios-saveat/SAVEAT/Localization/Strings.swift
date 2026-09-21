@@ -2223,6 +2223,9 @@ nonisolated enum S {
         static let categoryDeal = Loc(fr: "Bons plans", en: "Deals")
         static let categoryRestaurant = Loc(fr: "Restaurants anti-gaspi", en: "Anti-Waste Restaurants")
         static let categoryLocalProducer = Loc(fr: "Producteurs locaux", en: "Local Producers")
+        static let categoryFoodSharing = Loc(fr: "Partage alimentaire", en: "Food Sharing")
+        static let categorySolidarityGrocery = Loc(fr: "Épiceries solidaires", en: "Solidarity Groceries")
+        static let categoryFoodDistribution = Loc(fr: "Distribution alimentaire", en: "Food Distribution")
 
         static let placeDetailItinerary = Loc(fr: "Itinéraire", en: "Directions")
         static let placeDetailFavorite = Loc(fr: "Favori", en: "Favorite")
