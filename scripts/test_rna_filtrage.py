@@ -290,12 +290,31 @@ def assemble_address(row: dict[str, str]) -> str:
 
 
 def filter_associations(text: str, dialect: csv.Dialect) -> list[dict[str, str]]:
-    reader = csv.DictReader(io.StringIO(text), dialect=dialect)
+    # newline="" is the Python csv docs' own recommendation (normally stated
+    # for open(file, newline="")): without it, a field containing a raw
+    # embedded newline — real ones exist in RNA "objet" free text — is only
+    # handled correctly inside a quoted field, and a stray \r left over from
+    # a \r\n-terminated export can still desync the parser. A real run hit
+    # exactly this: "_csv.Error: new-line character seen in unquoted field".
+    reader = csv.DictReader(io.StringIO(text, newline=""), dialect=dialect)
     if "objet" not in (reader.fieldnames or []):
         raise RuntimeError(f"Colonne 'objet' absente — colonnes trouvées : {reader.fieldnames}")
 
     matches: list[dict[str, str]] = []
-    for row in reader:
+    while True:
+        # A manual next()/except loop, not a plain `for row in reader`, so a
+        # single genuinely malformed row (a raw, unquoted newline inside a
+        # government export's free-text field — real, hit on a live run,
+        # `newline=""` above only fixes the *properly quoted* case) stops
+        # just THIS file's remaining rows instead of crashing the whole
+        # 104-file national scan and losing every match already found.
+        try:
+            row = next(reader)
+        except StopIteration:
+            break
+        except csv.Error as error:
+            print(f"    ATTENTION : ligne CSV mal formée, reste du fichier ignoré ({error})", file=sys.stderr)
+            break
         objet = row.get("objet", "") or ""
         if not objet:
             continue
