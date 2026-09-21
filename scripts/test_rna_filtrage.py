@@ -264,17 +264,27 @@ def decode_and_sniff(raw: bytes) -> tuple[str, str, csv.Dialect]:
 
 # MARK: - Step 3: filter on `objet`
 
+def _field(row: dict[str, str], key: str) -> str:
+    """csv.DictReader fills a MISSING trailing column with None (its
+    `restval`, not the `.get(key, "")` default) whenever a real-world row
+    has fewer fields than the header — found on a real rna_waldec entry,
+    where `row.get("adrs_numvoie", "").strip()` crashed with
+    AttributeError: 'NoneType' object has no attribute 'strip'. Every read
+    of an address field goes through this helper instead of a bare `.get`."""
+    return (row.get(key) or "").strip()
+
+
 def assemble_address(row: dict[str, str]) -> str:
     street_parts = [
-        row.get("adrs_numvoie", "").strip(),
-        row.get("adrs_typevoie", "").strip(),
-        row.get("adrs_libvoie", "").strip(),
+        _field(row, "adrs_numvoie"),
+        _field(row, "adrs_typevoie"),
+        _field(row, "adrs_libvoie"),
     ]
     street = " ".join(part for part in street_parts if part)
     if not street:
-        street = row.get("adrs_complement", "").strip()
-    postal = row.get("adrs_codepostal", "").strip()
-    city = row.get("adrs_libcommune", "").strip()
+        street = _field(row, "adrs_complement")
+    postal = _field(row, "adrs_codepostal")
+    city = _field(row, "adrs_libcommune")
     tail = " ".join(part for part in [postal, city] if part)
     return ", ".join(part for part in [street, tail] if part)
 
