@@ -375,6 +375,8 @@ def main() -> None:
     parser.add_argument("--zip-path", type=Path, default=Path("rna_waldec_latest.zip"), help="Where to save/reuse the downloaded zip.")
     parser.add_argument("--out", type=Path, default=Path("rna_filtrage_candidats.csv"))
     parser.add_argument("--skip-geocode-test", action="store_true")
+    parser.add_argument("--include-inactive", action="store_true",
+                         help="Keep Dissoute/Supprimée associations in the report (excluded by default).")
     args = parser.parse_args()
 
     session = RateLimitedSession()
@@ -406,11 +408,25 @@ def main() -> None:
 
     print(f"\n{len(matches)} association(s) matchée(s) au total sur les mots-clés, sur les {len(entry_names)} fichiers.")
 
-    write_report(matches, args.out)
-    print(f"Rapport complet écrit : {args.out} ({len(matches)} lignes, à relire — au moins les 30 premières comme demandé)")
+    # Purely mechanical, not a relevance judgement: `position` A/D/S is a
+    # fact of the source record, unlike everything filter_associations()
+    # decides. Excluded by default (a 40-row manual audit found ~10% of
+    # RNA matches are Dissoute/Supprimée) — pass --include-inactive to get
+    # every match, e.g. to track a dissolved association's history.
+    if args.include_inactive:
+        report_matches = matches
+    else:
+        report_matches = [m for m in matches if m["statut_code_brut"] == "A"]
+        excluded = len(matches) - len(report_matches)
+        print(f"{excluded} dissoute(s)/supprimée(s)/statut inconnu exclue(s) du rapport "
+              f"(--include-inactive pour les garder).")
+
+    write_report(report_matches, args.out)
+    print(f"Rapport écrit : {args.out} ({len(report_matches)} lignes actives, à relire — "
+          f"sample_rna_candidates.py donne un échantillon diversifié par département)")
 
     if not args.skip_geocode_test:
-        smoke_test_geocoding(session, matches)
+        smoke_test_geocoding(session, report_matches)
 
 
 if __name__ == "__main__":
