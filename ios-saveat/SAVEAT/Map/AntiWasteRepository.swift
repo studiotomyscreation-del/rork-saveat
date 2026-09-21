@@ -111,6 +111,12 @@ nonisolated struct AntiWasteRepository: Sendable {
     /// signed up on this device, if any — see its own doc comment for why
     /// that stays a single-device, no-backend limitation for now.
     ///
+    /// `MulhouseOpenDataProvider` is the pilot for a new source family —
+    /// municipal/territorial open data published on data.gouv.fr. Only one
+    /// city today (5 real épiceries solidaires), added to validate the whole
+    /// pipeline (model, dedup, attribution) before scaling to more cities —
+    /// see that provider's doc comment and the map-sources import report.
+    ///
     /// No other national provider is wired in as of the international
     /// architecture pass — the research phase found no food-donation open
     /// dataset for Germany, Spain, Italy, Brazil or the USA that is both
@@ -121,6 +127,7 @@ nonisolated struct AntiWasteRepository: Sendable {
     static let shared = AntiWasteRepository(providers: [
         OpenStreetMapProvider(),
         NousAntiGaspiProvider(),
+        MulhouseOpenDataProvider(),
         SAVEATPartnerProvider()
     ])
 

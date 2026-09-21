@@ -2268,6 +2268,13 @@ nonisolated enum S {
             fr: "Retrait %@ – %@",
             en: "Pickup %@ – %@"
         )
+
+        /// `MulhouseOpenDataProvider` — same short description for every
+        /// épicerie solidaire in the list.
+        static let solidarityGroceryDescription = Loc(
+            fr: "Épicerie solidaire : produits à prix réduits ou gratuits pour les personnes en difficulté.",
+            en: "Solidarity grocery: subsidized or free food for people in need."
+        )
     }
 
     // MARK: - SAVEAT V2 Home (Home/NewHomeView) — Phase 4

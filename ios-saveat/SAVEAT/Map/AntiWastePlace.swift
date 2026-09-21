@@ -101,6 +101,14 @@ nonisolated enum DataSource: String, Codable, Hashable, Sendable {
     /// chain's own public website, not a SAVEAT partnership (see that
     /// provider's doc comment). Attributed to them, never to SAVEAT.
     case nousAntiGaspi
+    /// Any provider sourced from an open dataset published on data.gouv.fr
+    /// by a French public administration (a commune, an agglomération, a
+    /// département…) — `MulhouseOpenDataProvider` today, more to come. The
+    /// specific publishing organisation and exact licence live on
+    /// `AntiWastePlace.license` per record (they vary by dataset), while
+    /// this case is only the generic "where this kind of data comes from"
+    /// label — see `AntiWastePlaceDetailView.attribution`.
+    case dataGouvFr
 
     nonisolated var attributionText: String {
         switch self {
@@ -108,6 +116,7 @@ nonisolated enum DataSource: String, Codable, Hashable, Sendable {
         case .ademe: "Data ADEME"
         case .saveat, .partner: "SAVEAT"
         case .nousAntiGaspi: "NOUS Anti-Gaspi"
+        case .dataGouvFr: "data.gouv.fr"
         }
     }
 }
