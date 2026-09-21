@@ -6,15 +6,23 @@ It is never bundled, never compiled, and never called at runtime by the app.
 Run it manually from a Terminal, on demand. Python standard library only (no
 pip install needed) — urllib, csv, zipfile, re, json, argparse.
 
-Why only ONE file, not 148: the RNA "148 fichiers" on data.gouv.fr are
-monthly historical snapshots (rna_waldec_YYYYMMDD.zip / rna_import_YYYYMMDD.zip
-going back years) — NOT a per-département split (confirmed by listing the
-dataset's own resources; every filename carries a date, none carries a
-département code). One recent rna_waldec file already covers all of France
-(minus départements 57/67/68 — Alsace-Moselle's separate local-law
-association regime, not a bug). rna_import (associations with no status
-change since 2009, so more likely stale/defunct) is deliberately NOT
-downloaded here — rna_waldec alone is the right starting point.
+Only ONE monthly resource is downloaded, not the whole history: the RNA
+"148 fichiers" on data.gouv.fr are dated historical snapshots
+(rna_waldec_YYYYMMDD.zip / rna_import_YYYYMMDD.zip going back years) — this
+script always resolves and downloads only the single most recent
+rna_waldec_*.zip. rna_import (associations with no status change since
+2009, so more likely stale/defunct) is deliberately NOT downloaded here —
+rna_waldec alone is the right starting point.
+
+CORRECTION (found after a real run): that one rna_waldec_*.zip is itself
+NOT a single national CSV — `unzip -l` on a real downloaded archive showed
+**104 separate CSV files inside it** (one per département/territoire,
+~1.459 GB uncompressed total). An earlier version of this script only read
+the first entry in the archive, which silently limited an entire run to a
+single département's worth of associations (found when a real run returned
+only 25 matches, 24 of them in the same département). Every entry is now
+read and filtered — see `list_csv_entries`/`read_csv_entry` below — with
+each match tagged with the `fichier_source` it came from.
 
 What it does, in order:
   1. Resolves the most recent rna_waldec_*.zip resource from the dataset's
@@ -209,14 +217,26 @@ def download_zip(session: RateLimitedSession, url: str, out_path: Path) -> None:
     raise RuntimeError(f"Impossible de télécharger {url} après {MAX_RETRIES} tentatives.")
 
 
-# MARK: - Step 2: locate the CSV inside the zip, detect delimiter + encoding
+# MARK: - Step 2: locate the CSVs inside the zip, detect delimiter + encoding
 
-def extract_csv_bytes(zip_path: Path) -> bytes:
+def list_csv_entries(zip_path: Path) -> list[str]:
+    """The monthly rna_waldec archive is NOT one national CSV — real-world
+    testing found **104 files inside it** (one per département/territoire),
+    something the official field dictionary never mentions and the dataset's
+    own resource listing (one dated .zip per month) gave no reason to
+    expect. Every entry must be read and filtered, not just the first —
+    reading only entry [0] silently limited an earlier run of this script to
+    a single département's worth of associations."""
     with zipfile.ZipFile(zip_path) as archive:
         csv_names = [name for name in archive.namelist() if name.lower().endswith(".csv")]
-        if not csv_names:
-            raise RuntimeError(f"Aucun fichier .csv trouvé dans {zip_path.name} — contenu: {archive.namelist()}")
-        return archive.read(csv_names[0])
+    if not csv_names:
+        raise RuntimeError(f"Aucun fichier .csv trouvé dans {zip_path.name}.")
+    return csv_names
+
+
+def read_csv_entry(zip_path: Path, entry_name: str) -> bytes:
+    with zipfile.ZipFile(zip_path) as archive:
+        return archive.read(entry_name)
 
 
 def decode_and_sniff(raw: bytes) -> tuple[str, str, csv.Dialect]:
@@ -286,7 +306,7 @@ def filter_associations(text: str, dialect: csv.Dialect) -> list[dict[str, str]]
 
 
 def write_report(matches: list[dict[str, str]], out_path: Path) -> None:
-    fieldnames = ["nom", "statut", "statut_code_brut", "objet", "adresse", "mots_cles", "siret"]
+    fieldnames = ["nom", "statut", "statut_code_brut", "objet", "adresse", "mots_cles", "siret", "fichier_source"]
     with out_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
@@ -336,15 +356,26 @@ def main() -> None:
 
     download_zip(session, url, args.zip_path)
 
-    print("Extraction et détection du format du CSV...")
-    raw_csv = extract_csv_bytes(args.zip_path)
-    text, encoding, dialect = decode_and_sniff(raw_csv)
-    print(f"  Encodage détecté : {encoding}")
-    print(f"  Délimiteur détecté : {dialect.delimiter!r}")
+    print("Repérage des fichiers CSV dans l'archive...")
+    entry_names = list_csv_entries(args.zip_path)
+    print(f"  {len(entry_names)} fichier(s) CSV trouvé(s) — l'archive n'est pas un fichier national unique, "
+          f"chacun est traité (probablement un par département/territoire).")
 
-    print("Filtrage sur le champ 'objet'...")
-    matches = filter_associations(text, dialect)
-    print(f"\n{len(matches)} association(s) matchée(s) au total sur les mots-clés.")
+    matches: list[dict[str, str]] = []
+    detected_format: tuple[str, str] | None = None
+    for index, entry_name in enumerate(entry_names, start=1):
+        raw_entry = read_csv_entry(args.zip_path, entry_name)
+        text, encoding, dialect = decode_and_sniff(raw_entry)
+        if detected_format is None:
+            detected_format = (encoding, dialect.delimiter)
+            print(f"  Format détecté sur {entry_name} : encodage={encoding}, délimiteur={dialect.delimiter!r}")
+        entry_matches = filter_associations(text, dialect)
+        for match in entry_matches:
+            match["fichier_source"] = entry_name
+        matches.extend(entry_matches)
+        print(f"  [{index}/{len(entry_names)}] {entry_name} : {len(entry_matches)} match(es) (total cumulé : {len(matches)})")
+
+    print(f"\n{len(matches)} association(s) matchée(s) au total sur les mots-clés, sur les {len(entry_names)} fichiers.")
 
     write_report(matches, args.out)
     print(f"Rapport complet écrit : {args.out} ({len(matches)} lignes, à relire — au moins les 30 premières comme demandé)")
