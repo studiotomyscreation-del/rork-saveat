@@ -68,16 +68,21 @@ nonisolated struct RNAProvider: AntiWastePlacesProviding {
     // MARK: - Loading
 
     private static func loadPlaces() -> [AntiWastePlace] {
+        // TEMPORAIRE — diagnostic de chargement, à retirer une fois le
+        // bundling du CSV confirmé par un vrai lancement de l'app.
         guard let url = Bundle.main.url(forResource: "RNACentresAideAlimentaire", withExtension: "csv"),
               let text = try? String(contentsOf: url, encoding: .utf8)
         else {
+            #if DEBUG
+            print("🔴 RNAProvider: fichier CSV introuvable dans le bundle")
+            #endif
             // Never crashes the app over a missing/misbundled resource —
             // the map simply shows fewer pins, exactly like a provider
             // whose network call failed.
             return []
         }
         let rows = parseCSV(text)
-        guard let header = rows.first else { return [] }
+        let header = rows.first ?? []
         let columnIndex = Dictionary(uniqueKeysWithValues: header.enumerated().map { ($1, $0) })
 
         func field(_ row: [String], _ name: String) -> String {
@@ -85,7 +90,8 @@ nonisolated struct RNAProvider: AntiWastePlacesProviding {
             return row[index]
         }
 
-        return rows.dropFirst().enumerated().compactMap { index, row in
+        let dataRows = rows.isEmpty ? [] : Array(rows.dropFirst())
+        let places = dataRows.enumerated().compactMap { index, row -> AntiWastePlace? in
             guard let latitude = Double(field(row, "latitude")),
                   let longitude = Double(field(row, "longitude"))
             else { return nil }
@@ -114,6 +120,15 @@ nonisolated struct RNAProvider: AntiWastePlacesProviding {
                 isVerified: false
             )
         }
+
+        #if DEBUG
+        if places.isEmpty {
+            print("🔴 RNAProvider: fichier trouvé mais 0 lieu parsé")
+        } else {
+            print("✅ RNAProvider: \(places.count) lieux chargés depuis le CSV")
+        }
+        #endif
+        return places
     }
 
     /// Minimal RFC 4180 CSV parser — no third-party library available, and
