@@ -19,18 +19,20 @@ nonisolated enum AdministrativeDivisions {
     nonisolated static func subdivision(countryCode: String, postalCode: String) -> String? {
         switch countryCode {
         case "FR": FrenchAdministrativeDivisions.department(fromPostalCode: postalCode)
+        case "BE": BelgianAdministrativeDivisions.province(fromPostalCode: postalCode)
         default: nil
         }
     }
 
-    /// The broader subdivision (French région…), when this country's rules
-    /// can derive one from the postal code alone. `nil` for France today —
-    /// `OpenStreetMapProvider` already gets région from OSM's own
-    /// `addr:state`/`addr:province` tags when present, so no postal-code
-    /// derivation exists for it yet; add one here only if that stops being
-    /// enough.
+    /// The broader subdivision (French région, Belgian région…), when this
+    /// country's rules can derive one from the postal code alone. `nil` for
+    /// France today — `OpenStreetMapProvider` already gets région from
+    /// OSM's own `addr:state`/`addr:province` tags when present, so no
+    /// postal-code derivation exists for it yet; add one here only if that
+    /// stops being enough.
     nonisolated static func region(countryCode: String, postalCode: String) -> String? {
         switch countryCode {
+        case "BE": BelgianAdministrativeDivisions.region(fromPostalCode: postalCode)
         default: nil
         }
     }
