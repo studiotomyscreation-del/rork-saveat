@@ -107,6 +107,12 @@ nonisolated struct AntiWasteRepository: Sendable {
     /// reached yet. See that provider's doc comment for how it was sourced
     /// and why it's still not a "SAVEAT partner" record.
     ///
+    /// DÉSACTIVÉ ci-dessous (retiré de `shared`, pas supprimé) le 22/09/2026,
+    /// le temps qu'un accord officiel avec l'enseigne NOUS Anti-Gaspi soit
+    /// confirmé — ces adresses restent un snapshot public non contractuel,
+    /// pas un partenariat SAVEAT. Réactiver = décommenter la ligne
+    /// `NousAntiGaspiProvider()` juste en dessous, rien d'autre à toucher.
+    ///
     /// `SAVEATPartnerProvider` surfaces the one real SAVEAT PRO merchant
     /// signed up on this device, if any — see its own doc comment for why
     /// that stays a single-device, no-backend limitation for now.
@@ -126,7 +132,7 @@ nonisolated struct AntiWasteRepository: Sendable {
     /// Berlin or São Paulo today.
     static let shared = AntiWasteRepository(providers: [
         OpenStreetMapProvider(),
-        NousAntiGaspiProvider(),
+        // NousAntiGaspiProvider(), // désactivé le 22/09/2026 — voir commentaire ci-dessus, en attente d'accord officiel avec l'enseigne
         MulhouseOpenDataProvider(),
         SAVEATPartnerProvider()
     ])
