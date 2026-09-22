@@ -131,17 +131,21 @@ nonisolated struct OpenStreetMapProvider: AntiWastePlacesProviding {
             address: street,
             city: tags["addr:city"] ?? "",
             postalCode: postalCode,
-            // Only derived when the address is French — `addr:country`
-            // (below) is what actually tells us that, this is never guessed
-            // from the postal code format alone.
-            department: tags["addr:country"] == "FR"
-                ? FrenchAdministrativeDivisions.department(fromPostalCode: postalCode)
-                : nil,
+            // Routed through `AdministrativeDivisions` so this stays correct
+            // for every country OSM covers, not just France — the postal
+            // code alone is never enough (a `nil`/unmapped `addr:country`
+            // yields `nil`, never a guess).
+            department: AdministrativeDivisions.subdivision(countryCode: tags["addr:country"] ?? "", postalCode: postalCode),
             // `addr:country` is a free but usually-present OSM tag, already
             // ISO 3166-1 alpha-2 by convention on the wiki — taken as-is,
             // never inferred from anything else.
             countryCode: tags["addr:country"],
-            region: tags["addr:state"] ?? tags["addr:province"],
+            // OSM's own tag wins when present; `AdministrativeDivisions`
+            // only fills the gap for a country whose région/équivalent can
+            // be derived from the postal code alone (none yet — see that
+            // file).
+            region: tags["addr:state"] ?? tags["addr:province"]
+                ?? AdministrativeDivisions.region(countryCode: tags["addr:country"] ?? "", postalCode: postalCode),
             description: tags["description"] ?? "",
             openingHours: tags["opening_hours"],
             websiteURLString: tags["website"] ?? tags["contact:website"],
