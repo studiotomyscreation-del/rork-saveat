@@ -2283,6 +2283,19 @@ nonisolated enum S {
             fr: "Localisation refusée. Tu peux quand même parcourir la carte de France.",
             en: "Location access denied. You can still browse the map of France."
         )
+        /// `.restricted` (contrôle parental / gestion à distance) — distinct
+        /// de `.denied` : ce n'est pas un choix de l'utilisateur, donc pas de
+        /// bouton "Autoriser" non plus (inutile, l'app ne peut rien changer).
+        static let locationRestrictedNotice = Loc(
+            fr: "La localisation est désactivée par une restriction système sur cet appareil (contrôle parental ou gestion à distance). Tu peux quand même parcourir la carte de France.",
+            en: "Location is disabled by a system restriction on this device (parental controls or remote management). You can still browse the map of France."
+        )
+        /// Montré uniquement entre l'autorisation accordée et le premier fix
+        /// GPS reçu — jamais un message d'erreur, juste une attente normale.
+        static let locationResolvingMessage = Loc(
+            fr: "Localisation de ta position en cours…",
+            en: "Finding your location…"
+        )
         static let recenterAccessibility = Loc(fr: "Recentrer sur ma position", en: "Recenter on my location")
 
         static let filtersButton = Loc(fr: "Filtres", en: "Filters")

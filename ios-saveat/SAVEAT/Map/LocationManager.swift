@@ -22,6 +22,13 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
     /// views observe this plain counter with `.onChange(of:)` instead of
     /// `userLocation` directly.
     private(set) var updateCount = 0
+    /// True after a *persistent* failure — Location Services switched off at
+    /// the system level (Réglages > Confidentialité > Service de
+    /// localisation), not just this app's own permission. `authorizationStatus`
+    /// can still read `.authorizedWhenInUse` in this case (the app-level grant
+    /// never changed), so this is the only signal the map has for it (§ audit
+    /// messages de localisation). Cleared the moment a real fix arrives.
+    private(set) var hasSystemLocationFailure = false
 
     private let manager = CLLocationManager()
 
@@ -72,11 +79,21 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
         Task { @MainActor [weak self] in
             self?.userLocation = last
             self?.updateCount += 1
+            self?.hasSystemLocationFailure = false
         }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        // A transient failure (no fix yet, signal loss) is never surfaced as
-        // an error to the user — the map simply keeps its last known state.
+        // Most failures here are transient (`.locationUnknown` — no fix yet,
+        // signal loss) and fire constantly during ordinary GPS acquisition;
+        // surfacing those would flicker an error on and off for no reason,
+        // so they stay silent exactly as before. `.denied` from THIS
+        // delegate method specifically means Location Services are off at
+        // the system level — distinct from `authorizationStatus`, which
+        // only tracks this app's own permission and won't reflect that.
+        guard let clError = error as? CLError, clError.code == .denied else { return }
+        Task { @MainActor [weak self] in
+            self?.hasSystemLocationFailure = true
+        }
     }
 }

@@ -68,8 +68,21 @@ final class AntiWasteMapViewModel {
 
     // MARK: - Filtering
 
+    /// True right after permission is granted but before the first real GPS
+    /// fix arrives — a normal few-second window, not an error. Distinct from
+    /// "not authorized" (`.denied`/`.restricted`/`.notDetermined`), where
+    /// falling back to Paris is the deliberate "browse the map of France"
+    /// behaviour and stays untouched (§ audit messages de localisation:
+    /// without this check, this window silently reused the Paris fallback
+    /// too, showing "no place nearby" to someone who just hadn't gotten a
+    /// fix yet).
+    var isResolvingLocation: Bool {
+        locationManager.status == .authorized && locationManager.userLocation == nil
+    }
+
     var filteredPlaces: [AntiWastePlace] {
-        places
+        guard !isResolvingLocation else { return [] }
+        return places
             .filter { selectedCategory == nil || $0.category == selectedCategory }
             .filter { distanceKm(to: $0) <= radiusKm }
             .sorted { distanceKm(to: $0) < distanceKm(to: $1) }

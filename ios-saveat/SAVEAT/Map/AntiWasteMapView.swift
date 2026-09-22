@@ -38,11 +38,13 @@ struct AntiWasteMapView: View {
             map
 
             VStack(spacing: 10) {
-                if viewModel.locationManager.status != .authorized {
+                if viewModel.locationManager.status != .authorized || viewModel.locationManager.hasSystemLocationFailure {
                     locationPrompt
                 }
                 filterSummaryBar
-                if !viewModel.isLoading && viewModel.filteredPlaces.isEmpty {
+                if viewModel.isResolvingLocation {
+                    locationResolvingBanner
+                } else if !viewModel.isLoading && viewModel.filteredPlaces.isEmpty {
                     noResultsBanner
                 }
                 Spacer()
@@ -137,9 +139,7 @@ struct AntiWasteMapView: View {
                 Text(S.Map.locationPromptTitle.s)
                     .font(SaveatTypography.headline(13.5))
                     .foregroundStyle(SaveatColors.textPrimary)
-                Text(viewModel.locationManager.status == .denied
-                     ? S.Map.locationDeniedNotice.s
-                     : S.Map.locationPromptBody.s)
+                Text(locationPromptBodyText)
                     .font(SaveatTypography.caption(11.5))
                     .foregroundStyle(SaveatColors.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -191,6 +191,40 @@ struct AntiWasteMapView: View {
 
             Spacer(minLength: 0)
         }
+    }
+
+    /// Body text for `locationPrompt`, covering every permission state plus
+    /// the system-level failure (§ audit messages de localisation) — kept
+    /// distinct per state rather than reusing `locationPromptBody` for
+    /// everything, since "je n'ai pas encore demandé" and "c'est bloqué et
+    /// tu ne peux rien y faire" are not the same message.
+    private var locationPromptBodyText: String {
+        if viewModel.locationManager.hasSystemLocationFailure {
+            return S.Map.locationDeniedNotice.s
+        }
+        switch viewModel.locationManager.status {
+        case .denied: return S.Map.locationDeniedNotice.s
+        case .restricted: return S.Map.locationRestrictedNotice.s
+        case .notDetermined, .authorized: return S.Map.locationPromptBody.s
+        }
+    }
+
+    /// Shown only between "permission granted" and "first GPS fix received"
+    /// — replaces `noResultsBanner` for that window so a normal few-second
+    /// wait never reads as "nothing anti-gaspi near you" (§ audit messages
+    /// de localisation).
+    private var locationResolvingBanner: some View {
+        HStack(spacing: 8) {
+            ProgressView()
+                .controlSize(.small)
+            Text(S.Map.locationResolvingMessage.s)
+                .font(SaveatTypography.caption(12.5))
+                .foregroundStyle(SaveatColors.textSecondary)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 9)
+        .background(SaveatColors.surface, in: .capsule)
+        .shadow(color: SaveatColors.nightBlue.opacity(0.06), radius: 8, y: 3)
     }
 
     private var noResultsBanner: some View {
