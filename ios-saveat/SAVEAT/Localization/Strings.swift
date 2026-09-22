@@ -2363,6 +2363,13 @@ nonisolated enum S {
             fr: "Épicerie solidaire : produits à prix réduits ou gratuits pour les personnes en difficulté.",
             en: "Solidarity grocery: subsidized or free food for people in need."
         )
+
+        /// `LiegeOpenDataProvider` — same short description for every centre
+        /// d'aide alimentaire in the list.
+        static let foodDistributionDescription = Loc(
+            fr: "Centre d'aide alimentaire : colis ou distribution alimentaire pour les personnes en difficulté.",
+            en: "Food aid center: food parcels or distribution for people in need."
+        )
     }
 
     // MARK: - SAVEAT V2 Home (Home/NewHomeView) — Phase 4

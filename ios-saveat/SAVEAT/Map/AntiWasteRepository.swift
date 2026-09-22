@@ -123,6 +123,11 @@ nonisolated struct AntiWasteRepository: Sendable {
     /// pipeline (model, dedup, attribution) before scaling to more cities —
     /// see that provider's doc comment and the map-sources import report.
     ///
+    /// `LiegeOpenDataProvider` is the Belgian pilot for the same idea, on
+    /// Open Data Wallonie-Bruxelles (ODWB) instead of data.gouv.fr — see
+    /// that provider's doc comment for sourcing details and the 2 excluded
+    /// non-operational records.
+    ///
     /// No other national provider is wired in as of the international
     /// architecture pass — the research phase found no food-donation open
     /// dataset for Germany, Spain, Italy, Brazil or the USA that is both
@@ -134,6 +139,7 @@ nonisolated struct AntiWasteRepository: Sendable {
         OpenStreetMapProvider(),
         // NousAntiGaspiProvider(), // désactivé le 22/09/2026 — voir commentaire ci-dessus, en attente d'accord officiel avec l'enseigne
         MulhouseOpenDataProvider(),
+        LiegeOpenDataProvider(),
         SAVEATPartnerProvider()
     ])
 

@@ -109,6 +109,14 @@ nonisolated enum DataSource: String, Codable, Hashable, Sendable {
     /// this case is only the generic "where this kind of data comes from"
     /// label — see `AntiWastePlaceDetailView.attribution`.
     case dataGouvFr
+    /// Any provider sourced from Open Data Wallonie-Bruxelles (`odwb.be`) —
+    /// the Belgian equivalent of `dataGouvFr`, kept as its own case rather
+    /// than reused because the attribution text below names the actual
+    /// catalog ("data.gouv.fr" would be factually wrong under a Belgian
+    /// record). `LiegeOpenDataProvider` today. Publishing organisation and
+    /// exact licence (e.g. "CC BY") still live on `AntiWastePlace.license`
+    /// per record.
+    case odwb
 
     nonisolated var attributionText: String {
         switch self {
@@ -117,6 +125,7 @@ nonisolated enum DataSource: String, Codable, Hashable, Sendable {
         case .saveat, .partner: "SAVEAT"
         case .nousAntiGaspi: "NOUS Anti-Gaspi"
         case .dataGouvFr: "data.gouv.fr"
+        case .odwb: "Open Data Wallonie-Bruxelles"
         }
     }
 }

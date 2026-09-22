@@ -16,20 +16,20 @@ nonisolated enum PlaceDeduplicator {
     /// Source priority when two records describe the same place — the
     /// higher-priority one is kept, the other dropped. A future SAVEAT/partner
     /// record always wins over open data, since it is directly maintained by
-    /// SAVEAT. A `dataGouvFr` record comes next — an official public
-    /// administration publishing its own dataset (a commune, an
-    /// agglomération…) is at least as authoritative as a named chain's own
-    /// website. `NousAntiGaspiProvider` follows — a named chain's own address
-    /// for its own store still beats a crowd-sourced OSM node or a
-    /// best-effort ADEME keyword match for the same spot. Between the two
-    /// remaining open sources, OpenStreetMap wins because its tags map
-    /// directly onto a SAVEAT category, while the ADEME match is a
-    /// best-effort keyword match (see `ADEMEProvider`).
+    /// SAVEAT. `dataGouvFr` and `odwb` come next, at the same tier — both are
+    /// an official public administration publishing its own dataset (a
+    /// commune, an agglomération, Open Data Wallonie-Bruxelles…), at least as
+    /// authoritative as a named chain's own website. `NousAntiGaspiProvider`
+    /// follows — a named chain's own address for its own store still beats a
+    /// crowd-sourced OSM node or a best-effort ADEME keyword match for the
+    /// same spot. Between the two remaining open sources, OpenStreetMap wins
+    /// because its tags map directly onto a SAVEAT category, while the ADEME
+    /// match is a best-effort keyword match (see `ADEMEProvider`).
     private static func priority(_ source: DataSource) -> Int {
         switch source {
         case .partner: 0
         case .saveat: 1
-        case .dataGouvFr: 2
+        case .dataGouvFr, .odwb: 2
         case .nousAntiGaspi: 3
         case .openStreetMap: 4
         case .ademe: 5
