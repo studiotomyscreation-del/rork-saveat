@@ -29,18 +29,28 @@ struct AntiWastePlaceDetailView: View {
         .background(SaveatColors.background.ignoresSafeArea())
     }
 
-    /// Source credit, required by OpenStreetMap's ODbL and by ADEME's
-    /// Licence Ouverte whenever their data is shown (§ Étape 3).
+    /// Source credit, required by OpenStreetMap's ODbL, by ADEME's Licence
+    /// Ouverte, and by every open-data provider under Licence Ouverte 2.0
+    /// (Etalab) whenever their data is shown (§ Étape 3). `place.license`
+    /// carries the specific licence + publishing organisation per record
+    /// (e.g. "Licence Ouverte 2.0 (Etalab) — Mulhouse Alsace Agglomération")
+    /// — it used to be collected on the model but never actually rendered.
     private var attribution: some View {
-        HStack(spacing: 4) {
-            Text(S.Map.sourceLabel.f(place.source.attributionText))
-            if let url = place.sourceURL {
-                Link(S.Map.sourceLink.s, destination: url)
+        VStack(spacing: 2) {
+            HStack(spacing: 4) {
+                Text(S.Map.sourceLabel.f(place.source.attributionText))
+                if let url = place.sourceURL {
+                    Link(S.Map.sourceLink.s, destination: url)
+                }
+            }
+            if let license = place.license, !license.isEmpty {
+                Text(license)
             }
         }
         .font(.system(size: 10.5, weight: .medium, design: .rounded))
         .foregroundStyle(SaveatColors.textSecondary)
         .frame(maxWidth: .infinity, alignment: .center)
+        .multilineTextAlignment(.center)
     }
 
     private var header: some View {

@@ -9,3 +9,7 @@ node_modules
 xcuserdata/
 xcshareddata/
 DerivedData/
+
+# Python local noise from scripts/ (never committed either)
+__pycache__/
+*.pyc

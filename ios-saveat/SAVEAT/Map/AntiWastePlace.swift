@@ -16,6 +16,20 @@ nonisolated enum AntiWasteCategory: String, Codable, CaseIterable, Identifiable,
     case deal
     case restaurant
     case localProducer
+    /// `amenity=food_sharing` — a shared shelf/box/cabinet for surplus food,
+    /// kept distinct from `communityFridge` (§11 of the map-sources import —
+    /// OSM tags both concepts differently, and so does this taxonomy now).
+    case foodSharing
+    /// An épicerie solidaire — subsidized groceries for people in need, a
+    /// different concept from `antiWasteStore` (a discount anti-waste
+    /// grocery anyone can walk into).
+    case solidarityGrocery
+    /// A food bank / distribution point (`social_facility=food_bank`) —
+    /// split out of `association` because not every one of these is freely
+    /// open to the public the way a community fridge is (§1 of the import
+    /// brief: "les food_bank ne sont pas toutes des points anti-gaspi
+    /// accessibles librement").
+    case foodDistribution
 
     nonisolated var id: String { rawValue }
 
@@ -34,6 +48,9 @@ nonisolated enum AntiWasteCategory: String, Codable, CaseIterable, Identifiable,
         case .deal: S.Map.categoryDeal.s
         case .restaurant: S.Map.categoryRestaurant.s
         case .localProducer: S.Map.categoryLocalProducer.s
+        case .foodSharing: S.Map.categoryFoodSharing.s
+        case .solidarityGrocery: S.Map.categorySolidarityGrocery.s
+        case .foodDistribution: S.Map.categoryFoodDistribution.s
         }
     }
 
@@ -47,6 +64,9 @@ nonisolated enum AntiWasteCategory: String, Codable, CaseIterable, Identifiable,
         case .deal: "percent"
         case .restaurant: "fork.knife"
         case .localProducer: "leaf.fill"
+        case .foodSharing: "shippingbox.fill"
+        case .solidarityGrocery: "bag.fill"
+        case .foodDistribution: "hand.raised.fill"
         }
     }
 
@@ -60,6 +80,9 @@ nonisolated enum AntiWasteCategory: String, Codable, CaseIterable, Identifiable,
         case .deal: SaveatColors.promo
         case .restaurant: SaveatColors.brandLight
         case .localProducer: SaveatColors.brand
+        case .foodSharing: SaveatColors.lavender
+        case .solidarityGrocery: SaveatColors.forestDeep
+        case .foodDistribution: SaveatColors.alert
         }
     }
 }
@@ -78,6 +101,14 @@ nonisolated enum DataSource: String, Codable, Hashable, Sendable {
     /// chain's own public website, not a SAVEAT partnership (see that
     /// provider's doc comment). Attributed to them, never to SAVEAT.
     case nousAntiGaspi
+    /// Any provider sourced from an open dataset published on data.gouv.fr
+    /// by a French public administration (a commune, an agglomération, a
+    /// département…) — `MulhouseOpenDataProvider` today, more to come. The
+    /// specific publishing organisation and exact licence live on
+    /// `AntiWastePlace.license` per record (they vary by dataset), while
+    /// this case is only the generic "where this kind of data comes from"
+    /// label — see `AntiWastePlaceDetailView.attribution`.
+    case dataGouvFr
 
     nonisolated var attributionText: String {
         switch self {
@@ -85,6 +116,7 @@ nonisolated enum DataSource: String, Codable, Hashable, Sendable {
         case .ademe: "Data ADEME"
         case .saveat, .partner: "SAVEAT"
         case .nousAntiGaspi: "NOUS Anti-Gaspi"
+        case .dataGouvFr: "data.gouv.fr"
         }
     }
 }
@@ -104,6 +136,12 @@ nonisolated struct AntiWastePlace: Identifiable, Codable, Hashable, Sendable {
     var address: String
     var city: String
     var postalCode: String
+    /// French département code ("33", "75", "2A"…), for sources that need
+    /// finer granularity than `region`. Derived deterministically from the
+    /// postal code where the source doesn't provide it directly (see
+    /// `FrenchAdministrativeDivisions.department(fromPostalCode:)`) — never
+    /// guessed for a non-French address.
+    var department: String? = nil
     /// ISO 3166-1 alpha-2 country code (e.g. "FR", "US"), when the source
     /// publishes or implies one. Never guessed from the app's language —
     /// only from the record itself or from a provider that only ever
