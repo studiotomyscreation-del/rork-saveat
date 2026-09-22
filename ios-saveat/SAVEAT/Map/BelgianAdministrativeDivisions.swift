@@ -17,18 +17,18 @@ nonisolated enum BelgianAdministrativeDivisions {
     nonisolated static func province(fromPostalCode postalCode: String) -> String? {
         guard let code = Self.code(fromPostalCode: postalCode) else { return nil }
         switch code {
-        case 1000...1299: "Bruxelles-Capitale"
-        case 1300...1499: "Brabant wallon"
-        case 1500...1999, 3000...3499: "Brabant flamand"
-        case 2000...2999: "Anvers"
-        case 3500...3999: "Limbourg"
-        case 4000...4999: "Liège"
-        case 5000...5999: "Namur"
-        case 6000...6599, 7000...7999: "Hainaut"
-        case 6600...6999: "Luxembourg"
-        case 8000...8999: "Flandre-Occidentale"
-        case 9000...9999: "Flandre-Orientale"
-        default: nil
+        case 1000...1299: return "Bruxelles-Capitale"
+        case 1300...1499: return "Brabant wallon"
+        case 1500...1999, 3000...3499: return "Brabant flamand"
+        case 2000...2999: return "Anvers"
+        case 3500...3999: return "Limbourg"
+        case 4000...4999: return "Liège"
+        case 5000...5999: return "Namur"
+        case 6000...6599, 7000...7999: return "Hainaut"
+        case 6600...6999: return "Luxembourg"
+        case 8000...8999: return "Flandre-Occidentale"
+        case 9000...9999: return "Flandre-Orientale"
+        default: return nil
         }
     }
 
@@ -38,10 +38,10 @@ nonisolated enum BelgianAdministrativeDivisions {
     nonisolated static func region(fromPostalCode postalCode: String) -> String? {
         guard let code = Self.code(fromPostalCode: postalCode) else { return nil }
         switch code {
-        case 1000...1299: "Bruxelles-Capitale"
-        case 1300...1499, 4000...4999, 5000...5999, 6000...7999: "Wallonie"
-        case 1500...3999, 8000...9999: "Flandre"
-        default: nil
+        case 1000...1299: return "Bruxelles-Capitale"
+        case 1300...1499, 4000...4999, 5000...5999, 6000...7999: return "Wallonie"
+        case 1500...3999, 8000...9999: return "Flandre"
+        default: return nil
         }
     }
 
