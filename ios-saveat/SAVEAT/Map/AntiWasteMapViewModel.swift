@@ -101,7 +101,13 @@ final class AntiWasteMapViewModel {
         let origin = locationManager.userLocation
             ?? CLLocation(latitude: Self.franceFallbackCenter.latitude, longitude: Self.franceFallbackCenter.longitude)
         let destination = CLLocation(latitude: place.latitude, longitude: place.longitude)
-        return origin.distance(from: destination) / 1000
+        let distance = origin.distance(from: destination) / 1000
+        // TEMPORAIRE — diagnostic régression Mulhouse, à retirer après.
+        if place.source == .dataGouvFr {
+            let usingRealFix = locationManager.userLocation != nil
+            print("🔍 [distanceKm] origin=(\(origin.coordinate.latitude), \(origin.coordinate.longitude)) [\(usingRealFix ? "userLocation réel" : "repli Paris")] -> \(place.name) (\(place.latitude), \(place.longitude)) = \(distance) km (rayon actuel: \(radiusKm) km)")
+        }
+        return distance
     }
 
     func distanceText(to place: AntiWastePlace) -> String {

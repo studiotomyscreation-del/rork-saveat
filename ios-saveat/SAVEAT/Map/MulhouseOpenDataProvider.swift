@@ -24,12 +24,15 @@ nonisolated struct MulhouseOpenDataProvider: AntiWastePlacesProviding {
     nonisolated var supportedCountries: ProviderCountryScope { .countries(["FR"]) }
 
     func places(in bbox: GeoBoundingBox) async -> [AntiWastePlace] {
-        Self.stores.compactMap { store in
+        let results = Self.stores.compactMap { store -> AntiWastePlace? in
             guard (bbox.minLatitude...bbox.maxLatitude).contains(store.latitude),
                   (bbox.minLongitude...bbox.maxLongitude).contains(store.longitude)
             else { return nil }
             return Self.place(from: store)
         }
+        // TEMPORAIRE — diagnostic régression Mulhouse, à retirer après.
+        print("🔍 [MulhouseOpenDataProvider] bbox=(lat: \(bbox.minLatitude)...\(bbox.maxLatitude), lon: \(bbox.minLongitude)...\(bbox.maxLongitude)) -> \(results.count)/\(Self.stores.count) magasin(s) dans la zone")
+        return results
     }
 
     // MARK: - Seed data

@@ -150,6 +150,8 @@ nonisolated struct AntiWasteRepository: Sendable {
         }
         let countryCode = hasCountryScopedProvider ? await countryResolver.countryCode(for: padded) : nil
         let activeProviders = providers.filter { $0.supportedCountries.supports(countryCode) }
+        // TEMPORAIRE — diagnostic régression Mulhouse, à retirer après.
+        print("🔍 [AntiWasteRepository] bbox padded=(lat: \(padded.minLatitude)...\(padded.maxLatitude), lon: \(padded.minLongitude)...\(padded.maxLongitude)), countryCode=\(countryCode ?? "nil"), \(activeProviders.count)/\(providers.count) provider(s) actif(s)")
         let merged = await withTaskGroup(of: [AntiWastePlace].self) { group -> [AntiWastePlace] in
             for provider in activeProviders {
                 group.addTask { await provider.places(in: padded) }
@@ -158,6 +160,10 @@ nonisolated struct AntiWasteRepository: Sendable {
             for await batch in group { all.append(contentsOf: batch) }
             return all
         }
-        return PlaceDeduplicator.deduplicate(merged)
+        // TEMPORAIRE — diagnostic régression Mulhouse, à retirer après.
+        print("🔍 [AntiWasteRepository] \(merged.count) lieu(x) au total avant dédoublonnage, \(merged.filter { $0.source == .dataGouvFr }.count) venant de dataGouvFr (Mulhouse)")
+        let deduplicated = PlaceDeduplicator.deduplicate(merged)
+        print("🔍 [AntiWasteRepository] \(deduplicated.count) lieu(x) après dédoublonnage")
+        return deduplicated
     }
 }
