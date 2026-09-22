@@ -128,6 +128,12 @@ nonisolated struct AntiWasteRepository: Sendable {
     /// that provider's doc comment for sourcing details and the 2 excluded
     /// non-operational records.
     ///
+    /// `RNAProvider` is a national scale-up of the same pipeline (4321
+    /// associations, keyword-filtered + geocoded from the Répertoire
+    /// National des Associations) — far too large for a hand-written seed
+    /// array, so it loads a bundled CSV once instead. See that provider's
+    /// doc comment for the full filtering/geocoding pipeline.
+    ///
     /// No other national provider is wired in as of the international
     /// architecture pass — the research phase found no food-donation open
     /// dataset for Germany, Spain, Italy, Brazil or the USA that is both
@@ -140,6 +146,7 @@ nonisolated struct AntiWasteRepository: Sendable {
         // NousAntiGaspiProvider(), // désactivé le 22/09/2026 — voir commentaire ci-dessus, en attente d'accord officiel avec l'enseigne
         MulhouseOpenDataProvider(),
         LiegeOpenDataProvider(),
+        RNAProvider(),
         SAVEATPartnerProvider()
     ])
 
