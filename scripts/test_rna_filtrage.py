@@ -49,6 +49,16 @@ What it does, in order:
      addresses from the matches, to confirm it responds sensibly, before
      any future bulk-geocoding step.
 
+Second-level filter (found in a 120-row manual review of a real national
+run): a keyword match whose `objet` ALSO mentions animal care ("animaux",
+"chiens", "chats", "protection animale", "refuge animalier") is dropped —
+a real, identifiable false-positive shape (animal food aid, not human;
+e.g. "Les Gamelles du Keur 974"), see `is_animal_aid_false_positive`. Other
+false-positive shapes found in that same review (generic service clubs,
+advocacy-only associations, AMAP-style local-farming support) are NOT
+filtered — too easy to also exclude a real positive by keyword alone,
+accepted as known residual noise instead.
+
 Usage:
     python3 test_rna_filtrage.py
     python3 test_rna_filtrage.py --zip-path already-downloaded.zip   # skip the download
@@ -93,6 +103,19 @@ KEYWORDS = [
 # is always kept in the output too, so nothing is hidden behind a guess.
 POSITION_LABELS = {"A": "Active", "D": "Dissoute", "S": "Supprimée"}
 
+# Found in a 120-row manual review of a real run (§ filtre RNA de second
+# niveau) : a real, identifiable false-positive shape — an association whose
+# `objet` matches a food-aid keyword but is actually about ANIMAL food aid,
+# not human (e.g. "Les Gamelles du Keur 974"). Every phrase below is exactly
+# as specified for that review, nothing added.
+ANIMAL_AID_EXCLUSION_KEYWORDS = [
+    "animaux",
+    "chiens",
+    "chats",
+    "protection animale",
+    "refuge animalier",
+]
+
 MIN_DELAY_SECONDS = 0.5
 MAX_RETRIES = 3
 
@@ -107,6 +130,14 @@ def _compile_keyword_pattern(keyword: str) -> re.Pattern[str]:
 
 
 KEYWORD_PATTERNS = [(keyword, _compile_keyword_pattern(keyword)) for keyword in KEYWORDS]
+ANIMAL_AID_EXCLUSION_PATTERNS = [_compile_keyword_pattern(kw) for kw in ANIMAL_AID_EXCLUSION_KEYWORDS]
+
+
+def is_animal_aid_false_positive(objet: str) -> bool:
+    """True when `objet` also mentions animal care — only meaningful for a
+    row that ALREADY matched a positive food-aid keyword (checked by the
+    caller); this never runs on its own."""
+    return any(pattern.search(objet) for pattern in ANIMAL_AID_EXCLUSION_PATTERNS)
 
 
 class RateLimitedSession:
@@ -320,6 +351,8 @@ def filter_associations(text: str, dialect: csv.Dialect) -> list[dict[str, str]]
             continue
         hit_keywords = [kw for kw, pattern in KEYWORD_PATTERNS if pattern.search(objet)]
         if not hit_keywords:
+            continue
+        if is_animal_aid_false_positive(objet):
             continue
         raw_position = (row.get("position", "") or "").strip()
         matches.append({
