@@ -191,10 +191,19 @@ final class AppStore {
     func existingItem(for product: ScannedProduct) -> FoodItem? {
         // Stored barcodes are never rewritten: both sides are normalised at read
         // time, so an item saved as UPC-A matches the same pack read as EAN-13.
+        if let byBarcode = inventoryMatch(for: product.gtin)?.occurrences.first?.item {
+            return byBarcode
+        }
         if let byBarcode = inventory.first(where: { NormalizedGTIN.sameProduct($0.barcode, product.barcode) }) {
             return byBarcode
         }
         return MealEngine.stockItem(for: product.displayTitle, in: inventory)
+    }
+
+    /// Everything already at home carrying this GTIN (every location, real
+    /// quantities). Local and instant; nil when nothing matches.
+    func inventoryMatch(for gtin: NormalizedGTIN) -> InventoryMatch? {
+        InventoryMatchEngine.exactMatch(for: gtin, in: inventory)
     }
 
     func existingItem(named name: String) -> FoodItem? {

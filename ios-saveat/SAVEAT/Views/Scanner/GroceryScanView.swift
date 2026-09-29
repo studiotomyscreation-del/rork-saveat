@@ -55,6 +55,8 @@ struct GroceryScanView: View {
         var id: String { product.barcode }
         var product: ScannedProduct
         var existing: FoodItem
+        /// Set when the same GTIN is already in the stock (« Déjà chez vous »).
+        var match: InventoryMatch?
     }
 
     private var total: Double {
@@ -435,7 +437,7 @@ struct GroceryScanView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 Text("⚠️").font(.system(size: 17))
-                Text(S.Scan.duplicateTitle.s)
+                Text(candidate.match == nil ? S.Scan.duplicateTitle.s : S.InventoryMatch.title.s)
                     .font(.system(size: 17, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.ink)
                 Spacer()
@@ -445,13 +447,26 @@ struct GroceryScanView: View {
                 Text(candidate.existing.displayName)
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.ink)
-                Text(S.Scan.duplicateBody.f(
-                    candidate.existing.stockLine,
-                    candidate.existing.location.title.lowercased()
-                ))
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
-                    .foregroundStyle(Theme.inkSoft)
-                    .fixedSize(horizontal: false, vertical: true)
+                if let match = candidate.match {
+                    ForEach(match.locationLines, id: \.self) { line in
+                        Text(line)
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .foregroundStyle(Theme.inkSoft)
+                    }
+                    if let useSoon = match.useSoonLine {
+                        Text(useSoon)
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Theme.terracotta)
+                    }
+                } else {
+                    Text(S.Scan.duplicateBody.f(
+                        candidate.existing.stockLine,
+                        candidate.existing.location.title.lowercased()
+                    ))
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundStyle(Theme.inkSoft)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
 
             HStack(spacing: 10) {
@@ -559,7 +574,8 @@ struct GroceryScanView: View {
                 lookup = .idle
                 if let existing = store.existingItem(for: product) ?? existingInSession(product) {
                     Haptics.warning()
-                    withAnimation { duplicate = DuplicateCandidate(product: product, existing: existing) }
+                    let match = store.inventoryMatch(for: gtin)
+                    withAnimation { duplicate = DuplicateCandidate(product: product, existing: existing, match: match) }
                 } else {
                     append(product: product)
                 }

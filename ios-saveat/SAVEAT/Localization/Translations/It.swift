@@ -860,6 +860,15 @@ nonisolated enum StringsIt {
         // MARK: - Market
         "Country": "Paese",
         "Automatic (%@)": "Automatico (%@)",
-        "Sets currency, units, distances and nutrition labels. Independent from the language. Your food, your preferences and your subscription stay exactly as they are.": "Imposta valuta, unità, distanze ed etichette nutrizionali. Indipendente dalla lingua. Dispensa, preferenze e abbonamento restano invariati."
+        "Sets currency, units, distances and nutrition labels. Independent from the language. Your food, your preferences and your subscription stay exactly as they are.": "Imposta valuta, unità, distanze ed etichette nutrizionali. Indipendente dalla lingua. Dispensa, preferenze e abbonamento restano invariati.",
+
+        // MARK: - Inventory match
+        "You already have this at home": "Ce l'hai già a casa",
+        "%@ in your fridge": "%@ nel tuo frigo",
+        "%@ in your pantry": "%@ nella tua dispensa",
+        "%@ in your freezer": "%@ nel tuo congelatore",
+        "Total: %@ at home": "Totale: %@ a casa",
+        "%@ should be used soon": "%@ da usare presto",
+        "%@ of them should be used soon": "%@ da usare presto"
     ]
 }

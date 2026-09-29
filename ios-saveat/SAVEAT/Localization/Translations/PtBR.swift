@@ -861,6 +861,15 @@ nonisolated enum StringsPtBR {
         // MARK: - Market
         "Country": "País",
         "Automatic (%@)": "Automático (%@)",
-        "Sets currency, units, distances and nutrition labels. Independent from the language. Your food, your preferences and your subscription stay exactly as they are.": "Define a moeda, as unidades, as distâncias e a rotulagem nutricional. Independente do idioma. Seu estoque, suas preferências e sua assinatura continuam iguais."
+        "Sets currency, units, distances and nutrition labels. Independent from the language. Your food, your preferences and your subscription stay exactly as they are.": "Define a moeda, as unidades, as distâncias e a rotulagem nutricional. Independente do idioma. Seu estoque, suas preferências e sua assinatura continuam iguais.",
+
+        // MARK: - Inventory match
+        "You already have this at home": "Você já tem isso em casa",
+        "%@ in your fridge": "%@ na sua geladeira",
+        "%@ in your pantry": "%@ na sua despensa",
+        "%@ in your freezer": "%@ no seu freezer",
+        "Total: %@ at home": "Total: %@ em casa",
+        "%@ should be used soon": "%@ deve ser usado em breve",
+        "%@ of them should be used soon": "%@ devem ser usados em breve"
     ]
 }

@@ -863,6 +863,15 @@ nonisolated enum StringsZhCN {
         // MARK: - Market
         "Country": "国家/地区",
         "Automatic (%@)": "自动（%@）",
-        "Sets currency, units, distances and nutrition labels. Independent from the language. Your food, your preferences and your subscription stay exactly as they are.": "决定货币、单位、距离和营养标签，与语言无关。你的食材、偏好和订阅保持不变。"
+        "Sets currency, units, distances and nutrition labels. Independent from the language. Your food, your preferences and your subscription stay exactly as they are.": "决定货币、单位、距离和营养标签，与语言无关。你的食材、偏好和订阅保持不变。",
+
+        // MARK: - Inventory match
+        "You already have this at home": "家里已经有了",
+        "%@ in your fridge": "冰箱里有 %@",
+        "%@ in your pantry": "储物柜里有 %@",
+        "%@ in your freezer": "冷冻室里有 %@",
+        "Total: %@ at home": "家里共有 %@",
+        "%@ should be used soon": "%@ 件需尽快食用",
+        "%@ of them should be used soon": "其中 %@ 件需尽快食用"
     ]
 }

@@ -862,6 +862,15 @@ nonisolated enum StringsHi {
         // MARK: - Market
         "Country": "देश",
         "Automatic (%@)": "स्वचालित (%@)",
-        "Sets currency, units, distances and nutrition labels. Independent from the language. Your food, your preferences and your subscription stay exactly as they are.": "मुद्रा, इकाइयाँ, दूरी और पोषण लेबल तय करता है। भाषा से स्वतंत्र। आपका स्टॉक, पसंद और सदस्यता वैसे ही रहते हैं।"
+        "Sets currency, units, distances and nutrition labels. Independent from the language. Your food, your preferences and your subscription stay exactly as they are.": "मुद्रा, इकाइयाँ, दूरी और पोषण लेबल तय करता है। भाषा से स्वतंत्र। आपका स्टॉक, पसंद और सदस्यता वैसे ही रहते हैं।",
+
+        // MARK: - Inventory match
+        "You already have this at home": "यह आपके घर पर पहले से है",
+        "%@ in your fridge": "आपके फ्रिज में %@",
+        "%@ in your pantry": "आपकी पैंट्री में %@",
+        "%@ in your freezer": "आपके फ्रीज़र में %@",
+        "Total: %@ at home": "कुल: घर पर %@",
+        "%@ should be used soon": "%@ जल्दी इस्तेमाल करें",
+        "%@ of them should be used soon": "इनमें से %@ जल्दी इस्तेमाल करें"
     ]
 }
