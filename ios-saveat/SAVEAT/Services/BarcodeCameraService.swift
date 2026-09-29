@@ -24,8 +24,9 @@ final class BarcodeCameraService: NSObject {
     private var isConfigured = false
     private var recentCodes: [String: Date] = [:]
 
-    /// Called on the main actor for every accepted barcode.
-    var onCode: ((String) -> Void)?
+    /// Called on the main actor for every accepted barcode, already normalised
+    /// (the scanned string is kept verbatim in `rawValue`).
+    var onCode: ((NormalizedGTIN) -> Void)?
 
     func start() async {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
@@ -117,13 +118,13 @@ final class BarcodeCameraService: NSObject {
     }
 
     /// Debounces repeated reads of the same code while the camera stays pointed at it.
-    private func accept(_ code: String) {
+    private func accept(_ code: String, hint: NormalizedGTIN.SymbologyHint) {
         let now = Date()
         recentCodes = recentCodes.filter { now.timeIntervalSince($0.value) < 6 }
         if let seen = recentCodes[code], now.timeIntervalSince(seen) < 3 { return }
         recentCodes[code] = now
         lastCode = code
-        onCode?(code)
+        onCode?(NormalizedGTIN(parsing: code, hint: hint))
     }
 }
 
@@ -133,14 +134,24 @@ extension BarcodeCameraService: AVCaptureMetadataOutputObjectsDelegate {
         didOutput metadataObjects: [AVMetadataObject],
         from connection: AVCaptureConnection
     ) {
-        let codes = metadataObjects
+        let reads = metadataObjects
             .compactMap { $0 as? AVMetadataMachineReadableCodeObject }
-            .compactMap(\.stringValue)
-            .filter { $0.count >= 6 }
+            .compactMap { object -> (String, NormalizedGTIN.SymbologyHint)? in
+                guard let value = object.stringValue, value.count >= 6 else { return nil }
+                // Only 8-digit reads need the symbology: EAN-8 and UPC-E share that length.
+                let hint: NormalizedGTIN.SymbologyHint = switch object.type {
+                case .ean8: .ean8
+                case .upce: .upcE
+                default: .other
+                }
+                return (value, hint)
+            }
 
-        guard let code = codes.first else { return }
+        guard let read = reads.first else { return }
+        let code = read.0
+        let hint = read.1
         Task { @MainActor [weak self] in
-            self?.accept(code)
+            self?.accept(code, hint: hint)
         }
     }
 }

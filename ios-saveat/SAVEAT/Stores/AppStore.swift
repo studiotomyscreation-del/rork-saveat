@@ -189,7 +189,9 @@ final class AppStore {
 
     /// Finds an item already at home that matches a product about to be added.
     func existingItem(for product: ScannedProduct) -> FoodItem? {
-        if let byBarcode = inventory.first(where: { $0.barcode == product.barcode }) {
+        // Stored barcodes are never rewritten: both sides are normalised at read
+        // time, so an item saved as UPC-A matches the same pack read as EAN-13.
+        if let byBarcode = inventory.first(where: { NormalizedGTIN.sameProduct($0.barcode, product.barcode) }) {
             return byBarcode
         }
         return MealEngine.stockItem(for: product.displayTitle, in: inventory)
@@ -208,7 +210,7 @@ final class AppStore {
 
     private func addOne(_ item: FoodItem) {
         let index = inventory.firstIndex { existing in
-            if let code = item.barcode, existing.barcode == code { return true }
+            if NormalizedGTIN.sameProduct(existing.barcode, item.barcode) { return true }
             return MealEngine.normalize(existing.name) == MealEngine.normalize(item.name)
                 && existing.location == item.location
         }

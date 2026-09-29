@@ -75,7 +75,7 @@ struct GroceryScanView: View {
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.88), value: stage)
         .task {
-            camera.onCode = { code in handle(code: code) }
+            camera.onCode = { gtin in handle(gtin: gtin) }
             await camera.start()
         }
         .onDisappear { camera.stop() }
@@ -530,8 +530,17 @@ struct GroceryScanView: View {
 
     // MARK: - Scan handling
 
+    /// Typed codes and demo items: no symbology known, normalised the same way.
     private func handle(code: String) {
+        handle(gtin: NormalizedGTIN(parsing: code))
+    }
+
+    private func handle(gtin: NormalizedGTIN) {
         guard duplicate == nil else { return }
+        // Open Food Facts receives the scanned code itself (presentation
+        // characters removed), exactly as before normalisation existed.
+        let code = gtin.lookupCode
+        guard !code.isEmpty else { return }
 
         // Free tier: a daily scan allowance, then the paywall — nothing already
         // scanned in this session is ever lost.
@@ -565,7 +574,9 @@ struct GroceryScanView: View {
     }
 
     private func existingInSession(_ product: ScannedProduct) -> FoodItem? {
-        guard let entry = entries.first(where: { $0.product.barcode == product.barcode }) else { return nil }
+        guard let entry = entries.first(where: {
+            NormalizedGTIN.sameProduct($0.product.barcode, product.barcode)
+        }) else { return nil }
         return entry.toFoodItem()
     }
 
