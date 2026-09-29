@@ -78,7 +78,10 @@ nonisolated struct RNAProvider: AntiWastePlacesProviding {
         }
         let rows = parseCSV(text)
         guard let header = rows.first else { return [] }
-        let columnIndex = Dictionary(uniqueKeysWithValues: header.enumerated().map { ($1, $0) })
+        // A malformed header with a repeated column name must not crash the
+        // app any more than a missing resource does (see the guard above) —
+        // the first occurrence wins.
+        let columnIndex = Dictionary(header.enumerated().map { ($1, $0) }, uniquingKeysWith: { first, _ in first })
 
         func field(_ row: [String], _ name: String) -> String {
             guard let index = columnIndex[name], index < row.count else { return "" }
