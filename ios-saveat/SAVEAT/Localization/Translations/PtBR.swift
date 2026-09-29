@@ -856,6 +856,11 @@ nonisolated enum StringsPtBR {
         "Billed by the App Store": "Assinatura pela App Store",
         "Cancel anytime": "Cancele quando quiser",
         "Your subscription is billed to your Apple account. It renews automatically unless you cancel at least 24 hours before the current period ends. You can manage your subscriptions in your Apple account settings.": "A assinatura é cobrada na sua conta Apple. Ela se renova automaticamente, a menos que você cancele pelo menos 24 h antes do fim do período atual. Você pode gerenciar suas assinaturas nos ajustes da sua conta Apple.",
-        "By continuing you accept our [Terms of Use](%@) and our [Privacy Policy](%@).": "Ao continuar, você aceita nossos [Termos de uso](%@) e nossa [Política de privacidade](%@)."
+        "By continuing you accept our [Terms of Use](%@) and our [Privacy Policy](%@).": "Ao continuar, você aceita nossos [Termos de uso](%@) e nossa [Política de privacidade](%@).",
+
+        // MARK: - Market
+        "Country": "País",
+        "Automatic (%@)": "Automático (%@)",
+        "Sets currency, units, distances and nutrition labels. Independent from the language. Your food, your preferences and your subscription stay exactly as they are.": "Define a moeda, as unidades, as distâncias e a rotulagem nutricional. Independente do idioma. Seu estoque, suas preferências e sua assinatura continuam iguais."
     ]
 }

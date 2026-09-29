@@ -858,6 +858,11 @@ nonisolated enum StringsZhCN {
         "Billed by the App Store": "通过 App Store 订阅",
         "Cancel anytime": "可随时取消",
         "Your subscription is billed to your Apple account. It renews automatically unless you cancel at least 24 hours before the current period ends. You can manage your subscriptions in your Apple account settings.": "订阅将从你的 Apple 账户扣款。除非在当前周期结束前至少 24 小时取消，订阅会自动续期。你可以在 Apple 账户设置中管理订阅。",
-        "By continuing you accept our [Terms of Use](%@) and our [Privacy Policy](%@).": "继续即表示你接受我们的[使用条款](%@)和[隐私政策](%@)。"
+        "By continuing you accept our [Terms of Use](%@) and our [Privacy Policy](%@).": "继续即表示你接受我们的[使用条款](%@)和[隐私政策](%@)。",
+
+        // MARK: - Market
+        "Country": "国家/地区",
+        "Automatic (%@)": "自动（%@）",
+        "Sets currency, units, distances and nutrition labels. Independent from the language. Your food, your preferences and your subscription stay exactly as they are.": "决定货币、单位、距离和营养标签，与语言无关。你的食材、偏好和订阅保持不变。"
     ]
 }

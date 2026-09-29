@@ -6,6 +6,7 @@ struct ContentView: View {
     @State private var subscriptions = SubscriptionStore()
     @State private var proAccount = ProAccountStore()
     @State private var languages = LanguageStore()
+    @State private var market = MarketStore()
     @State private var isLaunching = true
 
     /// True once the product-pitch onboarding (Welcome…Account) has been shown.
@@ -28,13 +29,15 @@ struct ContentView: View {
                     .transition(.opacity)
             }
         }
-        // Rebuilding on language change is what makes the switch instant:
-        // every screen re-reads its copy, while the stores keep their data.
-        .id(languages.language)
+        // Rebuilding on language or market change is what makes the switch
+        // instant: every screen re-reads its copy and formats, while the
+        // stores keep their data.
+        .id("\(languages.language.rawValue)-\(market.context.countryCode)")
         .environment(store)
         .environment(subscriptions)
         .environment(proAccount)
         .environment(languages)
+        .environment(market)
         .environment(\.locale, languages.locale)
         .animation(.easeInOut(duration: 0.35), value: store.profile.hasCompletedOnboarding)
         .animation(.easeInOut(duration: 0.35), value: hasSeenIntro)

@@ -605,6 +605,7 @@ struct ProfileView: View {
 struct SettingsView: View {
     @Environment(AppStore.self) private var store
     @Environment(LanguageStore.self) private var languages
+    @Environment(MarketStore.self) private var market
 
     var body: some View {
         @Bindable var store = store
@@ -612,6 +613,7 @@ struct SettingsView: View {
         return ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 languageCard
+                marketCard
 
                 VStack(spacing: 0) {
                     HStack {
@@ -782,6 +784,74 @@ struct SettingsView: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .saveatCard()
+    }
+
+    /// Country (market) picker, independent from the language.
+    ///
+    /// "Automatic" follows the phone's region; a manual choice wins over it.
+    /// Only formats and commercial conventions change — never stored data.
+    private var marketCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionLabel(text: S.Market.title.s)
+
+            Menu {
+                Button {
+                    Haptics.light()
+                    market.select(countryCode: nil)
+                } label: {
+                    Label(
+                        S.Market.automatic.f(countryName(market.deviceCountryCode)),
+                        systemImage: market.isFollowingDevice ? "checkmark" : "location"
+                    )
+                }
+                Divider()
+                ForEach(MarketStore.selectableCountries, id: \.self) { code in
+                    Button {
+                        Haptics.light()
+                        market.select(countryCode: code)
+                    } label: {
+                        if market.manualCountryCode == code {
+                            Label("\(MarketStore.flag(for: code)) \(countryName(code))", systemImage: "checkmark")
+                        } else {
+                            Text("\(MarketStore.flag(for: code)) \(countryName(code))")
+                        }
+                    }
+                }
+            } label: {
+                HStack(spacing: 10) {
+                    Text(MarketStore.flag(for: market.context.countryCode)).font(.system(size: 20))
+                    Text(market.isFollowingDevice
+                         ? S.Market.automatic.f(countryName(market.context.countryCode))
+                         : countryName(market.context.countryCode))
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Theme.ink)
+                        .lineLimit(1)
+                    Spacer()
+                    Text(market.context.currencyCode)
+                        .font(.system(size: 13, weight: .semibold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(Theme.inkSoft)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Theme.inkSoft)
+                }
+                .padding(.horizontal, 16)
+                .frame(minHeight: 48)
+                .background(Theme.creamDeep, in: .capsule)
+            }
+            .accessibilityLabel(S.Market.title.s)
+            .accessibilityValue(countryName(market.context.countryCode))
+
+            Text(S.Market.note.s)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .saveatCard()
+    }
+
+    /// Country name in the reader's language ("États-Unis" / "United States").
+    private func countryName(_ code: String) -> String {
+        languages.locale.localizedString(forRegionCode: code) ?? code
     }
 
     /// Language switcher.

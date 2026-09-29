@@ -61,26 +61,29 @@ nonisolated enum AppLanguage: String, Codable, CaseIterable, Identifiable, Senda
         }
     }
 
-    /// Every language uses metric measures except US English, which reads
-    /// oz / cups / Fahrenheit. English (UK) keeps grams, millilitres and Celsius.
-    nonisolated var usesMetric: Bool { self != .en }
+    /// ISO 639-1 code, combined with the market's country in
+    /// `MarketContext.locale(for:)`.
+    nonisolated var languageCode: String {
+        switch self {
+        case .fr: "fr"
+        case .en, .enGB: "en"
+        case .es: "es"
+        case .ptBR: "pt"
+        case .zhCN: "zh"
+        case .hi: "hi"
+        case .it: "it"
+        }
+    }
+
+    // Measures, currency, distances, Nutri-Score and printed-date order are
+    // NOT language properties: they belong to the market (`MarketContext`).
+    // The language only drives wording and how numbers are written.
 
     /// Comma decimal separator (1,5 kg) as written in France, Spain, Brazil and Italy.
     nonisolated var usesCommaDecimal: Bool {
         switch self {
         case .fr, .es, .ptBR, .it: true
         case .en, .enGB, .zhCN, .hi: false
-        }
-    }
-
-    /// Day-first printed dates (09/12 = 9 December) for fr, es, pt-BR, hi and it;
-    /// month-first for US packs. China writes year-first, which the numeric
-    /// patterns still parse month-first — acceptable for the two-digit year
-    /// formats on Chinese packaging.
-    nonisolated var readsDayFirstDates: Bool {
-        switch self {
-        case .fr, .es, .ptBR, .hi, .enGB, .it: true
-        case .en, .zhCN: false
         }
     }
 

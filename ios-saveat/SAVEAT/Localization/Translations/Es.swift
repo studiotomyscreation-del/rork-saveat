@@ -855,6 +855,11 @@ nonisolated enum StringsEs {
         "Billed by the App Store": "Suscripción vía App Store",
         "Cancel anytime": "Cancela cuando quieras",
         "Your subscription is billed to your Apple account. It renews automatically unless you cancel at least 24 hours before the current period ends. You can manage your subscriptions in your Apple account settings.": "La suscripción se cobra en tu cuenta de Apple. Se renueva automáticamente salvo que la canceles al menos 24 h antes del fin del periodo en curso. Puedes gestionar tus suscripciones en los ajustes de tu cuenta de Apple.",
-        "By continuing you accept our [Terms of Use](%@) and our [Privacy Policy](%@).": "Al continuar, aceptas nuestras [Condiciones de uso](%@) y nuestra [Política de privacidad](%@)."
+        "By continuing you accept our [Terms of Use](%@) and our [Privacy Policy](%@).": "Al continuar, aceptas nuestras [Condiciones de uso](%@) y nuestra [Política de privacidad](%@).",
+
+        // MARK: - Market
+        "Country": "País",
+        "Automatic (%@)": "Automático (%@)",
+        "Sets currency, units, distances and nutrition labels. Independent from the language. Your food, your preferences and your subscription stay exactly as they are.": "Define la moneda, las unidades, las distancias y el etiquetado nutricional. Independiente del idioma. Tu despensa, tus preferencias y tu suscripción no cambian."
     ]
 }

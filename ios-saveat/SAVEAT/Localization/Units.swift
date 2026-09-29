@@ -1,10 +1,12 @@
 import Foundation
 
-/// Locale-aware measurements, money and dates.
+/// Market-aware measurements and money, language-aware wording and dates.
 ///
-/// French keeps grams / millilitres / Celsius and French date order. US English
-/// gets ounces, pounds, fluid ounces, cups and Fahrenheit. Nothing here invents a
-/// value: a conversion is only shown when it is honest for that ingredient.
+/// The MARKET (`MarketRuntime.current`) decides the system: metric markets keep
+/// grams / millilitres / Celsius / km, the US gets ounces, pounds, fluid
+/// ounces, cups, Fahrenheit and miles — whatever language is being read. The
+/// language only decides how numbers and dates are written. Nothing here
+/// invents a value: a conversion is only shown when it is honest.
 nonisolated enum Units {
     // MARK: - Weight
 
@@ -16,7 +18,7 @@ nonisolated enum Units {
     /// US output switches to pounds past one pound, since "26 oz of chicken" is
     /// not how an American cook reads a pack.
     nonisolated static func weight(grams value: Double) -> String {
-        guard !LanguageRuntime.current.usesMetric else {
+        guard !MarketRuntime.current.usesMetric else {
             return Format.grams(value)
         }
         if value >= gramsPerPound {
@@ -37,7 +39,7 @@ nonisolated enum Units {
     /// Cups only appear from one cup up, where they are the natural US unit;
     /// smaller amounts stay in fluid ounces rather than becoming odd fractions.
     nonisolated static func volume(millilitres value: Double) -> String {
-        guard !LanguageRuntime.current.usesMetric else {
+        guard !MarketRuntime.current.usesMetric else {
             if value >= 1_000 {
                 return trimmed(value / 1_000, decimals: 1) + " L"
             }
@@ -58,7 +60,7 @@ nonisolated enum Units {
     /// Fahrenheit is rounded to the nearest 5° because ovens are set in steps,
     /// not to the degree.
     nonisolated static func ovenTemperature(celsius value: Double) -> String {
-        guard !LanguageRuntime.current.usesMetric else {
+        guard !MarketRuntime.current.usesMetric else {
             return "\(Int(value.rounded())) °C"
         }
         let fahrenheit = value * 9 / 5 + 32
@@ -73,7 +75,7 @@ nonisolated enum Units {
     /// Anything it cannot parse with confidence is returned untouched rather
     /// than guessed at.
     nonisolated static func packaging(_ raw: String) -> String {
-        guard !LanguageRuntime.current.usesMetric else { return raw }
+        guard !MarketRuntime.current.usesMetric else { return raw }
 
         let text = raw.lowercased().replacingOccurrences(of: ",", with: ".")
         let scanner = Scanner(string: text)
@@ -125,7 +127,7 @@ nonisolated enum Units {
 
     /// Food weight avoided, in the reader's system.
     nonisolated static func foodMass(kilograms value: Double) -> String {
-        guard !LanguageRuntime.current.usesMetric else {
+        guard !MarketRuntime.current.usesMetric else {
             return Format.kg(value)
         }
         let pounds = value * 2.20462
@@ -139,7 +141,7 @@ nonisolated enum Units {
     /// A distance in kilometres, rendered in the reader's system — used by
     /// the SAVEAT Local map, never for food quantities.
     nonisolated static func distance(kilometers value: Double) -> String {
-        guard !LanguageRuntime.current.usesMetric else {
+        guard MarketRuntime.current.distanceUnit == .miles else {
             if value < 1 {
                 return "\(Int((value * 1000).rounded())) m"
             }
@@ -217,25 +219,20 @@ nonisolated enum Units {
 
 /// The currency SAVEAT's own estimates are shown in.
 ///
-/// It follows the phone's country, exactly like the App Store does when it
-/// bills someone, and deliberately NOT the language being read. Someone in
-/// Quebec sees Canadian dollars whether they read French or English, someone
-/// in London sees pounds either way, and a French speaker living in the US
-/// sees dollars. Language only decides how the number is written and which
-/// side the symbol sits on.
+/// It follows the MARKET (manual country choice, else the phone's region) and
+/// never the language being read. Someone in Quebec sees Canadian dollars
+/// whether they read French or English, someone in London sees pounds either
+/// way, and a French speaker living in the US sees dollars. Language only
+/// decides how the number is written and which side the symbol sits on.
+///
+/// This is a display currency only: it never converts an amount. A figure
+/// estimated for one market is not turned into another market's money.
 ///
 /// Subscription prices never pass through here — those always come straight
 /// from the App Store.
 nonisolated enum Money {
-    /// ISO code for the phone's region, falling back to the language's home
-    /// currency when the device does not report one.
-    nonisolated static var code: String {
-        if let identifier = Locale.current.currency?.identifier.uppercased(),
-           identifier.count == 3 {
-            return identifier
-        }
-        return languageFallbackCode
-    }
+    /// ISO 4217 code of the current market.
+    nonisolated static var code: String { MarketRuntime.current.currencyCode }
 
     /// Symbol for the resolved currency, with the ambiguous ones spelled the
     /// way the local shopper writes them.
@@ -248,8 +245,17 @@ nonisolated enum Money {
         case "CNY", "JPY": "¥"
         case "INR": "₹"
         case "CHF": "CHF"
-        default: Locale.current.currencySymbol ?? code
+        default: localSymbol(for: code)
         }
+    }
+
+    /// Symbol as written in the market itself, e.g. "kr" for SEK.
+    private nonisolated static func localSymbol(for code: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = Locale(identifier: MarketRuntime.current.localeIdentifier)
+        formatter.currencyCode = code
+        return formatter.currencySymbol ?? code
     }
 
     /// True where the symbol comes before the number ($12) rather than after
@@ -258,19 +264,6 @@ nonisolated enum Money {
         switch LanguageRuntime.current {
         case .fr, .es, .it: false
         case .en, .enGB, .ptBR, .zhCN, .hi: true
-        }
-    }
-
-    /// Home currency of the language, used only when the device region is
-    /// unavailable — never in place of a real region.
-    private nonisolated static var languageFallbackCode: String {
-        switch LanguageRuntime.current {
-        case .fr, .es, .it: "EUR"
-        case .en: "USD"
-        case .enGB: "GBP"
-        case .ptBR: "BRL"
-        case .zhCN: "CNY"
-        case .hi: "INR"
         }
     }
 }

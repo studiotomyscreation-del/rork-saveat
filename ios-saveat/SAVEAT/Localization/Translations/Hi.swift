@@ -857,6 +857,11 @@ nonisolated enum StringsHi {
         "Billed by the App Store": "App Store से सदस्यता",
         "Cancel anytime": "कभी भी रद्द करें",
         "Your subscription is billed to your Apple account. It renews automatically unless you cancel at least 24 hours before the current period ends. You can manage your subscriptions in your Apple account settings.": "सदस्यता का शुल्क आपके Apple खाते से लिया जाता है। मौजूदा अवधि खत्म होने से कम से कम 24 घंटे पहले रद्द न करने पर यह अपने आप नवीनीकृत होती है। आप अपने Apple खाते की सेटिंग्स में सदस्यताएँ प्रबंधित कर सकते हैं।",
-        "By continuing you accept our [Terms of Use](%@) and our [Privacy Policy](%@).": "जारी रखने पर आप हमारी [उपयोग की शर्तें](%@) और [गोपनीयता नीति](%@) स्वीकार करते हैं।"
+        "By continuing you accept our [Terms of Use](%@) and our [Privacy Policy](%@).": "जारी रखने पर आप हमारी [उपयोग की शर्तें](%@) और [गोपनीयता नीति](%@) स्वीकार करते हैं।",
+
+        // MARK: - Market
+        "Country": "देश",
+        "Automatic (%@)": "स्वचालित (%@)",
+        "Sets currency, units, distances and nutrition labels. Independent from the language. Your food, your preferences and your subscription stay exactly as they are.": "मुद्रा, इकाइयाँ, दूरी और पोषण लेबल तय करता है। भाषा से स्वतंत्र। आपका स्टॉक, पसंद और सदस्यता वैसे ही रहते हैं।"
     ]
 }

@@ -572,9 +572,9 @@ nonisolated enum Format {
         money(value, decimals: decimals)
     }
 
-    /// Food weight avoided, in kilos for metric readers and pounds for the US.
+    /// Food weight avoided, in kilos for metric markets and pounds for the US.
     nonisolated static func kg(_ value: Double) -> String {
-        guard LanguageRuntime.current.usesMetric else {
+        guard MarketRuntime.current.usesMetric else {
             return String(format: "%.1f lb", value * 2.20462)
         }
         let text = String(format: "%.1f kg", value)

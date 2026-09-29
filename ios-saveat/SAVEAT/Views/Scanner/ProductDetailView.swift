@@ -10,11 +10,11 @@ struct ProductDetailView: View {
     private var analysis: NutritionAnalysis { product.nutritionAnalysis }
     private var advice: NutritionAdvice? { NutritionAdviceEngine.advice(for: product) }
 
-    /// Nutri-Score is only shown where it is an official or widely-adopted
-    /// label (France, Spain). Showing it elsewhere would lend it false
-    /// authority. The underlying analysis is unchanged.
+    /// Nutri-Score is only shown in markets that officially adopted it
+    /// (France, Belgium, Spain…), whatever language is read. Showing it
+    /// elsewhere would lend it false authority. The analysis is unchanged.
     private var showsNutriScore: Bool {
-        [.fr, .es].contains(LanguageRuntime.current)
+        MarketRuntime.current.nutritionPresentation.showsNutriScore
     }
 
     var body: some View {

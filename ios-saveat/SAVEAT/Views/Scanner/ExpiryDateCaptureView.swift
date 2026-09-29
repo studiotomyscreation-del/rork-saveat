@@ -224,12 +224,13 @@ nonisolated enum DateTextParser {
         "MM/dd/yyyy", "MM/dd/yy", "MM.dd.yyyy", "MM.dd.yy", "MM-dd-yyyy", "MM-dd-yy", "MM/yyyy", "MM/yy"
     ]
 
-    /// Tries the reader's own convention first, then the other one.
+    /// Tries the market's own packaging convention first, then the other one.
     ///
     /// A US pack printing 09/12 means September 12; a French one means 9 December.
     /// Guessing the wrong way round would silently create a three-month error.
+    /// The packs follow the country they are sold in, not the reader's language.
     private static var formats: [String] {
-        LanguageRuntime.current.readsDayFirstDates
+        MarketRuntime.current.printedDateOrder == .dayFirst
             ? dayFirstFormats + monthFirstFormats
             : monthFirstFormats + dayFirstFormats
     }
