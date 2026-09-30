@@ -16,6 +16,16 @@ final class AppStore {
         static let groceryRuns = "saveat.groceryRuns.v2"
         static let waste = "saveat.waste.v1"
         static let weeklyPlan = "saveat.weeklyPlan.v1"
+        static let scanHistory = "saveat.scanHistory.v1"
+    }
+
+    /// Most-recent-first history of every real product ever successfully
+    /// scanned, whether or not it was added to stock — the second local
+    /// source for `AlternativeEngine`, alongside the current inventory.
+    /// Demo-catalogue results never enter this list (see `logScan(_:)`).
+    /// Capped so it stays a genuine recent-scans list, not unbounded growth.
+    private(set) var scanHistory: [ScannedProduct] {
+        didSet { persist(scanHistory, key: Keys.scanHistory) }
     }
 
     var profile: UserProfile {
@@ -94,6 +104,20 @@ final class AppStore {
         groceryRuns = load(Keys.groceryRuns, fallback: [])
         wasteLog = load(Keys.waste, fallback: [])
         currentWeeklyPlan = loadOptional(Keys.weeklyPlan)
+        scanHistory = load(Keys.scanHistory, fallback: [])
+    }
+
+    /// Records a real, successful product lookup for `AlternativeEngine` to
+    /// draw on later — called from the single place `OpenFoodFactsService`
+    /// is invoked (`GroceryScanView`). Demo-catalogue results are skipped
+    /// outright: they are placeholder data, never a real scanned product.
+    /// A barcode already present is moved to the front instead of
+    /// duplicated, so re-scanning the same item doesn't inflate the list.
+    func logScan(_ product: ScannedProduct) {
+        guard !product.isDemoData else { return }
+        var updated = scanHistory.filter { $0.barcode != product.barcode }
+        updated.insert(product, at: 0)
+        scanHistory = Array(updated.prefix(300))
     }
 
     /// True while the account has never recorded anything at all.

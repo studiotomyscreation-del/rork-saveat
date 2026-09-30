@@ -572,6 +572,7 @@ struct GroceryScanView: View {
             switch result {
             case .success(let product):
                 lookup = .idle
+                store.logScan(product)
                 if let existing = store.existingItem(for: product) ?? existingInSession(product) {
                     Haptics.warning()
                     let match = store.inventoryMatch(for: gtin)

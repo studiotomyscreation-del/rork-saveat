@@ -1570,6 +1570,20 @@ nonisolated enum S {
         ]
     }
 
+    // MARK: - Alternatives
+
+    nonisolated enum Alternatives {
+        static let sectionTitle = Loc(fr: "Alternatives", en: "Alternatives")
+        static let subtitle = Loc(
+            fr: "Basé sur les produits déjà scannés ou en stock chez toi.",
+            en: "Based on products you've already scanned or have in stock."
+        )
+        static let emptyState = Loc(
+            fr: "Aucune alternative trouvée pour l'instant — scanne plus de produits pour en découvrir.",
+            en: "No alternatives yet — scan more products to discover some."
+        )
+    }
+
     // MARK: - Nutrition analysis
 
     nonisolated enum Nutrition {

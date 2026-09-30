@@ -11,9 +11,9 @@ final class MarketStore {
     /// `nil` while the app follows the phone's region.
     private(set) var manualCountryCode: String?
 
-    /// Markets offered in Settings: the four launch markets first, then the
-    /// countries SAVEAT already has languages or data sources for.
-    static let selectableCountries: [String] = ["FR", "US", "CA", "GB", "BE", "CH", "ES", "IT", "DE", "BR"]
+    /// Markets offered in Settings — see `MarketCatalog`, the actual owner
+    /// of this list.
+    static var selectableCountries: [String] { MarketCatalog.supportedCountryCodes }
 
     init() {
         let stored = MarketContext.normalized(UserDefaults.standard.string(forKey: MarketRuntime.overrideStorageKey))

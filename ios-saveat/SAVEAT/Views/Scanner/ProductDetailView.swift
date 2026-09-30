@@ -4,11 +4,23 @@ import SwiftUI
 struct ProductDetailView: View {
     let product: ScannedProduct
 
+    @Environment(AppStore.self) private var store
     @State private var showsMethodology = false
 
     private var score: SaveatScore { product.score }
     private var analysis: NutritionAnalysis { product.nutritionAnalysis }
     private var advice: NutritionAdvice? { NutritionAdviceEngine.advice(for: product) }
+
+    /// Real, already-known products only — see `AlternativeEngine`.
+    private var alternatives: [AlternativeEngine.Alternative] {
+        AlternativeEngine.alternatives(
+            to: product,
+            sources: [
+                InventoryAlternativeSource(inventory: store.inventory),
+                ScanHistoryAlternativeSource(scanHistory: store.scanHistory)
+            ]
+        )
+    }
 
     /// Nutri-Score is only shown in markets that officially adopted it
     /// (France, Belgium, Spain…), whatever language is read. Showing it
@@ -22,6 +34,7 @@ struct ProductDetailView: View {
             VStack(alignment: .leading, spacing: 16) {
                 identity
                 scoreCard
+                AlternativesSectionView(alternatives: alternatives)
                 nutritionAnalysisCard
                 if !score.criteria.isEmpty { criteriaCard }
                 whyCard
