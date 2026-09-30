@@ -13,3 +13,9 @@ DerivedData/
 # Python local noise from scripts/ (never committed either)
 __pycache__/
 *.pyc
+
+# RNA pipeline raw data — regenerated locally, never committed
+scripts/rna_waldec_latest.zip
+scripts/rna_filtrage_candidats.csv
+scripts/rna_echantillon_120.csv
+scripts/rna_filtrage_geocoded.csv
