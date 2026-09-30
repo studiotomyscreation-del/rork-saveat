@@ -140,12 +140,25 @@ nonisolated struct RNAProvider: AntiWastePlacesProviding {
     /// match exactly how Python's own `csv` module (which produced this
     /// file, in `geocode_rna_candidates.py`) quotes fields — not a general
     /// CSV superset, just correct for this specific, self-produced file.
+    ///
+    /// Row boundaries are detected with `Character.isNewline` rather than
+    /// comparing against `"\n"`/`"\r"` individually — the file uses CRLF
+    /// line endings, and Swift's `Character` groups a CR immediately
+    /// followed by LF into a single extended grapheme cluster (Unicode
+    /// text segmentation, not a Swift quirk). That combined `"\r\n"`
+    /// grapheme is equal to neither `"\r"` nor `"\n"` alone, so an
+    /// equality-based check never fires and every row silently merges
+    /// into one — `isNewline` recognizes `\n`, `\r`, and `\r\n` uniformly
+    /// as a single line-break event, matching this file's actual layout.
+    /// Some `objet` values legitimately contain an embedded line break
+    /// (537 in this file, e.g. "IMPACT CENTRE APOSTOLIQUE") — those are
+    /// unaffected: inside a quoted field the character is still appended
+    /// to `currentField` as-is, never treated as a row separator.
     private static func parseCSV(_ text: String) -> [[String]] {
         var rows: [[String]] = []
         var currentRow: [String] = []
         var currentField = ""
         var insideQuotes = false
-        var previousWasCR = false
 
         let characters = Array(text)
         var index = 0
@@ -167,14 +180,7 @@ nonisolated struct RNAProvider: AntiWastePlacesProviding {
             } else if character == "," {
                 currentRow.append(currentField)
                 currentField = ""
-            } else if character == "\n" {
-                if !previousWasCR {
-                    currentRow.append(currentField)
-                    rows.append(currentRow)
-                    currentRow = []
-                    currentField = ""
-                }
-            } else if character == "\r" {
+            } else if character.isNewline {
                 currentRow.append(currentField)
                 rows.append(currentRow)
                 currentRow = []
@@ -182,7 +188,6 @@ nonisolated struct RNAProvider: AntiWastePlacesProviding {
             } else {
                 currentField.append(character)
             }
-            previousWasCR = character == "\r"
             index += 1
         }
         if !currentField.isEmpty || !currentRow.isEmpty {
