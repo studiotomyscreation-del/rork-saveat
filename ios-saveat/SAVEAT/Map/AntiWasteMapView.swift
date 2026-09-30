@@ -79,6 +79,10 @@ struct AntiWasteMapView: View {
         }
         .onMapCameraChange(frequency: .onEnd) { context in
             viewModel.scheduleLoad(in: GeoBoundingBox(region: context.region))
+            viewModel.updateVisibleSpan(
+                latitudeDelta: context.region.span.latitudeDelta,
+                longitudeDelta: context.region.span.longitudeDelta
+            )
         }
         .onChange(of: viewModel.locationManager.updateCount) { _, _ in
             guard let location = viewModel.locationManager.userLocation else { return }
@@ -105,21 +109,53 @@ struct AntiWasteMapView: View {
             if viewModel.locationManager.status == .authorized {
                 UserAnnotation()
             }
-            ForEach(viewModel.filteredPlaces) { place in
-                Annotation(place.name, coordinate: place.coordinate) {
-                    Button {
-                        Haptics.soft()
-                        viewModel.selectedPlace = place
-                    } label: {
-                        ZStack {
-                            Circle().fill(place.category.tint).frame(width: 32, height: 32)
-                            Image(systemName: place.category.icon)
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundStyle(.white)
+            ForEach(viewModel.clusters) { cluster in
+                switch cluster {
+                case .single(let place):
+                    Annotation(place.name, coordinate: place.coordinate) {
+                        Button {
+                            Haptics.soft()
+                            viewModel.selectedPlace = place
+                        } label: {
+                            ZStack {
+                                Circle().fill(place.category.tint).frame(width: 32, height: 32)
+                                Image(systemName: place.category.icon)
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundStyle(.white)
+                            }
+                            .shadow(color: SaveatColors.nightBlue.opacity(0.25), radius: 4, y: 2)
                         }
-                        .shadow(color: SaveatColors.nightBlue.opacity(0.25), radius: 4, y: 2)
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
+                case .group(_, let latitude, let longitude, let places):
+                    Annotation(
+                        "",
+                        coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+                    ) {
+                        Button {
+                            Haptics.soft()
+                            withAnimation {
+                                camera = .region(
+                                    MKCoordinateRegion(
+                                        center: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+                                        span: MKCoordinateSpan(
+                                            latitudeDelta: viewModel.visibleLatitudeDelta / 4,
+                                            longitudeDelta: viewModel.visibleLongitudeDelta / 4
+                                        )
+                                    )
+                                )
+                            }
+                        } label: {
+                            ZStack {
+                                Circle().fill(SaveatColors.nightBlue).frame(width: 36, height: 36)
+                                Text("\(places.count)")
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                                    .foregroundStyle(.white)
+                            }
+                            .shadow(color: SaveatColors.nightBlue.opacity(0.3), radius: 5, y: 2)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
             }
         }

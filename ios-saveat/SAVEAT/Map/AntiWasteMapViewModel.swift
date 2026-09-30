@@ -30,6 +30,13 @@ final class AntiWasteMapViewModel {
     private var lastFetchedBBox: GeoBoundingBox?
     private var loadTask: Task<Void, Never>?
 
+    /// Degrees of visible span from the last camera update — drives
+    /// `clusters`' grid size. Starts at `AntiWasteMapView`'s own initial
+    /// camera span (8°) so the very first render already clusters
+    /// sensibly, before any `.onMapCameraChange` event has fired.
+    private(set) var visibleLatitudeDelta: Double = 8
+    private(set) var visibleLongitudeDelta: Double = 8
+
     init(repository: AntiWasteRepository = .shared, locationManager: LocationManager = LocationManager()) {
         self.repository = repository
         self.locationManager = locationManager
@@ -86,6 +93,22 @@ final class AntiWasteMapViewModel {
             .filter { selectedCategory == nil || $0.category == selectedCategory }
             .filter { distanceKm(to: $0) <= radiusKm }
             .sorted { distanceKm(to: $0) < distanceKm(to: $1) }
+    }
+
+    /// `filteredPlaces` grouped for the map — see `PlaceClusterer`. Tap
+    /// behaviour for an individual pin is untouched; only pins dense
+    /// enough to overlap at the current zoom collapse into a bubble.
+    var clusters: [MapCluster] {
+        PlaceClusterer.cluster(
+            filteredPlaces,
+            visibleLatitudeDelta: visibleLatitudeDelta,
+            visibleLongitudeDelta: visibleLongitudeDelta
+        )
+    }
+
+    func updateVisibleSpan(latitudeDelta: Double, longitudeDelta: Double) {
+        visibleLatitudeDelta = latitudeDelta
+        visibleLongitudeDelta = longitudeDelta
     }
 
     /// Categories actually present on the map right now. Drives the filter
